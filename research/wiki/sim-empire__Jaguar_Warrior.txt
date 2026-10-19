@@ -1,0 +1,21 @@
+# Jaguar Warrior
+
+[[File:Screenshot 20201011-182906 01.jpg|center|frameless|600x600px]]
+
+
+EvDigg's Thoughts:
+
+This is one of the more interesting Aztec troops.  It is a fairly fast melee troop with counterattack and above average attack.  This alone isn't anything spectacular, and it is fairly expensive because of the high cost of weapons in Aztec.  
+
+What makes Jaguar Warriors interesting is the comparably low number of skills that are required to upgrade this troop, and the fact that when fully upgraded it has the 9th most powerful attack of all troops (it would have more power than any non-upgraded troop, and only 8 troops can surpass it when all their upgrades are complete).  
+
+To put this in perspective, the strongest troop in any other civilization that is unlocked by studying 28 or fewer skills (the number required for Jaguar Warriors) is Egyptian Shielded Spearmen, and a fully upgraded Jaguar Warrior has over twice the attack power of a fully upgraded Egyptian Shielded Spearmen.
+
+Alternatively, to find another troop that can match or exceed the fully upgraded Jaguar Warrior's attack power you'd need to study 71 skills to unlock the Heavy Cavalry in Greece, or you'd need to study 73 skills to unlock the Armored Knights in Egypt.  
+
+Also worth noting, of the troops that can be upgraded to have similar or higher power than Jaguar Warriors, only the Greek Spartans and Persian Shadow Warriors occupy only 1 population - all others require 2 or more population, so you could bring twice as many Jaguar Warrior armies to battle using the same city population. Spartans are unlocked after studying 96 skills, Shadow Warriors are unlocked after studying 101 skills.  
+
+In general, as the number of previously studied skills required to unlock a troop's upgrades increases, so does the star and gold cost of each upgrade.  Based on this, upgrading the Jaguar Warrior may be the most cost effective and fastest way to produce an army that would be able to compete with some of the strongest players in the game*.
+
+<nowiki>*</nowiki>Note - this is based on my personal experience on a single server (Asia Pacific).  I am not familiar with the level of troop upgrades present on other servers, but on the server I play on I'd estimate that there are less than 30 players that have fully upgraded any troops stronger than longbowmen or crossbow captains, including less than 5 that are known to have a top tier troop fully upgraded (the last troop listed on the civilization's skill upgrade screen, which require ~120+ skills to be studied before they are unlocked).  
+<br />

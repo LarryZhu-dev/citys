@@ -1,0 +1,15 @@
+# City Attack
+
+When you decide to attack an opponent city. make sure you account the wall.
+
+Because it is 15 defense and 2000 health, you'll want to destroy it as soon as possible.  If you don't destroy the wall within 5 rounds (causing a minimum of 400 damage to the wall each round), the attack will be called a draw and you effectively lose.(edited)
+
+Until you destroy it you cannot cause any damage to defending troops and defending long-ranged troops can kill you without fear of losses.
+
+Ideally you will have fast troops that will destroy the wall in the first round, opening it up to your slower troops to actually cause damage to defending troops.
+
+You will most likely lose some troops in the first round, unless the city isn't defended and/or you can destroy the walls and all defending troops before they can retaliate.
+
+The battle field is the same size as you'll find against resource tiles, but the wall goes across the middle.  Most non-long-ranged troops will reach the wall in the first round, so there isn't much likelihood that they'll be behind it.
+[[Category:Gameplay]]
+[[Category:Battle Mechanics]]

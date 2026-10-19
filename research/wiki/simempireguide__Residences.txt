@@ -1,0 +1,6 @@
+# Residences
+
+There are two types of residences in Sim Empire. 
+
+* Ordinary Residence
+* High End Residence

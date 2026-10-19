@@ -1,0 +1,25 @@
+# Description of User Interface
+
+Description of UI
+
+Resources overview
+
+Residents/workers
+
+Build tool
+
+Demolish tool
+
+Chat
+
+City Profile
+
+Immigrants Indicator
+
+Tasks
+
+Shortcuts
+
+More sign (Plus sign)
+
+Items suitable/unsuitable for your civilization

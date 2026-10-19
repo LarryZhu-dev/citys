@@ -1,0 +1,10 @@
+# Imperial General
+
+
+[[Category:Troops]]
+[[Category:Chinese]]
+[[File:Timeline 20200617 090311.jpg|center|frameless|900x900px]]EvDigg's Thoughts:
+
+The key to Imperial Generals is their speed.  Speed 9 is the highest of all speeds in the game, so these troops usually are the first to advance and attack each round (unless there are other speed 9 troops present - troops from both the attacker and defender with the same speed will attack in a random order each round).  In large battles on resource tiles speed 9 troops can be used to quickly advance across the battlefield in the hopes of filling up the battlefield and limiting the opponent's ability to add troops.  There is less chance to achieve this advantage in city battles, as the wall in the middle of the battlefield can disrupt these efforts.
+
+Imperial Generals have strong attack power, but their relatively low health can be a liability.  They are cheaper than most other troops with similar attack power, and only occupy 1 population.  When it comes to speed 9 troops the only stronger troop available in any civilization is the Egyptian Anubis, and at base level it does more damage than any other Chinese troop.  It lacks the counterattack ability of the hussar, but makes up for this with its higher attack power and the likelihood that it will be attacking first against most other troop types.

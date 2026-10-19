@@ -1,0 +1,17 @@
+# The Goddess Nuwa
+
+
+[[Category:Troops]]
+[[Category:Chinese]]
+[[File:Timeline 20200617 090322.jpg|frameless|900x900px]]
+
+
+EvDigg's Thoughts:
+
+The Goddess is one of the most popular war troops in the game.  It's resurrection ability gives it a 25% chance that every time it is attacked it will resurrect 10% of the original number of troops in the army when it entered the battle (not to exceed the original army size)*.  This ability mitigates the fact that its health is lower than the strongest troops of other civilizations, and can make the Goddess quite difficult to kill.  This is especially true when Goddesses are fighting against weaker troops and/or armies that have sustained losses reducing their numbers (which would then weaken each of its attacks).  Unless using fully upgraded longbowmen it is often advisable to not use ranged troops against Goddesses, since multiple weak attacks can help the opposing Goddesses rather than helping defeat them.  
+
+Its speed of 6 is faster than some of the other strongest troops, it does a similarly high amount of damage, and it is usually less expensive than them as well.  Taking up 2 population allows for more to be trained within similar population constraints than Horus, Feathered Snake Gods, Centaurs, or Judges.  
+
+<nowiki>*</nowiki>Further Explanation - If an army of 99 Goddesses enters a battle, then every time an enemy attacks this army there is a 25% chance that 9 Goddesses (10% of 99 is 9.9, but I believe it gets rounded down) will be resurrected so that the number of Goddesses in the army increases.  This increase can't exceed the original size of the army that entered the battle (99 in this example).  The 25% chance is independent each time the army is attacked, so there may be times when an army gets attacked more than 4 times without getting resurrected after any of those attacks, while at other times they may resurrect a few times in a row and/or more than once every 4 attacks sustained.  
+
+When fully upgraded to max levels, the Goddess Nuwa can resurrect up to 20% of the original army size (which can be 124 at the maximum).  In this case there is a 25% chance they can revive 24 that had been killed previously.  Fully maxed Goddesses are the strongest troops I've personally encountered in wars.

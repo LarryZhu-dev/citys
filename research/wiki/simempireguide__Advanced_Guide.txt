@@ -1,0 +1,4 @@
+# Advanced Guide
+
+[[File:CiviSE2.jpg|thumb]]
+Info on Advanced features in SE Game

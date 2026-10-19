@@ -1,0 +1,35 @@
+# Road Requirements
+
+Buildings need roads connecting them to the main road initially in order to get workers or immigrants to reach them.  If there is no road connecting it there will be a warning sign above the building.  Many buildings do not need to be connected to the main road or may not need roads at all once they have been filled with workers.  Here is a breakdown of buildings that I have confirmed do not need roads after being built:
+
+'''Municipal Coverage'''
+
+Wells, Drinking Fountains, Watch Halls, Captor Halls, Hospitals, Fire Stations, Police Offices, Repair Stations, Clinics - they go by different names in difference civilizations, but basically all the buildings that provide coverage from fires, building collapses, murders, and plagues, as well as drinking water for residences do not need to be connected to a main road, and do not even need to be touching a road at all.  After population has filled them they will continue to function even after being disconnected from the main road.  As long as they are touching a single piece of road they will appear totally normal, if you remove all roads around them they will have a warning sign above the building, but they'll still function perfectly fine.
+
+'''Housing'''
+
+Houses (both ordinary and high-end residences) need to be connected to the main road in order for immigrants to enter them, either after they are built, after they are upgraded, or after they are moved.  Once they are full to your satisfaction they can be safely disconnected from all roads.  Make sure to maintain fire/safety/police/medical coverage though, as if they crumble they will need to be rebuilt and roads will need to be re-established a connection to the main road.  Even though a warning sign will be displayed above them and the tax collection countdown timer will not be displayed, you can still collect taxes on houses if they are within range of the required commerce stalls.
+
+'''Commerce Stalls'''
+
+These can safely be disconnected from all roads once they have been filled with workers. They will continue to provide materials for tax collection as long as you have enough of the materials in storage.
+
+'''Agriculture & Industry'''
+
+These do not need to be connected to start or maintain production, but they do need to be connected in order to collect the produced goods.
+
+'''Culture & Religion'''
+
+These do not need to be connected to any roads once they have been filled with workers.
+
+'''Decorations'''
+
+These never need to be connected to roads, as they do not require workers at all.
+
+'''Granaries & Warehouses'''
+
+These need to be initially connected to the main road, but after that it is sufficient to have them touching a single section of road.  If they are not touching any road pieces you will not be able to add anything to storage, though goods that are already stored will not be impacted.
+
+'''Palace, Court, Administrative Offices, Tax Offices, etc.'''
+
+These can safely be disconnected from all roads once they have been filled with workers.

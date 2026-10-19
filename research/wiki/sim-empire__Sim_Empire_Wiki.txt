@@ -1,0 +1,54 @@
+# Sim Empire Wiki
+
+<mainpage-leftcolumn-start /><span style="font-size: 32px;font-weight: heavy"><b>Welcome!</b></span>
+
+
+We're a collaborative community website about the Android/iOS game {{topic}}, that anyone - including you, can build and expand. Wikis like this one depend on readers getting involved and adding content.             
+
+Click the "Add New Page" icon ([[File:Untitled.png|frameless]]) above or "EDIT" button at the top of any page to get started!            
+
+
+
+'''About me:'''     
+
+
+I've been playing this game for about 6 months (since COVID-19 shut down most of the United States), and have noticed there isn't much content online (in English) to help you along.  This game is quite complex with a lot of ways to waste your resources, so I created this Wiki to help others who are new to the game, or have played for a while and want help with more advanced topics.     
+
+I've played accounts in each of the 4 civilizations that are currently available, and actively play on 5-6 accounts daily.  Some of these are farm accounts that are just focused on providing resources to my main accounts, and others have armies for use in wars.  I believe in total I've started from scratch 9 times, and have reached the last chapter in 3/4 civilizations.  I play on the Asian Pacific server, in the EuropeanUnit alliance (don't ask me about the name, I took over leadership from the guy who named it).     
+
+Most of the content posted here I wrote over the past 4 or 5 months and posted originally to our alliance's Line and Discord chat servers.  Some of it has been contributed by other members of the alliance.  If you'd like to join our alliance and/or our discord server, come visit us at https://discord.gg/yBprV29   
+
+If you have questions or a suggested topic you'd like added, feel free to create a page or send me a message.
+
+If you see content here that you'd like to reference, please provide a link to the pages on this site rather than copying my material and claiming it as your own.                
+
+
+
+'''Note '''- this is my first attempt at creating a FANDOM Wiki from scratch, so bare with me as I try and get it all set up.                  
+
+
+
+One of the contributors to this Wiki has created a Russian version located [https://sim-empire.fandom.com/ru/wiki/Sim_Empire_%D0%92%D0%B8%D0%BA%D0%B8 here] 
+
+
+<mainpage-endcolumn />
+
+
+<mainpage-rightcolumn-start />
+''Need help building out this community?''
+
+*[[Project:Wiki rules|Rules of this wiki]]
+*[[w:c:community:Help:Getting Started|Getting Started]]
+*[[w:c:community:Help:Contributing|How to Contribute]]
+*[[w:c:community:Help:Community Management|Managing your new community]]
+*[[w:c:community:Help:Contents|Guides]]
+*[[w:c:community:Help:Index|All Help articles]]
+
+You can also be part of the larger Fandom family of communities. Visit [[w:c:community|Fandom's Community Central]]!
+
+
+ 
+<mainpage-endcolumn />
+[[Category:{{SITENAME}}]]
+__FORCETOC__
+__INDEX__

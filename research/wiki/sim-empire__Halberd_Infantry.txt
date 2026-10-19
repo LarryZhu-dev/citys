@@ -1,0 +1,13 @@
+# Halberd Infantry
+
+
+[[Category:Troops]]
+[[Category:Chinese]]
+[[File:Timeline 20200610 172720.jpg|center|frameless|900x900px]]
+
+
+EvDigg's Thoughts:
+
+These are fairly indistinguishable from similar entry-level melee troops in other civilizations.  They're cheap, but they won't do a whole lot of damage, they have minimal health and defense, and their speed of 5 means they won't be attacking until after most other troops (or they may be dead before they get a chance to attack).  
+
+Personally I don't see much use for these and similar entry-level melee troops, even if they are upgraded, other than as meat shields used to slow down the advance of enemy troops.

@@ -1,0 +1,100 @@
+# City Planning
+
+Sim Empire is a game that requires a lot of planning.
+
+*Plan a city layout
+*You need to plan where to place your houses
+*Plan for Safety coverage of your city
+*Plan enough space to house future buildings that must be added inside your city area
+*Plan for your Industry
+*Plan your Technology Tree
+*Plan your army
+*Use your gifts/request
+*Getting Friend's benefits
+
+Everything is about planning, if you don't plan you will end up stuck without a way to move forward! 
+
+'''This page is about city layou'''t. There are different models of a city layout, however you want to plan a layout that will allow you to grow efficiently. It maybe odd in the beginning, however you will be so grateful you planned ahead later on! 
+
+Each civilization has their own individual layout. The layout I am suggesting here works perfect for Persian, however you can take an idea of what this layout accomplishes and modify it for your civilization. 
+
+* City Layout:  
+** Place of road around a 7x9 area.
+** Place 2 roads inside this area bordering the middle row covering 9 squares along each, leaving one single free line of squares in the middle of grid.
+** Place road around the outside of each side leaving 2 rows of 7 squares free inside that road. Place clinic, General office in that grid. Clinic and General office requires 2 buildings opposite each other. 
+** Place 2 water wells in the center line, one 1 square away from road, the other on the opposite side 2 squares away from road.   
+** Place stores inside the middle lane. Must place two stores of same kind opposite each other to cover whole area.  
+**Place temple inside the middle lane in center. Do this when most of your residences inside the grid are Ordinary Residences. 
+** Place stores of same kind opposite each other in the grids that border the middle lane. They will be located towards the middle of the grid. 3 blocks in the direction of the 7 blocks grid.
+** Place High End Residences on the lower side of the 7 block grid, group them together so when you have to place the Mosque only the High End Residences are covered, failure to do that will require you to place 2 Mosques instead of just one. Save resources!
+** Decorations. Place decorations by the road bordering the grid, this will turn the road into a fancier road thus allowing you to upgrade the buildings that require decorations or don't like pollution. Move your decorations around as the houses upgrade, saves money.
+
+Here is an image of the grid at different stages. Note: at lower level I modify the grid a bit to place some stores and blocking roads to do that, as I leveled up I modify those placements to fit my city needs.  
+{| class="wikitable"
+|+
+![[File:Layoutbare.png|thumb|Grid 7x9, with xtra 2x9, and middle lane]]
+!
+!
+!
+|-
+|
+|
+|
+|
+|-
+|
+|
+|
+|
+|-
+|
+|[[File:Layoutend.png|none|thumb|180x180px|Layout view with buildings in place. Note customization of placements of buildings. ]]This view shows placement of decoration to improve your road and make residents happy. Also location of clinic is different than the one I recommended here, I am trying both locations now, I think the one at the end may work better, still testing. General office is placed at both ends of the grid, and temple in the middle. I don't have a Mosque yet to show you that graphic. Only Ordinary Residences use Temple, High End Residences use Mosques. <br />
+|
+|
+|-
+|[[File:Highendhighlvl.png|thumb|Beautiful layout for all High End residences layout grid. ]]
+|[[File:Residenceshighlvl.png|thumb|Residences layout grid at higher level ]]Notice how the grid transitions smoothly to create more grids next to each other taking advantage of buildings sharing coverage. This is at higher level, new buildings have been added, others have been discarded. 
+|
+|
+|}
+City layout grid provided by  [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming] - Bellow is his video guide for Persian civilization and Greek civilization build. They are in Russian, however they are auto translatable, just choose your language in the CC section!  He is discussing the Persian layout and the Greek layout. Note: The Greek civilization has a huge stadium that needs to be in your city, it is 6x6.. so please do watch his videos for guide to build your Greek city. (this video right now is not translatable, however he is working on fixing that, watch as you can follow by watching his instruction)
+
+{| class="wikitable"
+|+
+! colspan="2" |[https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming] Video guides for Persia and Greek
+|-
+|[[File:Строй правильно - ПЕРСИЯ (Часть I)◄►Build correctly - Persia (Part I)|thumb|'''Persia (part 1)''']]
+|[[File:Строй правильно - ПЕРСИЯ (Часть II)◄►Build correctly - Persia (Part II)|thumb|'''Persia (part 2)''']]
+|-
+|[[File:Строй правильно - ПЕРСИЯ (ФИНАЛ)◄►Build correctly - Persia (FINAL)|thumb|'''Persia (part 3)''']]
+|[[File:Строй правильно - ГРЕЦИЯ (Часть I)-◄►Build correctly - Greece (Part I)|thumb|'''Greece (part 1)''']]
+|-
+|
+|
+|}
+
+=== '''The idea for a layout follows the following principles''' ===
+
+*'''Only Ordinary Residences need to have access to water, they all need to be within the radius of a water well.''' 
+**Recommended number of water wells is 2. Each water well holds 4 workers, if you overbuild then your workers are going to be sucked by those wells.
+**The water well is located in Municipal buildings
+*'''All residences need to have access to the main road.''' 
+**The main road is located on the far right side of your map, is where immigrants come in. So you need roads that connect to that main road for your buildings to work.
+*'''All residences have needs that must be met.''' 
+**Food, security, spiritual, municipal buildings etc. Placement of those buildings is tricky!
+**Recommended in this city layout is to place your stores in the middle lane, you will have to place 2 buildings of the same kind to cover the entire layout.
+**Municipal Buildings
+***Security buildings cover Fire, Safety, Repair, Sanitation.
+****these four buildings (varies per civilization, China just has three) are super important, without one of them all your buildings will collapse and be a total lost!!
+****Recommended that you place those buildings before putting any other buildings in your city layout. 
+*****These buildings do not need water or anything else other than a road that connects to the main road.
+*****Each holds a certain number of workers, so make sure you have the workers available before building them!
+*****Recommended to place Fire, Safety and Repair buildings on each extreme of the grid. 3 buildings on each corner. The placement of each building depends on the radius of coverage. Make sure that all the spaces in your grid are covered!
+*****The Clinic or sanitation building should be placed on opposite sides of the grid, 1 on each side is enough to cover the whole grid.
+***Temples - In Persia the temples are only required by Ordinary Residences, the High End Residences don't need coverage.
+***Mosques - Only required by High End Residences
+***General Office - this building requires coverage of every single building in your city, including Safety buildings and decorations, whatever turns green by it's radius is required to be within it.
+***(Other buildings in Municipal will be discussed later)
+***Municipal Buildings Warehouse, Granary
+****These two buildings do not have to be located close to your residences, they can be place anywhere and they need to be in radius of Safety buildings. 
+*****Recommended to place them close to a mine or sawmills, fishing spots etc. basically close to where you will be placing other buildings later on, that way all of them share on the coverage of the Safety building.

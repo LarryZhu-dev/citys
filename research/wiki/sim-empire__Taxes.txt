@@ -1,0 +1,31 @@
+# Taxes
+
+
+[[Category:Gameplay]]
+Taxes in the game are something that many players overlook and waste gold on.  Up until level 7 or 8 for ordinary residences, and level 4 or 5 for high end residences this isn't a problem, as taxes are generally profitable.  Once you reach the maximum level for your residences (based on the pricing of materials I see normally), the cost of the materials you need to provide in order to collect taxes can actually be higher than the gold you receive.  In this case it would be better to sell all the materials and skip collecting taxes altogether (unless you like throwing away gold for no reason).
+
+Here's an illustrated analysis of the cost problem for max level high-end residences based on market price estimates (mid-July prices in Asia Pacific server):
+
+[[File:Image0-1 01.png|frameless|900x900px]]
+
+
+You can see that the value in the market (or cost if you are buying some of it for tax purposes) is much higher than the gold that you'll receive from taxes.  In this case you'd be losing approximately 32%.  You'd be much better off selling those materials.  
+
+Obviously this depends on the market prices for all of these materials, and different civilizations required different materials which will be of different prices, so you'd be well-served to do a similar calculation for your specific residences on your server.
+
+My point here is just that you shouldn't assume that collecting taxes is a good thing in this game, and there are plenty of other methods to earn gold to use instead.
+
+
+
+Here is an example of a lower level residence, which is in fact quite profitable:
+
+[[File:Screenshot 20200712-125034 Sim Empire 01.jpg|frameless|900x900px]]
+
+
+In general the profit margin on collecting taxes goes from infinite (level 1 & 2 ordinary residences, which require no consumables) to potentially negative (level 6 high end residences usually lose gold).
+
+
+Also worth noting is the taxation time.  A level 6 ordinary residence that is full can collect 160 gold every 4 hours.   A level 7 ordinary residence that is full can collect 300 gold every 8 hours.  So you can collect more (160 collected twice is 320) from level 6 residences in 8 hours than you can collecting on a level 7 once.  While the tax profit as a percentage based on consumable cost is fairly close for level 7's and level 6's, your gold collected will actually be less.  
+
+
+Finally, it should be noted that you will need a trade station in order to sell materials, so save your gems for these.  Without trade stations (or without enough) you will likely struggle to develop your city into an empire, and you'll be forced to survive on possibly negative profits from taxes if you don't have another revenue stream.

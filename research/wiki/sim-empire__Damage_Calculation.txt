@@ -1,0 +1,94 @@
+# Damage Calculation
+
+
+[[Category:Gameplay]]
+They recently added the damage calculation to the details screen of your units.  The formula is universal for all units, with a few modifications.
+[[File:Damage Calculation.jpg|frameless|alt=|center|630x630px]]
+
+That looked complicated to me when I first saw it, but let's break it down...
+
+The Attack value of the attacking troop and the Defense value of the opposing troop is what makes the impact that is seen when you cause more damage (red number in battle screen) against wolves versus bears, for example.
+
+First we need to understand Damage.  Damage is represented as two numbers, displayed in the form # - #
+
+As an example, let's take a martyr that normally has Damage listed as 1 - 3
+
+(it used to be listed as "Basic", but they changed the name to "Damage")
+
+You will always cause at least the minimum Damage listed, so 1 Damage per martyr, or 99 damage from 99 martyrs
+
+Next we need to look at the attacking troop's Attack value
+
+This doesn't actually do the damage, it determines the +/- adjustment of the damage that can be done
+
+We figure out the difference between the attacker's Attack value and the defender's Defense value (note that this is in terms of armies in the battle field that come in contact with each other, not based on player sides of the battle)
+
+As an example, if our martyr has 4 attack and our wolf has 3 defense, the difference is +1
+
+If our martyr is attacking a bear that has 7 defense, our difference is -3
+
+Then we figure out the multiplier, which is always 1 then either add 1/10 of the value if it is positive, or subtract 1/20 of the value if it is negative
+
+For wolves we have 1 + 1/10, so 1.1
+
+For bears we have 1 - 3/20, so 0.85
+
+We multiply this by a random value between the low damage and high damage values, so a random number between 1 and 3, on average that'll be around 2
+
+The important thing to note here is that this is added to the low value, so you're going to do more than double the low damage value in most cases
+
+Against wolves, our martyrs will do 1 + 2*1.1, so 3.2/martyr on average, or 316.8 from a group of 99
+
+If we get lucky and the random number falls at the high damage side (3) we could get 1 + 3*1.1, so 4.3/martyr maximum, or 425.7 from a group of 99
+
+If we get unlucky and the random number falls at the low damage side (1) we could get 1 + 1*1.1, so 2.1/martyr minimum, or 207.9 from a group of 99
+
+Against bears, our martyrs will do 1 + 2*0.85, so 2.7/martyr on average, or 267.3 from a group of 99
+
+If we get lucky and the random number falls at the high damage side (3) we could get 1 + 3*.85, so 3.55/martyr maximum, or 351.45 from a group of 99
+
+If we get unlucky and the random number falls at the low damage side (1) we could get 1 + 1*0.85, so 1.85/martyr minimum, or 183.15 from a group of 99
+
+This is the actual damage being caused, which is divided by the Health of the defender, to determine the number of units killed.  Any remainder from this division is carried to the next round, which is how weaker troops can destroy a wall after a few rounds of attacks.
+
+For wolves (which have 10 health), 99 martyrs will kill between 20.79 and 42.57 wolves in one attack round, with 31.68 being the average.
+
+For bears (which have 24 health), 99 martyrs will kill between 7.63 and 14.64 bears in one attack round, with 11.14 being the average.
+
+So against wolves you are doing more damage, but the bigger difference in the number killed is the health value of wolves vs. bears(edited)
+
+If the attacking troop and the defending troop have the same Attack and Defense values, you are left with simply Count*(Minimum Damage + Average Damage)/Health
+
+
+'''Adjustments'''
+
+That is all well and fine, but there are some adjustments to these values that can complicate matters.
+
+Long-ranged troops can attack from far away, but they have 2 situations where their damage is reduced:
+
+If the enemy is more than 10 spaces away, the damage that they do is cut in half:
+[[File:Ranged more than 10 away from target.jpg|frameless|alt=|center|900x900px]]
+
+
+
+(Note the red -304 above the bear - this is the damage you caused)
+
+Here is the same number of my longbowmen when they are not more than 10 spaces away from the bear, doing their full damage:
+[[File:Screenshot 20200623-105457 02.jpg|frameless|alt=|center|900x900px]]
+
+      
+
+If there is no space between the long ranged troops and their opponent (and they run away to a safe empty space on the other side of the map), their damage gets cut down to only 25% 
+[[File:Screenshot 20200623-220059 01.jpg|frameless|alt=|center|720x720px]]
+
+
+
+Similarly, when troops have counterattack (they strike back whenever attacked from close range, in addition to their 1 attack per round), they only cause half of their normal damage.
+[[File:Screenshot 20200623-220059 02.jpg|frameless|alt=|center|720x720px]]
+
+
+
+There are other skills that are linked to specific troop types of certain civilizations either natively, or by studying in the skill tree. I won't go into those here, but they all operate in an analogous fashion and reading their description should give you a good idea of the impact.  If you have questions, feel free to post them here.
+
+Now that you have a full understanding of how damage is calculated, feel free to apply these principles when reading about battle mechanics.
+[[Category:Troops]]

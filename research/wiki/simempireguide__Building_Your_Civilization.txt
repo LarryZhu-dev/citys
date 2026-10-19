@@ -1,0 +1,68 @@
+# Building Your Civilization
+
+These are the first steps to get your civilization going. 
+
+* Building
+**To build anything you need to select the Hammer icon then from the selection menu chose the category you want to build from, select the building and DRAG the building into the are where you want to place it. Your building will start only after you have checked the check mark icon, you can cancel the attempt by clicking on the x mark icon.
+**Radius: Some buildings have a radius of coverage, make sure that that radius covers the building you want to get benefit from it (they will glow green if they are within the radius), this is very important to pay attention to, you will want to maximize the usage of those buildings, try to build the least amount that cover a maximum area, ie. If you build a water well, make sure that all your residences are glowing green. Another example is if you build a Fire prevention building, make sure all the buildings that need protection are glowing green (decorations or other safety municipal buildings do not need protection from safety buildings).
+** Watch video to view the process of basic building: 
+
+[[File:Sim Empire Beginner's Guide (1)|none|thumb|Basic Building: Residences & Roads]]
+
+<br />
+{| class="wikitable"
+|+
+! colspan="2" |City Layouts: You can modify them to meet your needs as you level up. This is a good foundation layout. 
+
+|-
+|[[File:CityLayout1.png|thumb]]
+|[[File:Citylayout2.png|thumb]]
+|-
+|[[File:Citylayoutgrid.png|thumb]]
+|
+|}
+
+
+'''IMPORTANT:''' Although there is an option to destroy a building, please do not use it unless you absolutely have to, such as when a building has been destroyed by not being covered by a protection building, or when you are in dire need for gold and want a refund (just wait for your tax levy if this is the case!). Instead of destroying, just move the building by using the option to "Pick Up" building, it will save you tons of money and resources. If the building you want to move is a production building, you need to stop the production before the icon to move the building is visible. Tip: Decorations can be moved also, roads can't those have to be destroyed.
+
+
+'''Below you will find several videos made by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming], they are very good, and include a lot of nice tips for your game progress! Please subscribe to his channel! Videos are in Russian, however you can use close caption auto translate in your own language.  If you want to join him in Discord or Email here are the links: [https://discord.gg/UtGPwKa Discord]  - <nowiki>https://discord.gg/UtGPwKa</nowiki>   👋 Gmail - s.e.gamelibrary@gmail.com ✉ - Show him your support!!''' 
+
+
+Images about what I discussed above are shown on the table below. 
+
+
+
+
+{| class="wikitable mw-collapsible"
+|+
+! colspan="2" |Videos made by:[https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming] Please subscribe to their channel!
+|-
+|[[File:Строй правильно - ПЕРСИЯ (Часть I)◄►Build correctly - Persia (Part I)|thumb|Build - Persia (Part I) by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|[[File:Строй правильно - ПЕРСИЯ (Часть II)◄►Build correctly - Persia (Part II)|thumb|Build - Persia (Part II) by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|-
+|[[File:Строй правильно - ПЕРСИЯ (ФИНАЛ)◄►Build correctly - Persia (FINAL)|thumb|Build Persia - Persia (Final) by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|[[File:Строй правильно - ГРЕЦИЯ (Часть I)-◄►Build correctly - Greece (Part I)|thumb|Build - Greece by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|-
+|[[File:ГАЙД ДЛЯ НОВИЧКОВ◄►GUIDE FOR BEGINNERS|thumb|Guide for Beginners by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|[[File:БОЕВОЕ РЕМЕСЛО ДЛЯ ЧАЙНИКОВ ◄► MARTIAL CRAFT FOR BEGGINERS|thumb|Military for Beginners by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|-
+|[[File:ОТКРЫВАЕМ СЧАСТЛИВЫЕ КАРТЫ◄►OPENING LUCKY CARDS|thumb|Opening Luck Cards by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]]]
+|
+|}
+
+<br />
+{| class="wikitable mw-collapsible"
+|+
+|[[File:Houses.png|alt=|thumb]]
+|[[File:Building beginning.png|alt=|thumb]]
+|-
+|[[File:Building Selection.png|alt=|thumb]]
+|[[File:Building Beginning 2.png|thumb]]
+|- |[[File:Infoicon.png|thumb]]
+|[[File:Radius.png|alt=|thumb]]
+|
+|-
+|[[File:Infoicon2.png|thumb]]
+|[[File:Pickup.png|thumb]]
+|}

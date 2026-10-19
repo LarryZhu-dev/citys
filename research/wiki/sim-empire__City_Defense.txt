@@ -1,0 +1,27 @@
+# City Defense
+
+As soon as you lift neutrality (required to start capturing resource tiles), you are vulnerable to attack.
+
+If you are uncertain of whether you should collect taxes or not, check the [[Taxes]] page for more information
+
+An occupying force gets 10% of the taxes you collect once every 24 hours.  If they occupy you for 23 hours and then get kicked out, they get nothing.
+
+Personally I don't keep any troops stationed in my city, but that's because I find it more profitable to not collect taxes.
+
+All that aside, if you do find yourself defending a city (yours, or someone else's that you've captured previously) there are a few things to note. 
+
+Every city has a wall which has 15 defense and 2000 health.  Reference [[Damage Calculation]] and/or [[Troop Comparison]] for details on the damage units can cause to walls.
+
+Before any attacking armies can cause damage to defending troops they need to get past the walls.
+
+The only (standard level) troops that have a chance of defeating a wall in a single hit are Armored Knights and Horus.
+
+Before the walls come down, long-ranged troops behind the wall will do damage to the attackers while suffering none themselves.  Non-long-ranged defenders behind the wall will do nothing (they won't advance and they won't do damage) until the wall is destroyed, but again, they won't suffer any damage themselves.
+
+If the attacker does not destroy the walls within 5 rounds, the battle ends in a draw.
+
+This is an ideal outcome for defenders, as a non-destroyed wall means the attackers didn't do any damage to troops, and the defenders (assuming they had long-range troops in defense) will have hopefully killed some of the attacking troops.
+
+If/when the wall falls down, the mechanics of the battle revert to the same as any other resource tile battle.
+[[Category:Gameplay]]
+[[Category:Battle Mechanics]]

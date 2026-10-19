@@ -1,0 +1,47 @@
+# Persia
+
+Persian Civilization in Sim Empire Game
+{| class="wikitable"
+|+
+! colspan="2" |Videos by [https://www.youtube.com/channel/UCR5tRdIcq3aF_tGaJUvBfAQ Жар Gaming]
+|-
+|[[File:Строй правильно - ПЕРСИЯ (Часть I)◄►Build correctly - Persia (Part I)|thumb|Build Persia (Part 1)]]
+|[[File:Строй правильно - ПЕРСИЯ (Часть II)◄►Build correctly - Persia (Part II)|thumb|Build Persia (Part 2)]]
+|-
+|[[File:Строй правильно - ПЕРСИЯ (ФИНАЛ)◄►Build correctly - Persia (FINAL)|thumb|Build Persia (Final)]]
+|
+|}
+{| class="wikitable"
+|+
+! colspan="2" |Residences Layout by [https://www.taptap.com/user/40972625 妖言若水]
+|-
+| colspan="2" |(Comprehensive) Residential Layout (Extended Land Use Version)
+|-
+| colspan="2" |<nowiki>~~~~~~~~~~~~~~~~~~ </nowiki>'''Persian civilization'''<nowiki> ~~~~~~~~~~~~ ~~~ After</nowiki>
+trying it, it's not easy to say whether it's progress or not. Anyway, the final footprint is indeed small, but the early support has not been much simplified. Probably so.
+
+Houses and villas should be 18*18 in the main residential area and around 20*20 in the periphery. There is no problem with any map. Note that the main road is reserved, and the greening and later streamlining will be resolved by themselves.
+|-
+|[[File:Residneces100.jpg|thumb|100 layout by [https://www.taptap.com/user/40972625 妖言若水]]]
+|[[File:Highend25b.jpg|thumb|25 High End residences layout by [https://www.taptap.com/user/40972625 妖言若水]]]
+|-
+|[[File:Highend25.jpg|thumb|Option 2, 25 High End Residences layout by [https://www.taptap.com/user/40972625 妖言若水]]]
+|
+|}
+{| class="wikitable"
+|+
+! colspan="2" |Full Map Layouts Options by [https://www.taptap.com/user/44501356 疯]
+|-
+|
+|
+|-
+|
+|
+|}
+
+[[Category:Persia]]
+[[Category:Persian]]
+[[Category:Жар]]
+[[Category:Full Map Layout]]
+[[Category:City Layout]]
+[[Category:City]]

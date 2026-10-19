@@ -1,0 +1,20 @@
+# Chinese Troops
+
+
+[[Category:Troops]]
+[[Category:Chinese]]
+[[Halberd Infantry]] - Basic melee unit
+
+[[Shield Bearer]] - Low attack power but high defense
+
+[[Crossbow Captain]] - Ranged troop that attacks 2 targets per turn, but with damage split between the targets
+
+[[Chinese Hussar]] - Horse-mounted soldiers that are fast
+
+[[Imperial General]] - Stronger horse-mounted soldiers
+
+[[Mythic Beast]] - Tiger-like creature that is fairly fast and strong
+
+[[The Goddess Nuwa]] - A serpentine goddess that will occasionally come back to life after dying
+
+<br />

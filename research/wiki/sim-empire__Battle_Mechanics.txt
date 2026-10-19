@@ -1,0 +1,41 @@
+# Battle Mechanics
+
+
+[[Category:Gameplay]]
+
+
+So to set the stage (pardon the pun) of any battle we need to look at the field of battle.  It is 10 spaces by 12 spaces:
+<br />
+[[File:Screenshot 20200623-105117 01.jpg|center|frameless|900x900px]]
+
+
+
+The speed of each unit determines two things:
+
+1. How far (number of vertical + horizontal spaces) they can travel
+
+2. What order they will attack in (from fastest to slowest)
+
+The maximum distance a unit can travel is shown when it is their turn to attack by a green triangle on the ground:
+[[File:Screenshot 20200623-105447.jpg|center|frameless|900x900px]]
+
+When more than one army in a battle have the same speed (either on the same side of the battle, or opposing sides), the order will be randomly selected between all the armies of that speed 
+
+Long ranged troops will always line up in the back row, while other troops may line up in the 1st, 2nd or 3rd row depending on more complex factors (or 4th row in the case of shield bearers if they have had their special skill upgraded)
+
+Large troops take up 2 or 3 spaces, so bears(2), horses(2), elephants (3), and some of the other strongest troops will always end up straddling either the 1st and 2nd or the 2nd and 3rd rows from either side (this will determine their distance from other troops)
+
+Short-ranged troops can attack 1 vertical, horizontal, '''or'''  diagonal space from their current position after moving to the target their maximum travel distance.  Long ranged troops' full/half/quarter depends on the distance to the closest square 1 vertical, horizontal, or diagonal space away from their opponent (after traveling, if escaping an attacker).(edited)
+
+Troops can travel more spaces than their speed value to get around other troops, as long as their destination is not more than their speed value.  This does not hold true for Mammoths because they can only move forward (toward the opponent side), and can't move at all if there are other troops in their way.
+
+You can add troops during any round, but they won't enter the battle field until after the round is complete, and if either side ends a round with no remaining soldiers, the added troops will not enter at all.  I've lost battles because I added troops a few seconds too late.
+
+With each attack, a red number will appear above the opponent's troops that were targeted indicating the damage that was caused, and a gray number indicating how many were killed (if any).  Attacks will usually leave a partially damaged unit within the opponent army, so you may possibly cause less damage but kill more troops in a subsequent attack by the same unit type/number.
+
+Read [[Damage Calculation]] for details on how the amount of damage is determined.
+
+The distance between armies in a battle can be used to your advantage or disadvantage.  Remember that the vertical distance is added to the horizontal distance.
+
+The furthest two troops can be apart (if in furthest corners) is 18 attack spaces.  The closest two troops can start (if both start in the same row in the 3rd column from their endline) is 6 attack spaces.  These distances will be important when determining how/when to add troops to a battle.
+[[Category:Battle Mechanics]]

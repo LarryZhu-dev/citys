@@ -1,0 +1,17 @@
+# Crossbow Captain
+
+{{DISPLAYTITLE:Crossbowman Captain}}
+[[Category:Troops]]
+[[Category:Chinese]]
+[[File:Timeline 20200610 172746.jpg|center|frameless|900x900px]]
+{{DEFAULTSORT:Crossbowman Captain}}
+
+Ev Digg's Thoughts:
+
+This is a fairly weak ranged troop, but with a few added skills that can be powerful in certain situations.  This is the only ranged troop that attacks multiple targets, but be aware that it only does 50% of its total damage to each target.  At base level it shoots twice each turn, and if there is only 1 available target it will attack the same target twice, doing 100% of the expected damage to that one target instead of 50% of the expected damage to 2 different targets.  This becomes more powerful with its special skill that allows it to shoot 3 times per turn, thereby doing 150% total damage (either to 1, 2, or 3 targets based on the situation).  It also has speed 6, which allows it to attack before other slower troops each turn.  
+
+Without upgrades crossbowmen have some of the weakest attack and damage (basic) stats of any troop.  When fully upgraded with 3 shots per turn it can be one of the strongest ranged troops.
+
+It can be problematic to use crossbowmen against The Goddess Nuwa, as her resurrection occurs randomly (approximately 1 out of every 4 times she's attacked).  If she's being attacked more frequently with weaker attacks it is much more likely to help her resurrect herself more often than actually cause her damage - your crossbowmen's attacks could make an enemy Nuwa stronger instead of weaker.  
+
+<br />

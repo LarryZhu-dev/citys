@@ -1,0 +1,28 @@
+# Wizard
+
+[[File:Screenshot 20201011-182925 01.jpg|center|frameless|600x600px]]
+
+
+EvDigg's Thoughts:
+
+This is another interesting troop, that has skills that are not fully understood yet (at least not by me or anyone I've spoken with).  The following is based on inferences gleaned from the various descriptions, but very limited or no testing yet in the wild.
+
+At first glance this appears to be a fairly run-of-the-mill entry-level ranged troop, but with speed 6 which puts it in a group with Egyptian Longbowmen and Chinese Crossbow Captains attacking before the slower speed 5 ranged troop types.  They're also fairly cheap since they're the only ranged troop I can think of that don't require weapons (weapons cost roughly 600 gold each, much more expensive than feathers or dyes).  The problem that jumps out at me is that they occupy 2 population, which sucks in a support/ranged troop that you'd like to use to augment your more powerful troops.  More powerful troops often take up 2, 3 or 4 population so it will be difficult to build a large army if you try and pair these with others.  These may be more effective as a single troop for a player or account to focus on, with intended use alongside other players/accounts in large battles.
+
+Now to the surprise -
+
+On the Skills page (accessible by pressing the sigma button on the troop detail page), there is mention of an Entangle skill that reads as follows:
+
+"While attacking, use the vines to entangle the target for a period of time, making it unable to move and counterattack. The probability of triggering Entangle is the number of the unit divide 2%, and its basic duration is 2."
+
+Reading this may give us more questions than answers, but I'll give you my take on it below.
+
+There are no troops that display the Entangle skill icon on their troop detail page (yet?), but there is mention of it in the Wizard's Skill tree.  More specifically, while there is no special skill listed for Wizards, there are a number of skills available to increase this entangle ability duration.  I take this to imply that it is a natural ability of the Wizard, which can be improved upon.
+
+Now back to the description of the skill itself.  The basic effect of entangle appears to be limiting movement of opposing troops.  "counterattack" in this context may mean the counterattack ability specifically available to certain troop types (though this doesn't work against ranged troops attacking from a distance), or maybe it is using "counterattack" in it's more traditional meaning of reciprocally attacking the opponent during its next available opportunity to attack.  
+
+The part about the probability of being triggered is ambiguous in a couple ways. The "number of the unit divide 2%" is likely a poor translation of the original Chinese that the game is developed in. I assume they mean to express that you take the number of units in the army, divide that by 2, and that is the percentage likelihood of it being triggered. It's also ambiguous in that it doesn't specify which army (attacking Wizards, or the army that is being targeted) to use in this calculation.  I'm going to assume it is the number of Wizards, as this would motivate players to study skills to increase the maximum size of Wizard armies, motivate players to train more of this troop which occupies 2 population, and prevent players from adding a lot of single unit Wizard armies to a battle in the hopes of entangling all of the enemy armies.  
+
+The last ambiguity is in the "basic duration of 2" part of this message.  Does this mean 2 seconds?  Two turns?  Two attacks by any individual army from either side of the battle?  Two engagements?  2 seconds seems unlikely, as there is more than a 2 second pause when one round of the battle finishes and the next round begins.  Two turns (rounds) seems like it would be too much, as at maximum skill upgrade this value can be increased to 54.  I've seen battles last 2+ hours but they only got up to about 40 rounds (battles can take a long time when both sides have 20-30 armies of highly upgraded troops in the battlefield at a time, with upwards of 50,000 troops involved).  Discounting these two options brings us to the next possibility - it is the number of advancements/attacks by any individual army on either side of the battle.  In a small battle of 1 army vs. 1 army, this would be highly effective when luck triggers the ability, but in a large battle with many armies on both sides the effectiveness diminishes.  In a large battle this would also introduce more randomness into the effectiveness - if the target would normally attack immediately after, or soon after being entangled it would be more useful than if its turn to advance/attack is after a number of other army actions, giving it time for the effect to wear off.  In the last idea I came up with, "engagements", I wonder if it would be that normal attack/advance turns for the effected army were combined with any attacks from other troops that the entangled army sustains - so if the entangled army is attacked by any 2 other opposing armies the effect would be done, even if the entangled army hasn't had an opportunity to advance/attack yet.  
+
+We'll have to wait until someone starts using Wizards in actual battles to know for sure, these are just my initial theories on how these troops may work until then.  Also to be determined is if the Judge troop may also have this skill - it doesn't have the icon either, and doesn't have any skills to study that mention it, but it is also trained in the Wizard's Residence, mentions that is "reinforced by the witchcraft" and "endowed with the divine power", and like many troops its description is cut off.

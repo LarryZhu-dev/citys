@@ -1,0 +1,20 @@
+# Loading Game
+
+[[File:LoadScreen.png|none|thumb|267x267px]]
+
+Introduction to the Load Screen. Please not some very important choices in this screen. 
+
+* '''Login Choice:''' 
+** '''Visitor'''
+** '''Account'''
+** '''Server'''
+
+<br />
+[[File:LoginType.png|thumb|180x180px]]
+'''Visitor login:''' This will give you access to the game under an anonymous username such as Visitor100. This will not bind your account. This will not secure your account. You won't be identifiable by others as your name will be a generic VisitorXX name. I personally recommend binding your account if you decide to continue playing, too much hard work to lose. 
+
+
+'''Account login''': This will give you access to the game under the name you have on whatever system you chose to bind your account to, ie If you bind your account to Facebook, it will show everyone your Facebook name and profile picture. Some players have an issue with this as others can search Facebook and find their profile, you have other choices to bind your account under such as Google, which basically just shows you have a Google account, not things you post in social media (unless the same name you have in Google is the same in your Facebook or other social media). You can work your way around to change names on the account you bind to the game if privacy is an issue for you. 
+[[File:ServerSelect.png|thumb|180x180px]]
+'''Server Choice:''' You choose this as you like, there are several choices, mind that the reset times on those servers are based on the country displayed in the choice window, also the most popular language will probably be the one based on the country that server is based at, this is not much of a problem as the game has a translation system (not the best though), so go with whatever you like. Pay attention the the ms rate. Red is very busy, yellow is medium busy, green is not busy at all - which translates into how populated that server is. The higher the ms rate also means the more lag you will get.
+[[Category:Introduction]]

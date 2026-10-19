@@ -1,0 +1,31 @@
+# Unoccupied Resource Tiles
+
+There are many strategies for minimizing losses when conquering resource tiles.  Each player will eventually find a strategy that they feel comfortable with that they feel is most effective.  Rather than trying to list the pros and cons of various methods, I'll stick with one of the most basic methods - a lot of long-ranged attack with a few meat shields in front of them.
+
+Regardless of which civilization you choose, two of the first troop types you unlocked will be a weak foot-soldier along with a weak long-range attacker.
+
+When you are first starting out and don't have many troops, many find it helpful to send a single cheap foot-soldier initially to see how many wolves and bears there are defending it.  Based on these numbers (which range from less than 20 to more than 200) and the number of bears specifically (which are much harder to kill), you may choose to sacrifice the cheap foot-soldier and try again in a few minutes, rather than fight a battle that may result in many of your troops dying.
+
+Due to the various Attack and Damage stats for the different civilizations, before you attack you should do some calculations or consult the chart to determine how many long-range troops will be required to kill various numbers of wolves and bears.  No single wolf or bear army will be larger than 50, but there are usually between 3 and 6 armies guarding any given resource tile.
+
+I'd recommend bringing at least 3 armies of long-range attackers, personally I usually bring 4.
+
+I recommend you have 3-10 available army spaces (determined by the number of level 3 and level 5 large residences in your city, along with the number of '''completed''' wonders) before attacking as well.  Split your weak foot-soldiers into a number of 1-unit armies, so that the most a single army of wolves or bears can kill in a single round would be 1 unit.
+
+Personally, I put all of my long-ranged armies in immediately, with nothing else during the first round.  This is because I know that even if the wolves start in the closest place to my long-ranged armies, they can only travel 7 spaces per round so they can never attack me in the first round.  Bears can only travel 5 spaces per round, so they may not even be able to reach my long-range in 2 rounds.  Foot-soldiers (and others) sometimes start 2 or 3 spaces from the back, so they could be killed in the first round.(edited)
+
+'''''Note''''': Longbowmen (Egypt) and Crossbow Captains (China) both have speed of 6, so they will attack before bears each round, giving them 2 rounds before any bears can reach them.  Archers (both Greece and Persia) only have speed of 5, so whether they attack before or after the bears in the 2nd round will be determined randomly.  You may need more individual foot-soldier units available to serve as meat shields to protect your precious archers.  This also depends on where the bears are lined up vertically, so it could still work out in specific battles.(edited)
+
+My hope each battle is that I can kill all the wolves and bears without needing to use any foot-soldiers at all.  With the help of the calculations and/or the chart, along with experience, I can fairly easily predict whether I will need any foot-soldiers at all, and if I do whether I will likely have one or more die.
+
+If you aren't able to consistently kill all of the wolves in the first round, I'd consider adding more long-ranged armies and/or increasing the number of units in each.  If all of the wolves are dead, you can add 1 foot-soldier for each bear army that you don't expect to be able to kill in the the second round.  If any wolves survive the first round, you'll need to add 1 foot-soldier for each remaining wolf army that's likely to survive the first round.  If in the rare case you have bears that won't be killed after 2 rounds, add more single foot soldiers, but really if you can't kill all the wolves and bears in 2 rounds you should be bringing more long-ranged troops.(edited)
+
+After the battle is won, all the armies that you added to the battle will be stationed in the resource tile.  Any armies that died will likely remain in a "dead" status, which may allow you to resurrect them by spending health points, but you should save these for more powerful troops that may die in the future as health points are expensive (beyond the free ones you get at certain levels or from daily gifts). These dead armies still occupy army spaces, so if you don't plan to resurrect them you should release them to free up the army spaces.
+
+You will need to leave at least one troop stationed at the resource tile to hold possession of it.  You will see a warning if you try to remove the last troop from station that you will be abandoning the territory.  All other armies can safely be removed from station, allowing them to be marched elsewhere.
+
+Only the stationed troops will automatically defend against potential attacks.  If you leave just 1 unit stationed in a resource tile the territory may be easily lost if someone attacks you.  If you leave more than 1 unit stationed in a resource tile it'll be harder for enemies to steal from you, but you can't remove them once an attack begins so you risk more troops being lost.
+
+After 4 days (I believe) your resource tile will drop down to 50% production, then after a few more days it'll drop down to 25%, and a few days after that it'll stop production (10%).  When it starts dropping the only way to restore it to full production is to re-conquer it - you can abandon it by removing any stationed troops, then capture it again.
+[[Category:Battle Mechanics]]
+[[Category:Gameplay]]

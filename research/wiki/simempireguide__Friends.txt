@@ -1,0 +1,36 @@
+# Friends
+
+Friends are a very important factor for your progress in game. 
+
+* Benefits: 
+** Save gold and reduce time on learning Technology from friends.
+** Earn gold from friend's earning technology from you.
+** Your friend earns from you learning technology from them. 
+** Earn 10 gold a day per friend's visits to your city daily. 
+* Adding friends: 
+** Via Chat: SE has a unique form of chat, you can click on the text in the chat and several options will pop up, for non friends you will see the option to "Add Friend", when you click on that it will send an automatic email to that person requesting friendship. 
+** World Map: You can select any of the cities in world map and then select "Add Friend" from the popup window. 
+* Collecting earned gold from friends: 
+** Friend's log: Click on the + icon in your SE UI, then click on the Friend's icon; this will open the friend's list and log, scroll down to view the history and collect all the gold you have earned. Remember to visit your friends and learn technology from them so they earn gold too! 
+* Learning Technology: 
+** On the window selection to learn technology select the "Learn from Friend", it will show you all the friends who have learned that technology, select any friend you wish to learn from, I have a principle to learn from the lowest level friend, this way help them out giving them free gold. 
+
+
+Remind friends who don't visit, they may not be aware of this benefit! 
+{| class="wikitable"
+|+
+![[File:Friends.png|thumb]]
+![[File:Chat1.png|thumb]]
+|-
+|[[File:Chatii.png|thumb]]
+|[[File:Chat3.png|thumb]]
+|-
+|[[File:Plussign.png|thumb]]
+|[[File:Friendslog.png|thumb]]
+|-
+|[[File:TechTreeintro.png|thumb]]
+|[[File:TechTreeintro2.png|thumb]]
+|-
+|[[File:TechTreeintro3.png|thumb]]
+|[[File:TechTreeintro4.png|thumb]]
+|}

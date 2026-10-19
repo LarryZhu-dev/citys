@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模拟帝国 · MVP</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header id="topbar">
+  <div class="brand">
+    <span class="cn">模拟帝国</span>
+    <span class="en">SIM · EMPIRE</span>
+  </div>
+
+  <div id="resources"></div>
+
+  <div class="spacer"></div>
+
+  <div class="stat-chip" id="prestigeChip" title="声望：决定移民迁入速度">
+    <span class="i">⭐</span>
+    <span class="v" id="prestigeVal">一般</span>
+  </div>
+
+  <div class="stat-chip" id="labour" title="劳动力：已用 / 总人口">
+    <span class="i">👷</span>
+    <span class="v"><span id="labourText">0 / 0</span></span>
+    <div class="lbar"><i id="labourBar"></i></div>
+  </div>
+
+  <div class="speedbox">
+    <button data-speed="0" title="暂停（空格）">⏸</button>
+    <button data-speed="1" class="on">1×</button>
+    <button data-speed="2">2×</button>
+    <button data-speed="4">4×</button>
+  </div>
+
+  <button id="resetBtn" class="ghost" title="重新开始">重开</button>
+</header>
+
+<div id="main">
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="toasts"></div>
+    <div id="hint"></div>
+    <div id="minimapBox"><canvas id="minimap"></canvas></div>
+  </div>
+
+  <aside id="side">
+    <section class="panel" id="taskPanel">
+      <div class="panel-head">
+        <span id="chapterName">第一章</span>
+        <span id="taskCount" class="dim"></span>
+      </div>
+      <div id="taskBody" class="task-body"></div>
+    </section>
+
+    <section class="panel grow-none" id="buildPanel">
+      <div class="panel-head"><span>建 造</span><span id="buildModeHint" class="dim"></span></div>
+      <div id="buildTabs"></div>
+      <div id="buildList"></div>
+    </section>
+
+    <section class="panel" id="infoPanel">
+      <div class="panel-head"><span id="infoHead">顾问</span></div>
+      <div id="infoBody"></div>
+    </section>
+
+    <section class="panel log-panel">
+      <div class="panel-head"><span>纪 事</span></div>
+      <div id="log"></div>
+    </section>
+  </aside>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

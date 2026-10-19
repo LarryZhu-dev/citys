@@ -1,0 +1,10 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# 本地工具
+.claude/
+node_modules/
