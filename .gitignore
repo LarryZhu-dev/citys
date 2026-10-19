@@ -8,3 +8,12 @@ desktop.ini
 # 本地工具
 .claude/
 node_modules/
+
+# Local credentials, generated builds and private development state
+.env
+.env.*
+!.env.example
+.vercel/
+public/
+work/
+*.log

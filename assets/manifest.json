@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "title": "万城纪 · 原创游戏美术",
+  "created": "2026-10-19",
+  "origin": "Generated with OpenAI image_gen.imagegen for this project under the user's direction. No artwork was extracted from 模拟帝国 or any other game.",
+  "rights": "Generated for use in this project, subject to the applicable image-generation service terms.",
+  "style": "Hand-painted realistic 2:1 isometric miniature ancient architecture; upper-left sunlight; transparent PNG/WebP.",
+  "inventory": {
+    "civilizationBuildingSprites": 80,
+    "sharedAuxiliaryBuildings": 16,
+    "terrainNatureAndSharedFacilities": 16,
+    "constructionAnimationFrames": 16,
+    "landmarksAndAdditionalFacilities": 16,
+    "cinematicPanoramas": 1,
+    "totalExtractedSprites": 144
+  },
+  "civilizations": [
+    "china",
+    "egypt",
+    "greece",
+    "persia",
+    "aztec"
+  ],
+  "civilizationBuildingOrder": [
+    "house1",
+    "house2",
+    "house3",
+    "palace",
+    "temple",
+    "market",
+    "well",
+    "granary",
+    "workshop",
+    "school",
+    "barracks",
+    "farm",
+    "harbor",
+    "garden",
+    "theater",
+    "observatory"
+  ],
+  "reusePolicy": "Each civilization has 16 distinct primary sprites. Functional workshops, market stalls, public services and selected landscape/facility sprites are shared. Five unique special buildings and five distinct endgame wonders are provided in the landmarks atlas. Housing's simulation levels map to three architectural tiers; construction/upgrade effects apply at every simulation level.",
+  "animation": {
+    "source": "atlases/construction.png",
+    "normalizedSpriteSheet": "construction-animation.webp",
+    "layout": {
+      "columns": 4,
+      "rows": 4
+    },
+    "rows": [
+      "foundation",
+      "walls",
+      "roof completion",
+      "transparent-center upgrade scaffolding"
+    ],
+    "timing": "Foundation/wall/upgrade loop frames at 240ms. Roof frames advance with construction progress to avoid reversing completion.",
+    "night": "Runtime light masks clipped to sprite alpha and local warm emissive lighting. No separate painted night atlas."
+  },
+  "files": {
+    "spriteMetadata": "sprites.json",
+    "generationRecords": "generation-record.json",
+    "rebuild": "build-atlases.py"
+  },
+  "processing": "Transparent foreground component extraction, antialias-preserving crops, WebP encoding, common construction frame canvas and sprite sheet packing. Original generated PNG atlases retained."
+}

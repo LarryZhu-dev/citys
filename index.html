@@ -2,82 +2,53 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>模拟帝国 · MVP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#172d29">
+<meta name="description" content="万城纪：从第一条街道开始，建立属于你的古代文明。五种文明、城市经营、昼夜景观与在线城邦。">
+<title>万城纪 · Empires at Dawn</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="online.css">
 </head>
 <body>
-
 <header id="topbar">
-  <div class="brand">
-    <span class="cn">模拟帝国</span>
-    <span class="en">SIM · EMPIRE</span>
-  </div>
-
-  <div id="resources"></div>
-
-  <div class="spacer"></div>
-
-  <div class="stat-chip" id="prestigeChip" title="声望：决定移民迁入速度">
-    <span class="i">⭐</span>
-    <span class="v" id="prestigeVal">一般</span>
-  </div>
-
-  <div class="stat-chip" id="labour" title="劳动力：已用 / 总人口">
-    <span class="i">👷</span>
-    <span class="v"><span id="labourText">0 / 0</span></span>
-    <div class="lbar"><i id="labourBar"></i></div>
-  </div>
-
-  <div class="speedbox">
-    <button data-speed="0" title="暂停（空格）">⏸</button>
-    <button data-speed="1" class="on">1×</button>
-    <button data-speed="2">2×</button>
-    <button data-speed="4">4×</button>
-  </div>
-
-  <button id="resetBtn" class="ghost" title="重新开始">重开</button>
+  <button class="brand" id="homeBtn" title="城市与存档" aria-label="城市与存档"><span class="brand-mark">万</span><span><span class="cn">万城纪</span><span class="en">EMPIRES AT DAWN</span></span></button>
+  <div class="header-rule"></div>
+  <button id="cityIdentity" class="city-identity" title="管理城市与存档"><b id="cityLabel">未命名的城邦</b><span id="cityEra">文明的黎明</span></button>
+  <div id="resources" aria-label="城市资源"></div>
+  <button id="inventoryBtn" class="icon-btn" title="全部库存（I）" aria-label="全部库存" data-icon="inventory"></button>
+  <div class="header-actions"><button id="onlineBtn" class="online-btn"><span data-icon="globe"></span><span>世界</span><i></i></button><button id="saveBtn" class="icon-btn" title="存档（Ctrl+S）" aria-label="存档" data-icon="save"></button><button id="helpBtn" class="icon-btn" title="城建指南（?）" aria-label="城建指南" data-icon="help"></button><button id="settingsBtn" class="icon-btn" title="设置" aria-label="设置" data-icon="settings"></button></div>
 </header>
-
-<div id="main">
+<main id="main">
   <div id="stage">
-    <canvas id="cv"></canvas>
-    <div id="toasts"></div>
-    <div id="hint"></div>
-    <div id="minimapBox"><canvas id="minimap"></canvas></div>
+    <canvas id="cv" aria-label="等距城市地图，可拖动平移，滚轮缩放" tabindex="0"></canvas>
+    <div class="map-caption"><span class="live-dot"></span><span id="mapCaption">THE DAWN OF A CIVILIZATION</span><span id="mapCoords">城市疆域</span></div>
+    <div id="toasts" role="status" aria-live="polite"></div>
+    <section class="panel chapter-panel" id="taskPanel">
+      <button class="panel-head" id="taskToggle" aria-expanded="true"><span class="eyebrow">城市篇章</span><span id="taskCount" class="dim"></span><span data-icon="chevron"></span></button>
+      <div class="chapter-content"><h2 id="chapterName">文明的黎明</h2><div id="taskBody" class="task-body"></div><div class="chapter-progress"><i id="chapterProgress"></i></div></div>
+    </section>
+    <aside id="side">
+      <section class="panel info-panel" id="infoPanel"><div class="panel-head"><span class="eyebrow" id="infoHead">执政官手札</span><button id="closeInfo" class="mini-btn" title="取消选择" aria-label="取消选择" data-icon="close"></button></div><div id="infoBody"></div></section>
+      <section class="panel city-pulse"><div class="stat-chip" id="prestigeChip"><span data-icon="laurel"></span><span><small>城市声望</small><b id="prestigeVal">一般</b></span><span id="prestigeNumber">30</span></div><div class="stat-chip" id="labour"><span data-icon="people"></span><span><small>已分配劳动力</small><b id="labourText">0 / 0</b></span><div class="lbar"><i id="labourBar"></i></div></div></section>
+    </aside>
+    <div id="minimapBox" class="panel"><div class="minimap-head"><span>疆域总览</span><button class="mini-btn" id="centerBtn" title="回到城镇（H）" aria-label="回到城镇" data-icon="focus"></button></div><canvas id="minimap" width="148" height="110" aria-label="点击导航的小地图"></canvas><div class="minimap-foot"><span id="mapSize">64 × 64</span><span id="seasonLabel">春 · 元年</span></div></div>
+    <div class="map-controls"><div class="control-group"><button id="zoomInBtn" title="放大（+）" aria-label="放大" data-icon="plus"></button><span id="zoomLabel">100%</span><button id="zoomOutBtn" title="缩小（−）" aria-label="缩小" data-icon="minus"></button></div><button id="dayBtn" class="control-single" title="昼夜模式（N）"><span data-icon="sun"></span><span id="dayLabel">自然昼夜</span></button><select id="overlaySelect" aria-label="地图覆盖层"><option value="none">城市视图</option><option value="road">道路连通</option><option value="water">供水覆盖</option><option value="pollution">污染影响</option></select></div>
+    <div id="hint" role="status"></div>
+    <div class="timebar"><div class="date-label"><span id="tickLabel">城市历 · 1 日</span><small id="saveStatus">自动保存已开启</small></div><div class="speedbox"><button data-speed="0" title="暂停（空格）" aria-label="暂停" data-icon="pause"></button><button data-speed="1" class="on" title="正常速度">1×</button><button data-speed="2" title="二倍速度">2×</button><button data-speed="4" title="四倍速度">4×</button></div><button id="logBtn" class="icon-btn" title="城市纪事" aria-label="城市纪事" data-icon="scroll"></button></div>
+    <section class="panel log-panel" id="logPanel" hidden><div class="panel-head"><span class="eyebrow">城市纪事</span><button id="closeLog" class="mini-btn" aria-label="关闭纪事" data-icon="close"></button></div><div id="log"></div></section>
   </div>
-
-  <aside id="side">
-    <section class="panel" id="taskPanel">
-      <div class="panel-head">
-        <span id="chapterName">第一章</span>
-        <span id="taskCount" class="dim"></span>
-      </div>
-      <div id="taskBody" class="task-body"></div>
-    </section>
-
-    <section class="panel grow-none" id="buildPanel">
-      <div class="panel-head"><span>建 造</span><span id="buildModeHint" class="dim"></span></div>
-      <div id="buildTabs"></div>
-      <div id="buildList"></div>
-    </section>
-
-    <section class="panel" id="infoPanel">
-      <div class="panel-head"><span id="infoHead">顾问</span></div>
-      <div id="infoBody"></div>
-    </section>
-
-    <section class="panel log-panel">
-      <div class="panel-head"><span>纪 事</span></div>
-      <div id="log"></div>
-    </section>
-  </aside>
-</div>
-
-<div id="modal" class="modal">
-  <div class="modal-card" id="modalCard"></div>
-</div>
-
-<script src="game.js"></script>
+  <section class="panel builder" id="buildPanel"><div class="builder-top"><div class="builder-title"><span data-icon="build"></span><b>营造城市</b><span id="buildModeHint"></span></div><div id="buildTabs" role="tablist" aria-label="建筑分类"></div><label class="build-search"><span data-icon="search"></span><input id="buildSearch" type="search" placeholder="搜索建筑…" autocomplete="off" aria-label="搜索建筑"></label><button id="buildToggle" class="mini-btn" title="收起 / 展开建造栏（B）" aria-label="收起建造栏" data-icon="chevron"></button></div><div id="buildList"></div><div class="builder-foot"><span id="buildCount">从第一条街道开始</span><span>拖动平移 <i>·</i> 滚轮缩放 <i>·</i> Esc 取消</span></div></section>
+</main>
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-card" id="modalCard"></div></div>
+<div id="onlineModal" class="modal" role="dialog" aria-modal="true" aria-label="在线城邦"></div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+<script src="js/data.js"></script>
+<script src="js/civilizations.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/online.js"></script>
+<script src="js/input.js"></script>
 </body>
 </html>
