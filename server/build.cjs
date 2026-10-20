@@ -5,31 +5,26 @@ const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'public');
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
-for (const file of ['index.html', 'style.css', 'online.css', 'js']) {
+for (const file of ['index.html', 'style.css', 'online.css']) {
   fs.cpSync(path.join(root, file), path.join(output, file), { recursive: true });
 }
-// Publish only browser assets. Original generation atlases, production records,
-// previews and asset tooling remain in the source repository for future edits.
-const assetRoot = path.join(root, 'assets');
-const spriteFiles = fs.readdirSync(path.join(assetRoot, 'sprites'))
-  .filter(name => /^[A-Za-z0-9_-]+\.webp$/.test(name))
-  .map(name => `sprites/${name}`);
-const metadata = JSON.parse(fs.readFileSync(path.join(assetRoot, 'sprites.json'), 'utf8'));
-const publishedSprites = new Set(spriteFiles);
-for (const [key, entry] of Object.entries(metadata)) {
-  if (!publishedSprites.has(entry.file)) throw new Error(`Missing runtime sprite for ${key}: ${entry.file}`);
+fs.mkdirSync(path.join(output,'js'),{recursive:true});
+for(const file of ['data.js','civilizations.js','simulation.js','godot-bridge.js','online.js','godot-loader.js'])fs.copyFileSync(path.join(root,'js',file),path.join(output,'js',file));
+// Godot is exported in the reviewed development environment. Vercel only copies
+// those reproducible artifacts; it does not install a 1.2 GB engine toolchain.
+const engineRoot=path.join(root,'engine-web');
+const engineManifest=JSON.parse(fs.readFileSync(path.join(engineRoot,'manifest.json'),'utf8'));
+const crypto=require('node:crypto'),zlib=require('node:zlib');
+fs.mkdirSync(path.join(output,'engine-web'),{recursive:true});
+for(const entry of engineManifest.files){
+ if(!['game.wasm','game.pck'].includes(entry.file))throw new Error('Unexpected Godot artifact');
+ const compressed=fs.readFileSync(path.join(engineRoot,entry.file+'.gz'));
+ const raw=zlib.gunzipSync(compressed);
+ if(crypto.createHash('sha256').update(raw).digest('hex')!==entry.sha256)throw new Error('Godot artifact checksum mismatch: '+entry.file);
+ // Served with Content-Encoding:gzip and the original MIME type.
+ fs.writeFileSync(path.join(output,'engine-web',entry.file),compressed);
 }
-fs.mkdirSync(path.join(output, 'assets', 'sprites'), { recursive: true });
-for (const file of ['hero.webp', 'sprites.json', ...spriteFiles]) {
-  fs.copyFileSync(path.join(assetRoot, file), path.join(output, 'assets', file));
-}
-const partsRoot=path.join(assetRoot,'modular');
-const partsMetadata=JSON.parse(fs.readFileSync(path.join(partsRoot,'parts.json'),'utf8'));
-const partsFiles=new Set();
-for(const [key,entry] of Object.entries(partsMetadata.parts)) {
-  if(!/^parts\/[A-Za-z0-9_-]+\.webp$/.test(entry.file)||!fs.existsSync(path.join(partsRoot,entry.file))) throw new Error(`Missing or invalid modular part: ${key}`);
-  partsFiles.add(entry.file);
-}
-fs.mkdirSync(path.join(output,'assets','modular','parts'),{recursive:true});
-for(const file of ['parts.json',...partsFiles])fs.copyFileSync(path.join(partsRoot,file),path.join(output,'assets','modular',file));
-console.log(`Built static game with ${spriteFiles.length} sprites and ${partsFiles.size} modular parts; original atlases and tooling excluded. Online API remains a Vercel Node function.`);
+for(const file of ['game.js','game.audio.worklet.js','game.audio.position.worklet.js','manifest.json'])fs.copyFileSync(path.join(engineRoot,file),path.join(output,'engine-web',file));
+fs.mkdirSync(path.join(output,'assets','ui'),{recursive:true});
+for(const file of ['actions.png','controls.png','resources.png','paper.png','wood.png','card.png','red.png'])fs.copyFileSync(path.join(root,'godot','art','ui',file),path.join(output,'assets','ui',file));
+console.log('Built Godot Web, shared HUD artwork and simulation bridge. Legacy Canvas and unused sprite assets are excluded; online API remains a Vercel Node function.');

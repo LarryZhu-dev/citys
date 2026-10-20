@@ -1,0 +1,465 @@
+{
+  "regions": 48,
+  "atlases": {
+    "resources": {
+      "size": [
+        1536,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    "actions": {
+      "size": [
+        1536,
+        1536
+      ],
+      "mode": "RGBA"
+    },
+    "controls": {
+      "size": [
+        1536,
+        1536
+      ],
+      "mode": "RGBA"
+    }
+  },
+  "all_cell_borders_transparent": true,
+  "all_12px_gutters_transparent": true,
+  "source_pixels_not_upscaled": true,
+  "icons": {
+    "grain": {
+      "native_size": [
+        307,
+        312
+      ],
+      "opaque_pixels": 66857,
+      "transparent_border_px": 12
+    },
+    "veg": {
+      "native_size": [
+        311,
+        298
+      ],
+      "opaque_pixels": 65020,
+      "transparent_border_px": 12
+    },
+    "fruit": {
+      "native_size": [
+        318,
+        287
+      ],
+      "opaque_pixels": 60357,
+      "transparent_border_px": 12
+    },
+    "fish": {
+      "native_size": [
+        311,
+        239
+      ],
+      "opaque_pixels": 43211,
+      "transparent_border_px": 12
+    },
+    "meat": {
+      "native_size": [
+        316,
+        256
+      ],
+      "opaque_pixels": 54312,
+      "transparent_border_px": 12
+    },
+    "wood": {
+      "native_size": [
+        319,
+        273
+      ],
+      "opaque_pixels": 57413,
+      "transparent_border_px": 12
+    },
+    "stone": {
+      "native_size": [
+        307,
+        278
+      ],
+      "opaque_pixels": 60553,
+      "transparent_border_px": 12
+    },
+    "clay": {
+      "native_size": [
+        315,
+        261
+      ],
+      "opaque_pixels": 55495,
+      "transparent_border_px": 12
+    },
+    "copper": {
+      "native_size": [
+        313,
+        289
+      ],
+      "opaque_pixels": 64546,
+      "transparent_border_px": 12
+    },
+    "brick": {
+      "native_size": [
+        296,
+        280
+      ],
+      "opaque_pixels": 63175,
+      "transparent_border_px": 12
+    },
+    "pottery": {
+      "native_size": [
+        302,
+        281
+      ],
+      "opaque_pixels": 60903,
+      "transparent_border_px": 12
+    },
+    "cloth": {
+      "native_size": [
+        314,
+        270
+      ],
+      "opaque_pixels": 56849,
+      "transparent_border_px": 12
+    },
+    "bread": {
+      "native_size": [
+        317,
+        256
+      ],
+      "opaque_pixels": 57278,
+      "transparent_border_px": 12
+    },
+    "wine": {
+      "native_size": [
+        292,
+        296
+      ],
+      "opaque_pixels": 59623,
+      "transparent_border_px": 12
+    },
+    "gold": {
+      "native_size": [
+        303,
+        265
+      ],
+      "opaque_pixels": 52504,
+      "transparent_border_px": 12
+    },
+    "pop": {
+      "native_size": [
+        324,
+        336
+      ],
+      "opaque_pixels": 65688,
+      "transparent_border_px": 12
+    },
+    "build": {
+      "native_size": [
+        298,
+        287
+      ],
+      "opaque_pixels": 80693,
+      "transparent_border_px": 12
+    },
+    "road": {
+      "native_size": [
+        293,
+        287
+      ],
+      "opaque_pixels": 79475,
+      "transparent_border_px": 12
+    },
+    "world": {
+      "native_size": [
+        294,
+        286
+      ],
+      "opaque_pixels": 79524,
+      "transparent_border_px": 12
+    },
+    "view": {
+      "native_size": [
+        295,
+        286
+      ],
+      "opaque_pixels": 79874,
+      "transparent_border_px": 12
+    },
+    "menu": {
+      "native_size": [
+        297,
+        290
+      ],
+      "opaque_pixels": 81375,
+      "transparent_border_px": 12
+    },
+    "inventory": {
+      "native_size": [
+        293,
+        290
+      ],
+      "opaque_pixels": 80519,
+      "transparent_border_px": 12
+    },
+    "task": {
+      "native_size": [
+        293,
+        291
+      ],
+      "opaque_pixels": 80911,
+      "transparent_border_px": 12
+    },
+    "save": {
+      "native_size": [
+        295,
+        292
+      ],
+      "opaque_pixels": 81597,
+      "transparent_border_px": 12
+    },
+    "load": {
+      "native_size": [
+        298,
+        283
+      ],
+      "opaque_pixels": 79467,
+      "transparent_border_px": 12
+    },
+    "center": {
+      "native_size": [
+        293,
+        281
+      ],
+      "opaque_pixels": 77989,
+      "transparent_border_px": 12
+    },
+    "zoom-in": {
+      "native_size": [
+        293,
+        281
+      ],
+      "opaque_pixels": 78070,
+      "transparent_border_px": 12
+    },
+    "zoom-out": {
+      "native_size": [
+        296,
+        281
+      ],
+      "opaque_pixels": 78654,
+      "transparent_border_px": 12
+    },
+    "day": {
+      "native_size": [
+        298,
+        286
+      ],
+      "opaque_pixels": 80570,
+      "transparent_border_px": 12
+    },
+    "night": {
+      "native_size": [
+        292,
+        285
+      ],
+      "opaque_pixels": 78751,
+      "transparent_border_px": 12
+    },
+    "demolish": {
+      "native_size": [
+        293,
+        286
+      ],
+      "opaque_pixels": 79670,
+      "transparent_border_px": 12
+    },
+    "cancel": {
+      "native_size": [
+        296,
+        287
+      ],
+      "opaque_pixels": 80320,
+      "transparent_border_px": 12
+    },
+    "pause": {
+      "native_size": [
+        305,
+        290
+      ],
+      "opaque_pixels": 83605,
+      "transparent_border_px": 12
+    },
+    "play": {
+      "native_size": [
+        299,
+        290
+      ],
+      "opaque_pixels": 81888,
+      "transparent_border_px": 12
+    },
+    "settings": {
+      "native_size": [
+        301,
+        290
+      ],
+      "opaque_pixels": 82434,
+      "transparent_border_px": 12
+    },
+    "help": {
+      "native_size": [
+        301,
+        290
+      ],
+      "opaque_pixels": 82628,
+      "transparent_border_px": 12
+    },
+    "move": {
+      "native_size": [
+        305,
+        295
+      ],
+      "opaque_pixels": 85122,
+      "transparent_border_px": 12
+    },
+    "confirm": {
+      "native_size": [
+        296,
+        295
+      ],
+      "opaque_pixels": 82678,
+      "transparent_border_px": 12
+    },
+    "trade": {
+      "native_size": [
+        300,
+        295
+      ],
+      "opaque_pixels": 83851,
+      "transparent_border_px": 12
+    },
+    "export": {
+      "native_size": [
+        300,
+        295
+      ],
+      "opaque_pixels": 83659,
+      "transparent_border_px": 12
+    },
+    "import": {
+      "native_size": [
+        304,
+        286
+      ],
+      "opaque_pixels": 82316,
+      "transparent_border_px": 12
+    },
+    "new-city": {
+      "native_size": [
+        298,
+        286
+      ],
+      "opaque_pixels": 80639,
+      "transparent_border_px": 12
+    },
+    "checkbox-on": {
+      "native_size": [
+        299,
+        286
+      ],
+      "opaque_pixels": 80555,
+      "transparent_border_px": 12
+    },
+    "checkbox-off": {
+      "native_size": [
+        300,
+        286
+      ],
+      "opaque_pixels": 81197,
+      "transparent_border_px": 12
+    },
+    "overlay-water": {
+      "native_size": [
+        304,
+        291
+      ],
+      "opaque_pixels": 83474,
+      "transparent_border_px": 12
+    },
+    "overlay-pollution": {
+      "native_size": [
+        300,
+        291
+      ],
+      "opaque_pixels": 82450,
+      "transparent_border_px": 12
+    },
+    "speed": {
+      "native_size": [
+        302,
+        291
+      ],
+      "opaque_pixels": 83055,
+      "transparent_border_px": 12
+    },
+    "lock": {
+      "native_size": [
+        300,
+        291
+      ],
+      "opaque_pixels": 82421,
+      "transparent_border_px": 12
+    }
+  },
+  "panels": {
+    "paper": {
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "inner_alpha_range": [
+        251,
+        254
+      ],
+      "nine_patch_visual_review": "580x710 paper panel, 480x42 wood strip, 440x48 paper/red buttons; border corners preserved; source alpha retained"
+    },
+    "wood": {
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "inner_alpha_range": [
+        251,
+        254
+      ],
+      "nine_patch_visual_review": "580x710 paper panel, 480x42 wood strip, 440x48 paper/red buttons; border corners preserved; source alpha retained"
+    },
+    "card": {
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "inner_alpha_range": [
+        251,
+        254
+      ],
+      "nine_patch_visual_review": "580x710 paper panel, 480x42 wood strip, 440x48 paper/red buttons; border corners preserved; source alpha retained"
+    },
+    "red": {
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "inner_alpha_range": [
+        251,
+        254
+      ],
+      "nine_patch_visual_review": "580x710 paper panel, 480x42 wood strip, 440x48 paper/red buttons; border corners preserved; source alpha retained"
+    }
+  }
+}

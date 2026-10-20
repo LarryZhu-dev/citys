@@ -1,20 +1,22 @@
 "use strict";
 /* Deterministic city simulation. Rendering and network services are optional consumers. */
 let _roadNet = null, _roadDirty = true, _buildingCache = null;
+let _connectivityCache = new Map(), _serviceCache = null, _quietSimulation = false;
 const inB = (x,y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && x < MAP_W && y >= 0 && y < MAP_H;
 const tileAt = (x,y) => S && inB(x,y) ? S.tiles[y][x] : null;
 const isResidence = b => b && (b.type === "house" || b.type === "villa");
 const isComplete = b => !b.construction || !!b.construction.fromLevel;
 
-function emitToast(message, kind){ if (typeof toast === "function") toast(message, kind); }
+function emitToast(message, kind){ if (!_quietSimulation && typeof toast === "function") toast(message, kind); }
 function emitLog(message, kind){ if (typeof log === "function") log(message, kind); }
 function refreshUI(){ if (typeof renderAll === "function") renderAll(); }
 function invalidateWorld(){
   _buildingCache = null;
   _roadDirty = true;
+  _connectivityCache.clear(); _serviceCache=null;
   if (typeof window !== "undefined" && typeof window.invalidateRenderer === "function") window.invalidateRenderer();
 }
-function markRoadDirty(){ _roadDirty = true; _buildingCache = null; }
+function markRoadDirty(){ _roadDirty = true; _buildingCache = null; _connectivityCache.clear(); _serviceCache=null; }
 function hashSeed(value){
   const str = String(value ?? "empire");
   let h = 2166136261;
@@ -147,6 +149,7 @@ function newGame(options = {}){
   if (mode === "sandbox") for (const k in goods) goods[k] = 3000;
   S = {
     version:SAVE_VERSION, seed, rngState:hashSeed(seed), civilization,
+    clock:createCityClock(options.nowMs),
     cityName:String(options.cityName || civ.cityNames[0]).trim().slice(0,24) || civ.cityNames[0], mode,
     tick:0,pop:12,workersAssigned:6,goods,caps:{food:500,mat:600},gold:mode === "sandbox" ? 50000 : 350,
     prestige:48,chapter:0,taskDone:CHAPTERS.map(c=>c.tasks.map(()=>false)),
@@ -164,9 +167,11 @@ function newGame(options = {}){
   put(45,15,"farmland"); put(48,22,"lumber");
   put(44,13,"treeDeco"); put(53,13,"treeDeco");
   updateCaps(); allocateWorkers(buildings());
+  for(const o of buildings()) if(BUILD[o.b.type].prod) startProduction(o);
   emitLog("欢迎来到" + S.cityName + "。驿道连接远方，先在住宅旁修建一口水井。","good");
   emitLog("保持道路连通；绿色预览可建造。商铺隔着同一条道路成对放置，居民才会收到商品。");
-  if (mode === "sandbox") emitLog("自由建造：全部建筑已解锁，拥有充足物资；人口、生产和道路规则依然有效。","good");
+  if (mode === "sandbox") emitLog("自由营造：全部建筑已解锁，可使用 4 倍或 60 倍时间；人口、生产和道路规则依然有效。","good");
+  else emitLog("经营时间与现实同步。离线自动经营最多 8 小时，已排队施工最多推进 72 小时；此为本作便利规则。");
   refreshUI();
   if (typeof centerOnCity === "function") centerOnCity();
   if (typeof save === "function") save();
@@ -231,8 +236,11 @@ function touchesRoad(x,y,size){
   return fp.some(([cx,cy])=>DIRS.some(([dx,dy])=>tileAt(cx+dx,cy+dy)?.b?.type === "road"));
 }
 function connectedToMain(x,y,size=1){
-  const net=roadNetwork(), fp=footprint(x,y,size); if (!fp) return false;
-  return fp.some(([cx,cy,t])=>(t.b?.type==="road" && net[cy][cx]) || DIRS.some(([dx,dy])=>inB(cx+dx,cy+dy) && net[cy+dy][cx+dx]));
+  const key=x+','+y+','+size;
+  if(_connectivityCache.has(key))return _connectivityCache.get(key);
+  const net=roadNetwork(),fp=footprint(x,y,size);
+  const linked=!!fp&&fp.some(([cx,cy,t])=>(t.b?.type==="road"&&net[cy][cx])||DIRS.some(([dx,dy])=>inB(cx+dx,cy+dy)&&net[cy+dy][cx+dx]));
+  _connectivityCache.set(key,linked);return linked;
 }
 function nearWater(x,y,size=1,distance=1){
   for (let yy=y-distance;yy<y+size+distance;yy++) for (let xx=x-distance;xx<x+size+distance;xx++) if (tileAt(xx,yy)?.t==="water") return true;
@@ -251,12 +259,18 @@ function providedNeeds(type){
   return extras[type] || (BUILD[type].provides ? [BUILD[type].provides] : []);
 }
 function coveredBy(x,y,need){
-  for (const o of buildings()) {
-    const d=BUILD[o.b.type];
-    if (!providedNeeds(o.b.type).includes(need) || !operational(o)) continue;
-    if (distanceToBuilding(x,y,o) <= (d.radius||0)) return o;
-  }
-  return null;
+  const key=x+','+y+','+need;
+  if(_serviceCache?.coverage.has(key))return _serviceCache.coverage.get(key);
+  const candidates=_serviceCache?(_serviceCache.providers[need]||[]):buildings();
+  const match=candidates.find(o=>providedNeeds(o.b.type).includes(need)&&operational(o)&&distanceToBuilding(x,y,o)<=(BUILD[o.b.type].radius||0))||null;
+  _serviceCache?.coverage.set(key,match);return match;
+}
+function refreshServiceCache(bl){
+  const signature=bl.filter(o=>!isResidence(o.b)&&o.b.type!=="road").map(o=>o.b.id+':'+Number(!!o.b.staffed)+Number(!!o.b.construction)+Number(!!o.b.damage)).join(',');
+  if(_serviceCache?.signature===signature)return;
+  const providers={};
+  for(const o of bl)if(operational(o))for(const need of providedNeeds(o.b.type))(providers[need]??=[]).push(o);
+  _serviceCache={signature,providers,coverage:new Map(),beauty:new Map(),pollution:new Map(),shopCoverage:new Map(),environments:new Map(),shops:bl.filter(o=>(BUILD[o.b.type].shop||BUILD[o.b.type].shopAll)&&operational(o))};
 }
 function shopsPaired(a,b){
   if (!a || !b || a.b.id===b.b.id || !BUILD[a.b.type].shop || BUILD[a.b.type].shop!==BUILD[b.b.type].shop) return false;
@@ -288,11 +302,13 @@ function shopPairCount(kind){
 }
 const POLLUTERS=["lumber","quarry","clayPit","copperMine","kiln","pottery","mill","weaver","winery","barracks"];
 function pollutionAt(x,y){
+  const key=x+","+y;if(_serviceCache?.pollution.has(key))return _serviceCache.pollution.get(key);
   let pollution=0;
   for (const o of buildings()) if (POLLUTERS.includes(o.b.type) && operational(o) && distanceToBuilding(x,y,o)<=2) pollution++;
-  return pollution;
+  _serviceCache?.pollution.set(key,pollution);return pollution;
 }
 function beautyAt(x,y){
+  const key=x+","+y;if(_serviceCache?.beauty.has(key))return _serviceCache.beauty.get(key);
   let beauty=0;
   for (const o of buildings()) {
     if (o.b.construction) continue;
@@ -304,7 +320,7 @@ function beautyAt(x,y){
     }
     if (d.civilization && operational(o) && distanceToBuilding(x,y,o)<=4) beauty+=2;
   }
-  return beauty;
+  _serviceCache?.beauty.set(key,beauty);return beauty;
 }
 const netBeauty=(x,y)=>beautyAt(x,y)-pollutionAt(x,y);
 
@@ -321,6 +337,7 @@ function allocateWorkers(bl){
       o.b.staffed=true; available-=need; S.workersAssigned+=need;
     }
   }
+  refreshServiceCache(bl);
 }
 function updateCaps(){
   const active=type=>buildings().filter(o=>o.b.type===type && operational(o)).length;
@@ -343,46 +360,63 @@ function productionMultiplier(o){
   }
   return mult;
 }
-function advanceConstruction(bl){
+function advanceConstruction(bl,seconds){
+  let changed=false;
   for (const o of bl) {
     const b=o.b,d=BUILD[b.type];
-    if (b.damage) b.damage=Math.max(0,b.damage-(coveredBy(o.x,o.y,"repair")?3:1));
+    if(b.damage){b.damage=Math.max(0,b.damage-seconds*(coveredBy(o.x,o.y,"repair")?3:1));if(!b.damage){changed=true;_serviceCache=null;}}
     if (!b.construction) continue;
     b.staffed=false;
     if (d.cat!=="decor" && !connectedToMain(o.x,o.y,d.size)) { b.idle=true; continue; }
-    b.idle=false; b.construction.remaining--;
+    b.idle=false; b.construction.remaining=Math.max(0,b.construction.remaining-seconds);
     if (b.construction.remaining>0) continue;
     if (b.construction.toLevel) {
       b.lvl=b.construction.toLevel; b.missTicks=0;
       emitToast(d.name+"升至 "+b.lvl+" 级","good");
     } else if (d.cat!=="decor") emitToast(d.name+"已建成","good");
-    delete b.construction;
+    delete b.construction; _serviceCache=null;changed=true;
     if (b.type==="wonder") winGame();
     if (typeof window!=="undefined" && typeof window.invalidateRenderer==="function") window.invalidateRenderer();
   }
+  if(changed){allocateWorkers(bl);updateCaps();}
 }
-function simulate(){
-  if (!S) return;
-  const before={...S.goods,gold:S.gold,pop:S.pop};
+function constructionDuration(type,fromLevel=0,civilization=S?.civilization){
+  const base=fromLevel?(type==='villa'?VILLA_UPGRADE_SECONDS:HOUSE_UPGRADE_SECONDS)[fromLevel]:BUILD[type]?.buildTime;
+  if(!base)return 0;
+  // Two minutes remains a useful warehouse onboarding anchor across civilizations.
+  return Math.max(120,Math.round(base*(getCivilization(civilization).modifiers.construction||1)));
+}
+function startProduction(o){
+  const b=o.b,d=BUILD[b.type];
+  if(!d.prod||b.production)return false;
+  if(!operational(o)){b.idle=true;b.idleReason='需要道路和工人，且建筑应完工';return false;}
+  const duration=d.cycleSeconds,multiplier=productionMultiplier(o),scale=duration/60;
+  if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9<n*scale*multiplier)){b.idle=true;b.idleReason='仓储不足一批产量';return false;}
+  if(d.input&&Object.entries(d.input).some(([kind,n])=>(S.goods[kind]||0)+1e-9<n*scale)){b.idle=true;b.idleReason='原料不足一批用量';return false;}
+  if(d.input)for(const[kind,n]of Object.entries(d.input))S.goods[kind]=Math.max(0,S.goods[kind]-n*scale);
+  b.production={elapsed:0,duration,multiplier};b.idle=false;delete b.idleReason;return true;
+}
+function advanceProduction(bl){
+  for(const o of bl){
+    const b=o.b,d=BUILD[b.type];if(!d.prod)continue;
+    if(!b.production){startProduction(o);continue;}
+    if(!operational(o)){b.idle=true;b.idleReason='道路、工人或建筑状态中断';continue;}
+    const p=b.production,scale=p.duration/60;
+    // Preserve a ready batch while storage is full; neither inputs nor finished goods vanish.
+    if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9<n*scale*p.multiplier)){b.idle=true;b.idleReason='仓储不足，批次保留';continue;}
+    b.idle=false;delete b.idleReason;
+    p.elapsed=Math.min(p.duration,p.elapsed+ECONOMY_STEP_SECONDS);
+    if(p.elapsed+1e-9<p.duration)continue;
+    for(const[kind,n]of Object.entries(d.prod))S.goods[kind]=(S.goods[kind]||0)+n*scale*p.multiplier;
+    b.productionTicks=(b.productionTicks||0)+1;delete b.production;
+    startProduction(o);
+  }
+}
+function economyMinute(){
   S.tick++;
   const bl=buildings();
-  advanceConstruction(bl);
   S.pop=bl.reduce((sum,o)=>sum+(isResidence(o.b)?o.b.pop||0:0),0);
-  allocateWorkers(bl); updateCaps();
-  // Debit each factory's inputs immediately: two factories can never spend the same clay.
-  for (const o of bl) {
-    const d=BUILD[o.b.type];
-    if (!d.prod) continue;
-    if (!operational(o)) { o.b.idle=true; continue; }
-    if (d.input && Object.entries(d.input).some(([kind,n])=>(S.goods[kind]||0)<n)) { o.b.idle=true; continue; }
-    const mult=productionMultiplier(o);
-    const room=Math.min(1,...Object.entries(d.prod).map(([kind,n])=>Math.max(0,resourceCapacity(kind)-(S.goods[kind]||0))/(n*mult)));
-    if (room<=0) { o.b.idle=true; continue; }
-    o.b.idle=false;
-    o.b.productionTicks=(o.b.productionTicks||0)+1;
-    if (d.input) for (const [kind,n] of Object.entries(d.input)) S.goods[kind]-=n*room;
-    for (const [kind,n] of Object.entries(d.prod)) S.goods[kind]=Math.min(resourceCapacity(kind),(S.goods[kind]||0)+n*mult*room);
-  }
+  allocateWorkers(bl);updateCaps();advanceProduction(bl);
   const consumption=Object.fromEntries(Object.keys(GOODS).map(k=>[k,0]));
   const residences=bl.filter(o=>isResidence(o.b));
   for (const o of residences) {
@@ -392,29 +426,29 @@ function simulate(){
     let cur=residenceLevel(h);
     if (!h.construction) {
       if (met.canUpgrade && (h.pop||0)>=cur.pop*0.9) {
-        h.upTimer=(h.upTimer||0)+1;
+        h.upTimer=(h.upTimer||0)+ECONOMY_STEP_SECONDS;
         if (h.upTimer>=UPGRADE_DELAY) {
-          const total=Math.max(4,Math.round((6+h.lvl*2)*civilizationBonus("construction")));
+          const total=constructionDuration(h.type,h.lvl);
           h.construction={remaining:total,total,fromLevel:h.lvl,toLevel:h.lvl+1}; h.upTimer=0; h.missTicks=0;
         }
       } else h.upTimer=0;
       if (!met.currentOk && h.lvl>1) {
-        h.missTicks=(h.missTicks||0)+1;
-        if (h.missTicks>=45) {
+        h.missTicks=(h.missTicks||0)+ECONOMY_STEP_SECONDS;
+        if (h.missTicks>=NEED_GRACE_SECONDS) {
           h.lvl--; h.missTicks=0; cur=residenceLevel(h); h.pop=Math.min(h.pop,cur.pop);
           emitLog(BUILD[h.type].name+"的需求持续缺失，降至 "+h.lvl+" 级。","bad");
         }
-      } else h.missTicks=Math.max(0,(h.missTicks||0)-2);
+      } else h.missTicks=Math.max(0,(h.missTicks||0)-2*ECONOMY_STEP_SECONDS);
       if (met.map.road && S.goods.grain>10 && !h.construction) {
         const rate=Math.max(0.3,cur.pop*0.045*prestigeTier(S.prestige).immig*civilizationBonus("immigration"));
         h.pop=Math.min(cur.pop,(h.pop||0)+rate);
       } else if (!met.map.road || S.goods.grain<=0) h.pop=Math.max(0,(h.pop||0)-Math.max(0.1,cur.pop*0.01));
-      if (!h.construction && met.currentOk && h.pop>=cur.pop*0.5) {
-        h.taxTimer=(h.taxTimer||0)+1;
-        if (h.taxTimer>=TAX_INTERVAL) {
-          const bonus=civilizationBonus("tax")*(S.civilization==="greece" && hasActiveLandmark()?1.1:1);
-          const tax=cur.tax*bonus; S.gold+=tax; S.stats.taxed+=tax; h.taxTimer=0;
-        }
+    }
+    if (met.currentOk && h.pop>=cur.pop*0.5) {
+      h.taxTimer=(h.taxTimer||0)+ECONOMY_STEP_SECONDS;
+      if(h.taxTimer>=TAX_INTERVAL){
+        const bonus=civilizationBonus("tax")*(S.civilization==="greece"&&hasActiveLandmark()?1.1:1);
+        const tax=cur.tax*bonus;S.gold+=tax;S.stats.taxed+=tax;h.taxTimer-=TAX_INTERVAL;
       }
     }
     // Occupants of an upgrading home remain in town and still eat.
@@ -432,38 +466,37 @@ function simulate(){
   if (S.tick%60===0) hazards(bl);
   checkTasks();
   S.stats.maxPop=Math.max(S.stats.maxPop,S.pop);
-  S.lastDelta=Object.fromEntries([...Object.keys(GOODS),"gold","pop"].map(k=>[k,(k==="gold"?S.gold:k==="pop"?S.pop:S.goods[k])-(before[k]||0)]));
+}
+function residenceEnvironment(o){
+  const key=o.x+','+o.y+','+o.b.type;
+  if(_serviceCache?.environments.has(key))return _serviceCache.environments.get(key);
+  const map={road:connectedToMain(o.x,o.y,BUILD[o.b.type].size)},shopCoverage={};
+  for(const need of ["water","temple","school","fun","safety","health","security","repair","bath","university","observatory"])map[need]=!!coveredBy(o.x,o.y,need);
+  const shops=_serviceCache?.shops||buildings().filter(q=>(BUILD[q.b.type].shop||BUILD[q.b.type].shopAll)&&operational(q));
+  for(const kind of ["grain","veg","fruit","fish","meat"])shopCoverage[kind]=shops.some(q=>{const d=BUILD[q.b.type];return(d.shop===kind||d.shopAll)&&distanceToBuilding(o.x,o.y,q)<=d.radius&&(d.shopAll||shopPairOk(q));});
+  const environment={map,shopCoverage,beauty:netBeauty(o.x,o.y),clean:o.b.type!=="villa"||pollutionAt(o.x,o.y)===0};
+  _serviceCache?.environments.set(key,environment);return environment;
 }
 function evaluateNeeds(o){
-  const h=o.b,levels=residenceLevels(h),lvlData=residenceLevel(h),map={};
-  map.road=connectedToMain(o.x,o.y,BUILD[h.type].size);
-  for (const need of ["water","temple","school","fun","safety","health","security","repair","bath","university","observatory"]) map[need]=!!coveredBy(o.x,o.y,need);
-  const shops=buildings().filter(q=>(BUILD[q.b.type].shop || BUILD[q.b.type].shopAll) && operational(q));
-  for (const kind of ["grain","veg","fruit","fish","meat"]) {
-    map[kind]=(S.goods[kind]||0)>0 && shops.some(q=>{
-      const d=BUILD[q.b.type]; return (d.shop===kind || d.shopAll) && distanceToBuilding(o.x,o.y,q)<=d.radius && (d.shopAll || shopPairOk(q));
-    });
-  }
+  const h=o.b,levels=residenceLevels(h),lvlData=residenceLevel(h),environment=residenceEnvironment(o),map={...environment.map};
+  for(const kind of ["grain","veg","fruit","fish","meat"])map[kind]=(S.goods[kind]||0)>0&&environment.shopCoverage[kind];
   map.woodMat=(S.goods.wood||0)>=5; map.stoneMat=(S.goods.stone||0)>=5; map.clayMat=(S.goods.clay||0)>=5;
   for (const kind of ["pottery","wine","cloth"]) map[kind]=(S.goods[kind]||0)>=1;
   const missing=lvlData.needs.filter(n=>!map[n]);
   const next=levels[h.lvl||1], nextMissing=next?next.needs.filter(n=>!map[n]):[];
-  const beauty=netBeauty(o.x,o.y), clean=h.type!=="villa" || pollutionAt(o.x,o.y)===0;
+  const {beauty,clean}=environment;
   const canUpgrade=!!next && !h.construction && nextMissing.length===0 && beauty>=0 && clean;
   return {map,missing,currentOk:missing.length===0,next,nextMissing,canUpgrade,ok:canUpgrade,beauty,clean};
 }
 function updatePrestige(){
   const bl=buildings(),res=bl.filter(o=>isResidence(o.b)&&isComplete(o.b));
-  const fraction=predicate=>res.length?res.filter(predicate).length/res.length:0;
-  let target=55;
-  target+=Math.min(12,S.gold/500);
-  target+=fraction(o=>!!coveredBy(o.x,o.y,"safety"))*8;
-  target+=fraction(o=>!!coveredBy(o.x,o.y,"health"))*6;
-  target+=fraction(o=>!!coveredBy(o.x,o.y,"security"))*4;
-  target+=fraction(o=>!!coveredBy(o.x,o.y,"school"))*6;
-  target+=fraction(o=>!!coveredBy(o.x,o.y,"fun"))*5;
-  target+=fraction(o=>netBeauty(o.x,o.y)>0)*8;
-  target-=fraction(o=>o.b.met && !o.b.met.currentOk)*20;
+  let coveredScore=0,unmet=0;
+  for(const o of res){
+    const environment=residenceEnvironment(o),map=environment.map;
+    coveredScore+=(map.safety?8:0)+(map.health?6:0)+(map.security?4:0)+(map.school?6:0)+(map.fun?5:0)+(environment.beauty>0?8:0);
+    if(o.b.met&&!o.b.met.currentOk)unmet++;
+  }
+  let target=55+Math.min(12,S.gold/500)+(res.length?(coveredScore-unmet*20)/res.length:0);
   target-=Math.min(12,bl.filter(o=>BUILD[o.b.type].workers && !o.b.staffed && !o.b.construction).length);
   if (S.goods.grain<20) target-=20;
   target=Math.max(0,Math.min(100,target));
@@ -474,7 +507,7 @@ function hazards(bl){
   const risk=bl.filter(o=>BUILD[o.b.type].prod && operational(o) && !coveredBy(o.x,o.y,"safety"));
   if (!risk.length) return;
   const victim=risk[Math.floor(cityRandom()*risk.length)];
-  victim.b.damage=18; victim.b.staffed=false; S.stats.disasters=(S.stats.disasters||0)+1;
+  victim.b.damage=18*60; _serviceCache=null; victim.b.staffed=false; S.stats.disasters=(S.stats.disasters||0)+1;
   emitLog(BUILD[victim.b.type].name+"发生小火灾，停工修复中。值更房能预防火灾，修缮所可加速恢复。","bad");
   emitToast("生产建筑受损，正在修复","bad");
 }
@@ -534,7 +567,7 @@ function doBuild(type,x,y){
   if (!b) return false;
   for (const [kind,n] of Object.entries(d.cost||{})) S.goods[kind]-=n;
   if (d.buildTime>0) {
-    const total=Math.max(1,Math.round(d.buildTime*civilizationBonus("construction")));
+    const total=constructionDuration(type);
     b.construction={remaining:total,total};
   }
   S.stats.totalBuilt++; refreshUI(); return true;
@@ -603,9 +636,68 @@ function winGame(){
   if (S.won) return;
   S.won=true;
   emitLog(getCivilization().wonderName+"落成！你已达成文明胜利，城市仍可继续发展。","good");
-  if (typeof modal!=="function") return;
+  if (_quietSimulation || typeof modal!=="function") return;
   if (typeof setSpeed==="function") setSpeed(0);
-  modal({em:"🏛️",title:getCivilization().wonderName+"落成",body:"<p>经过 <b>"+S.tick+"</b> 个时刻，你的城邦完成了文明奇观。</p><p>最高人口 <b>"+Math.floor(S.stats.maxPop)+"</b> · 累计税收 <b>"+Math.floor(S.stats.taxed)+"</b> · 新建建筑 <b>"+S.stats.totalBuilt+"</b> 座。</p><p>继续扩建你的城市，或让一个新文明写下下一段历史。</p>",buttons:[{text:"继续经营",primary:true,fn:()=>{if(typeof setSpeed==="function")setSpeed(1);}}]});
+  modal({em:"🏛️",title:getCivilization().wonderName+"落成",body:"<p>经过 <b>"+S.tick+"</b> 分钟经营时间，你的城邦完成了文明奇观。</p><p>最高人口 <b>"+Math.floor(S.stats.maxPop)+"</b> · 累计税收 <b>"+Math.floor(S.stats.taxed)+"</b> · 新建建筑 <b>"+S.stats.totalBuilt+"</b> 座。</p><p>继续扩建你的城市，或让一个新文明写下下一段历史。</p>",buttons:[{text:"继续经营",primary:true,fn:()=>{if(typeof setSpeed==="function")setSpeed(1);}}]});
+}
+
+/* A single monotonic wall-clock watermark avoids frame-rate and repeated-load rewards.
+   Campaign pause is a visual pause; explicit suspended transactions consume time without rewards. */
+function createCityClock(nowMs=Date.now()){
+  const now=Number(nowMs);return {version:1,lastWallMs:Number.isFinite(now)?now:Date.now(),elapsedSeconds:0,accumulatorSeconds:0};
+}
+function step(seconds,options={}){
+  if(!S)return null;
+  seconds=Number(seconds);if(!Number.isFinite(seconds)||seconds<=0)return null;
+  seconds=Math.min(seconds,OFFLINE_CONSTRUCTION_SECONDS);
+  S.clock??=createCityClock();
+  const before={...S.goods,gold:S.gold,pop:S.pop},startTick=S.tick;
+  const previousQuiet=_quietSimulation;_quietSimulation=previousQuiet||!!options.silent;
+  try{
+    if(options.constructionOnly){
+      advanceConstruction(buildings(),seconds);S.clock.elapsedSeconds+=seconds;
+      allocateWorkers(buildings());updateCaps();checkTasks();
+    }else{
+      let remaining=seconds;
+      while(remaining>1e-8){
+        const part=Math.min(remaining,ECONOMY_STEP_SECONDS-S.clock.accumulatorSeconds);
+        advanceConstruction(buildings(),part);S.clock.elapsedSeconds+=part;S.clock.accumulatorSeconds+=part;remaining-=part;
+        if(S.clock.accumulatorSeconds+1e-8>=ECONOMY_STEP_SECONDS){S.clock.accumulatorSeconds=0;economyMinute();}
+      }
+    }
+  }finally{_quietSimulation=previousQuiet;}
+  if(S.tick!==startTick){
+    S.lastDelta=Object.fromEntries([...Object.keys(GOODS),"gold","pop"].map(k=>[k,(k==='gold'?S.gold:k==='pop'?S.pop:S.goods[k])-(before[k]||0)]));
+    S.lastDeltaSeconds=(S.tick-startTick)*ECONOMY_STEP_SECONDS;
+  }
+  return {seconds,economySeconds:(S.tick-startTick)*ECONOMY_STEP_SECONDS,ticks:S.tick-startTick};
+}
+const stepSimulation=step;
+function advanceClock(nowMs=Date.now(),options={}){
+  if(!S)return null;
+  S.clock??=createCityClock(nowMs);
+  const now=Number(nowMs),last=S.clock.lastWallMs;
+  if(!Number.isFinite(now)||now<=last)return {seconds:0,economySeconds:0,constructionSeconds:0};
+  const elapsed=(now-last)/1000;S.clock.lastWallMs=now;
+  if(options.suspended)return {seconds:elapsed,economySeconds:0,constructionSeconds:0,suspended:true};
+  const requested=Number(options.speed??(typeof speed==='number'?speed:1));
+  const multiplier=S.mode==='sandbox'&&!options.offline?Math.max(0,Math.min(60,Number.isFinite(requested)?requested:1)):1;
+  const economic=Math.min(elapsed*multiplier,OFFLINE_ECONOMY_SECONDS);
+  const construction=Math.min(elapsed*multiplier,OFFLINE_CONSTRUCTION_SECONDS);
+  // Avoid per-second loops: at most 480 minute steps for an eight-hour absence.
+  if(economic>0)step(economic,{silent:!!options.offline});
+  if(construction>economic)step(construction-economic,{constructionOnly:true,silent:!!options.offline});
+  const summary={seconds:elapsed,economySeconds:economic,constructionSeconds:construction,capped:elapsed>OFFLINE_ECONOMY_SECONDS};
+  if(options.offline)S.offlineSummary=summary;
+  return summary;
+}
+function simulate(){return advanceClock(Date.now());}
+function productionProgress(b){
+  if(!b.production)return {elapsed:0,duration:BUILD[b.type]?.cycleSeconds||0,progress:0};
+  const p=b.production,d=BUILD[b.type],o={x:b.origin?.[0],y:b.origin?.[1],b};
+  const active=!b.idle&&Number.isInteger(o.x)&&operational(o)&&Object.entries(d.prod).every(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9>=n*(p.duration/60)*p.multiplier);
+  const extra=active?(S.clock?.accumulatorSeconds||0):0,elapsed=Math.min(p.duration,p.elapsed+extra);
+  return {elapsed,duration:p.duration,progress:elapsed/p.duration};
 }
 
 /* Compact, explicit snapshot. Rehydration never trusts duplicated JSON object references. */
@@ -615,15 +707,20 @@ function serializeState(){
   const tiles=S.tiles.map(row=>row.map(t=>{
     let b=null;
     if (t.b) {
-      if (!memo.has(t.b.id)) { const {met,...rest}=t.b; memo.set(t.b.id,{...rest}); }
+      if (!memo.has(t.b.id)) { const {met,...rest}=t.b; memo.set(t.b.id,{...rest,...(rest.construction?{construction:{...rest.construction}}:{}),...(rest.production?{production:{...rest.production}}:{})}); }
       b=memo.get(t.b.id);
     }
     return {t:t.t,b,variant:t.variant||0};
   }));
-  return {...S,version:SAVE_VERSION,uid,tiles,log:(S.log||[]).slice(-80)};
+  return {...S,clock:{...S.clock},goods:{...S.goods},caps:{...S.caps},stats:{...S.stats},lastDelta:{...S.lastDelta},
+    taskDone:S.taskDone.map(row=>row.slice()),chapterCompleted:S.chapterCompleted.slice(),start:{...S.start},signpost:{...S.signpost},
+    ...(S.offlineSummary?{offlineSummary:{...S.offlineSummary}}:{}),version:SAVE_VERSION,uid,tiles,log:(S.log||[]).slice(-80)};
 }
-function hydrateState(data){
+function hydrateState(data,options={}){
   if (!data || !Array.isArray(data.tiles) || data.tiles.length<8 || data.tiles.length>96) return false;
+  const now=Number.isFinite(Number(options.nowMs))?Number(options.nowMs):Date.now();
+  const modernClock=data.clock?.version===1&&Number.isFinite(data.clock.lastWallMs);
+  const timerScale=modernClock?1:60;
   const oldH=data.tiles.length,oldW=data.tiles[0]?.length;
   if (!Number.isInteger(oldW) || oldW<8 || oldW>96 || data.tiles.some(row=>!Array.isArray(row)||row.length!==oldW)) return false;
   const numeric=(v,fallback=0,max=1e9)=>Number.isFinite(Number(v))?Math.min(max,Math.max(0,Number(v))):fallback;
@@ -647,16 +744,22 @@ function hydrateState(data){
     if (raw.main && b.type==="road") b.main=true;
     if (isResidence(b)) {
       b.lvl=Math.floor(numeric(raw.lvl,1,residenceLevels(b).length))||1;
-      b.pop=numeric(raw.pop,0,residenceLevel(b).pop); b.taxTimer=numeric(raw.taxTimer,0,TAX_INTERVAL);
-      b.upTimer=numeric(raw.upTimer,0,UPGRADE_DELAY); b.missTicks=numeric(raw.missTicks,0,45);
+      b.pop=numeric(raw.pop,0,residenceLevel(b).pop); b.taxTimer=numeric(Number(raw.taxTimer)*timerScale,0,TAX_INTERVAL);
+      b.upTimer=numeric(Number(raw.upTimer)*timerScale,0,UPGRADE_DELAY); b.missTicks=numeric(Number(raw.missTicks)*timerScale,0,NEED_GRACE_SECONDS);
     }
-    if (raw.damage) b.damage=numeric(raw.damage,0,60);
+    if (raw.damage) b.damage=numeric(Number(raw.damage)*timerScale,0,3600);
     if (raw.productionTicks) b.productionTicks=Math.floor(numeric(raw.productionTicks,0,1e9));
+    if(modernClock&&raw.production&&BUILD[b.type].prod){
+      const duration=BUILD[b.type].cycleSeconds;
+      b.production={duration,elapsed:numeric(raw.production.elapsed,0,duration),multiplier:Math.max(.1,numeric(raw.production.multiplier,1,4))};
+    }
     if (raw.construction && b.type!=="road") {
-      const total=Math.max(1,Math.floor(numeric(raw.construction.total,BUILD[b.type].buildTime,600)));
-      const remaining=Math.max(1,Math.floor(numeric(raw.construction.remaining,total,total)));
-      b.construction={total,remaining};
-      if (isResidence(b) && raw.construction.toLevel===b.lvl+1 && raw.construction.toLevel<=residenceLevels(b).length) Object.assign(b.construction,{fromLevel:b.lvl,toLevel:b.lvl+1});
+      const upgrading=isResidence(b)&&raw.construction.toLevel===b.lvl+1&&raw.construction.toLevel<=residenceLevels(b).length;
+      const rawTotal=Math.max(1,numeric(raw.construction.total,BUILD[b.type].buildTime,OFFLINE_CONSTRUCTION_SECONDS));
+      const total=modernClock?rawTotal:constructionDuration(b.type,upgrading?b.lvl:0,civilization);
+      const fraction=numeric(raw.construction.remaining,rawTotal,rawTotal)/rawTotal;
+      b.construction={total,remaining:Math.max(.001,total*fraction)};
+      if(upgrading)Object.assign(b.construction,{fromLevel:b.lvl,toLevel:b.lvl+1});
     }
     byId.set(id,b); candidates.push(b);
   }
@@ -672,6 +775,7 @@ function hydrateState(data){
   const chapter=Math.floor(numeric(data.chapter,0,CHAPTERS.length-1));
   const point=(p,fallback)=>p&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<width&&p.y<height?{x:p.x,y:p.y}:fallback;
   const state={
+    clock:modernClock?{version:1,lastWallMs:numeric(data.clock.lastWallMs,now,9e15),elapsedSeconds:numeric(data.clock.elapsedSeconds,0,1e12),accumulatorSeconds:numeric(data.clock.accumulatorSeconds,0,59.999999)}:{...createCityClock(now),elapsedSeconds:numeric(data.tick)*60},
     version:SAVE_VERSION,civilization,seed,rngState:numeric(data.rngState,hashSeed(seed),4294967295),
     cityName:String(data.cityName||getCivilization(civilization).cityNames[0]).slice(0,24),mode:data.mode==="sandbox"?"sandbox":"campaign",
     tick:Math.floor(numeric(data.tick)),goods,gold:numeric(data.gold),prestige:numeric(data.prestige,45,100),chapter,
@@ -686,6 +790,7 @@ function hydrateState(data){
   invalidateWorld();
   S.pop=buildings().reduce((sum,o)=>sum+(isResidence(o.b)?o.b.pop||0:0),0);
   allocateWorkers(buildings()); updateCaps(); pendingSave=S.tick;
+  if(modernClock&&options.applyOffline!==false)advanceClock(now,{offline:true});
   return true;
 }
 const normalizeState=hydrateState;

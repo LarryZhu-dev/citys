@@ -17,3 +17,8 @@ node_modules/
 public/
 work/
 *.log
+godot/.godot/
+engine-web/*.html
+engine-web/*.png
+engine-web/*.wasm
+engine-web/*.pck

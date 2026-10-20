@@ -54,6 +54,11 @@ function sanitizeState(raw) {
         b = { type:input.type, id, origin };
         for (const key of ['pop','taxTimer','upTimer','missTicks','damage']) if (input[key] !== undefined) b[key] = number(input[key], `建筑.${key}`);
         if (input.productionTicks !== undefined) b.productionTicks = number(input.productionTicks, '生产阶段', 0, MAX_INVENTORY, true);
+        if (input.production !== undefined && input.production !== null) {
+          const p = object(input.production, '生产批次');
+          const duration = number(p.duration, '生产周期', 1, 259200);
+          b.production = {elapsed:number(p.elapsed, '生产已用时', 0, duration),duration,multiplier:number(p.multiplier ?? 1, '生产倍率', 0.01, 100)};
+        }
         if (input.lvl !== undefined) b.lvl = number(input.lvl, '建筑等级', 1, input.type === 'villa' ? 6 : 10, true);
         for (const key of ['staffed','idle','main']) if (input[key] !== undefined) {
           if (typeof input[key] !== 'boolean') invalid(`建筑.${key} 必须是布尔值。`);
@@ -79,7 +84,8 @@ function sanitizeState(raw) {
   if (!CIVILIZATIONS.has(civilization)) invalid('文明不存在。');
   const mode = raw.mode || 'campaign';
   if (!['campaign','sandbox'].includes(mode)) invalid('游戏模式不存在。');
-  const state = { v:4, version:4, civilization, mode, cityName:text(raw.cityName, '城市名称', 40, '新城'),
+  const stateVersion = raw.version >= 5 ? 5 : 4;
+  const state = { v:stateVersion, version:stateVersion, civilization, mode, cityName:text(raw.cityName, '城市名称', 40, '新城'),
     tick:number(raw.tick ?? 0, 'tick', 0, 1e12, true),
     goods:recordNumbers(object(raw.goods, 'goods'), RESOURCES, 'goods'),
     gold:number(raw.gold, 'gold'), caps:recordNumbers(raw.caps, ['food','mat'], 'caps'),
@@ -91,6 +97,11 @@ function sanitizeState(raw) {
     taskDone:[], chapterCompleted:[], log:[], lastDelta:{} };
   if (raw.seed !== undefined) state.seed = typeof raw.seed === 'string' ? text(raw.seed,'seed',80) : number(raw.seed, 'seed', 0, 4294967295, true);
   if (raw.rngState !== undefined) state.rngState = number(raw.rngState, 'rngState', 0, 4294967295, true);
+  if (stateVersion >= 5) {
+    const clock = object(raw.clock, '城市时钟');
+    state.clock = {version:1,lastWallMs:number(clock.lastWallMs, '时钟水位', 0, 1e15),elapsedSeconds:number(clock.elapsedSeconds, '经营时间', 0, 1e12),accumulatorSeconds:number(clock.accumulatorSeconds, '分钟进度', 0, 60)};
+    if (raw.lastDeltaSeconds !== undefined) state.lastDeltaSeconds=number(raw.lastDeltaSeconds,'收支周期',1,259200);
+  }
   for (const key of ['signpost','start']) if (raw[key]) {
     const pos = Array.isArray(raw[key]) ? raw[key] : [raw[key].x, raw[key].y];
     const [x,y] = position(pos, width, height, key);

@@ -1,0 +1,19 @@
+{
+  "engine": "Godot 4.6.3",
+  "renderer": "Compatibility",
+  "threads": false,
+  "files": [
+    {
+      "file": "game.wasm",
+      "rawBytes": 37700666,
+      "gzipBytes": 9471510,
+      "sha256": "26b61ce95247012ab3dca3ff51e96d1cdbff44ee91a8c20a83e150afca83f1b6"
+    },
+    {
+      "file": "game.pck",
+      "rawBytes": 33094804,
+      "gzipBytes": 33040012,
+      "sha256": "d076fedaac266720b1102ae9b4888f41544f888f8e39c0d603c8e87d7b2c69c0"
+    }
+  ]
+}

@@ -11,8 +11,17 @@ window.OnlineUI = (() => {
   const cityKey=()=>`${S.seed??''}:${S.civilization??''}:${S.cityName??''}`;
   const snapshot=()=>serializeState();
   const resource=k=>GOODS[k]?.name||k;
-  function restore(state){
-    const result=hydrateState(state);
+  const actionArt=['build','road','world','view','menu','inventory','task','save','load','center','zoom-in','zoom-out','day','night','demolish','cancel'];
+  const controlArt=['pause','play','settings','help','move','confirm','trade','export','import','new-city','checkbox-on','checkbox-off','overlay-water','overlay-pollution','speed','lock'];
+  function decorate(el){
+    const map={close:'cancel',logout:'cancel',auth:'confirm',upload:'save',download:'load',backup:'load',replaceCity:'save',confirmReplace:'save',retryTrade:'trade',refresh:'play',visit:'view',buyTrade:'trade',cancelTrade:'cancel',cloud:'save',cities:'world',leaderboard:'task',market:'trade'};
+    el.querySelectorAll('button').forEach(button=>{
+      const key=map[button.dataset.action||button.dataset.tab]||'confirm',list=actionArt.includes(key)?actionArt:controlArt,index=list.indexOf(key),group=list===actionArt?'actions':'controls';
+      const art=document.createElement('i');art.className='online-button-art';art.setAttribute('aria-hidden','true');art.style.backgroundImage=`url('/assets/ui/${group}.png')`;art.style.backgroundPosition=`${index%4*100/3}% ${Math.floor(index/4)*100/3}%`;button.prepend(art);
+    });
+  }
+  function restore(state, applyOffline=true){
+    const result=hydrateState(state,{applyOffline});
     if(result===false)throw new Error('城市存档格式不兼容');
     if(result?.tiles)S=result;
     if(typeof selectedTile!=='undefined')selectedTile=null;
@@ -34,7 +43,9 @@ window.OnlineUI = (() => {
   const post=(path,data={})=>request(path,{method:'POST',body:JSON.stringify(data)});
   function meta(){if(syncMeta!==undefined)return syncMeta;try{syncMeta=JSON.parse(localStorage.getItem(SAVE_KEY)||'null')?.cloudSync||null;}catch{syncMeta=null;}return syncMeta;}
   function remember(){syncMeta={userId:user?.id,revision,clientRevision:cloud?.clientRevision??revision,cityKey:cityKey(),baseline:cloud?.state?{goods:cloud.state.goods,gold:cloud.state.gold}:null};}
-  function accept(saved,apply=false){cloud=saved;revision=saved?.revision??0;conflict=false;if(apply&&saved?.state)restore(saved.state);remember();if(save()===false)throw new Error('云端已保存，但本地保存失败。请导出当前城市以保留此设备的进度。');}
+  // A delayed trade receipt must not replay the suspended transaction window.
+  // Explicit cloud downloads still apply the normal offline rules.
+  function accept(saved,apply=false,applyOffline=true){cloud=saved;revision=saved?.revision??0;conflict=false;if(apply&&saved?.state){restore(saved.state,applyOffline);if(!applyOffline&&typeof advanceClock==='function')advanceClock(Date.now(),{suspended:true});}remember();if(save()===false)throw new Error('云端已保存，但本地保存失败。请导出当前城市以保留此设备的进度。');}
   // Only a server-only market update can be rebased. Another device's PUT moves
   // clientRevision and must go through the explicit conflict/download flow.
   function mergeMarketUpdates(){
@@ -74,6 +85,7 @@ window.OnlineUI = (() => {
     el.querySelector('#cityPublic')?.addEventListener('change',e=>{publicDraft=e.target.checked;});
     el.querySelector('#onlineAuth')?.addEventListener('submit',authenticate);
     el.querySelector('#onlineTrade')?.addEventListener('submit',placeTrade);
+    decorate(el);
     if(busy)el.querySelectorAll('button,input,select').forEach(b=>b.disabled=true);
   }
   function cloudHTML(){
@@ -113,7 +125,7 @@ window.OnlineUI = (() => {
     const intent=pendingTrade?.userId===user.id?pendingTrade:{userId:user.id,path,body,label};pendingTrade=intent;
     try{localStorage.setItem('empires-pending-trade',JSON.stringify(intent));}catch{throw new Error('无法保存交易流水号，请先导出城市并清理本地存储。');}
     let d;try{d=await post(intent.path,intent.body);}catch(e){if(e.status&&e.status<500){pendingTrade=null;localStorage.removeItem('empires-pending-trade');}throw e;}
-    pendingTrade=null;localStorage.removeItem('empires-pending-trade');accept(d.save,true);notice=intent.label;
+    pendingTrade=null;localStorage.removeItem('empires-pending-trade');accept(d.save,true,false);notice=intent.label;
     try{if(tab==='market')await loadRows();}catch{notice+=' 列表暂时无法刷新，可稍后点击刷新；本次交易已完成。';}
   }
   async function placeTrade(event){
@@ -122,7 +134,7 @@ window.OnlineUI = (() => {
   }
   async function transact(id,method){await run(async()=>{if(pendingTrade?.userId===user.id)throw new Error('请先确认上次交易结果。');await upload();await completeTrade('trades/'+encodeURIComponent(id)+'/'+method,{revision,requestId:crypto.randomUUID()},method==='buy'?'交易完成，货物已送达城市仓库。':'委托已撤回，物资已退回仓库。');});}
   function center(){if(typeof centerOnCity==='function')centerOnCity();else fitView();}
-  async function visit(id){await run(async()=>{const d=await request('cities/'+encodeURIComponent(id));save();home={state:snapshot(),view:{...view},speed:previousSpeed};restore(d.state);visiting=true;setSpeed(0);center();close(false);let bar=document.createElement('div');bar.id='cityVisitBar';bar.className='city-visit-bar';bar.innerHTML=`<span>正在参观 <b>${esc(d.city?.name||S.cityName)}</b> · 只读</span><button>返回我的城市</button>`;document.body.appendChild(bar);bar.querySelector('button').onclick=exitVisit;});}
+  async function visit(id){await run(async()=>{const d=await request('cities/'+encodeURIComponent(id));save();home={state:snapshot(),view:{...view},speed:previousSpeed};restore(d.state,false);visiting=true;setSpeed(0);center();close(false);let bar=document.createElement('div');bar.id='cityVisitBar';bar.className='city-visit-bar';bar.innerHTML=`<span>正在参观 <b>${esc(d.city?.name||S.cityName)}</b> · 只读</span><button>返回我的城市</button>`;document.body.appendChild(bar);bar.querySelector('button').onclick=exitVisit;});}
   function exitVisit(){if(!home)return;const h=home;home=null;visiting=false;restore(h.state);Object.assign(view,h.view);setSpeed(h.speed);save();document.querySelector('#cityVisitBar')?.remove();}
   async function action(a,b){
     if(busy)return;if(a==='close')close();else if(a==='auth'){auth=auth==='login'?'register':'login';render();}
@@ -134,7 +146,7 @@ window.OnlineUI = (() => {
     else if(a==='visit')visit(b.dataset.id);else if(a==='buyTrade')transact(b.dataset.id,'buy');else if(a==='cancelTrade')transact(b.dataset.id,'cancel');
     else if(a==='logout')run(async()=>{await post('account/logout');user=null;revision=null;cloud=null;conflict=false;syncMeta=null;save();notice='已退出账号。本地城市仍在此设备。';});
   }
-  async function open(){if(visiting){toast('请先返回自己的城市，再使用世界港口');return;}if(opened)return;previousSpeed=speed;setSpeed(0);opened=true;publicDraft=null;error='';notice='';render();await run(async()=>{health=await request('health');await refreshAccount();});if(!error&&tab!=='cloud')loadTab();root().querySelector('.online-close')?.focus();}
+  async function open(initialTab){if(['cloud','cities','leaderboard','market'].includes(initialTab))tab=initialTab;if(visiting){toast('请先返回自己的城市，再使用世界港口');return;}if(opened)return;previousSpeed=speed;setSpeed(0);opened=true;publicDraft=null;error='';notice='';render();await run(async()=>{health=await request('health');await refreshAccount();});if(!error&&tab!=='cloud')loadTab();root().querySelector('.online-close')?.focus();}
   function close(resume=true){opened=false;const el=root();el.innerHTML='';el.classList.remove('is-open');if(resume&&!visiting)setSpeed(previousSpeed);document.querySelector('#onlineBtn')?.focus();}
   document.addEventListener('keydown',e=>{if(!opened)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();if(!busy)close();}else if(e.key==='Tab'){const all=[...root().querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled)')],first=all[0],last=all.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}else if(e.code==='Space'&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))e.stopImmediatePropagation();},true);
   return {open,close,exitVisit,saveMetadata(){const m=meta();return m?.cityKey===cityKey()?m:null;},restoreMetadata(m){syncMeta=m||null;revision=null;conflict=!!cloud;},get visiting(){return visiting;},get opened(){return opened;}};

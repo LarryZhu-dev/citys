@@ -6,9 +6,13 @@ let MAP_W = 64, MAP_H = 64;
 const TILE_W = 84, TILE_H = 42;
 const SAVE_KEY = "empire-new-era-v1";
 const LEGACY_SAVE_KEY = "sim-empire-mvp-3";
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
 const TICK_MS = 1000;
-const TAX_INTERVAL = 30;
+const ECONOMY_STEP_SECONDS = 60;
+const TAX_INTERVAL = 30 * 60;
+const OFFLINE_ECONOMY_SECONDS = 8 * 3600;
+const OFFLINE_CONSTRUCTION_SECONDS = 72 * 3600;
+const NEED_GRACE_SECONDS = 45 * 60;
 const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
 
 /* ── 地形 ─────────────────────────────────────────────── */
@@ -255,11 +259,23 @@ const BUILD = {
   },
 };
 
-const CONSTRUCTION_TIME = { road:0, house:7, municipal:9, commerce:10, agri:12, industry:15, storage:12, culture:18, decor:4, military:18, wonder:90 };
-for (const d of Object.values(BUILD)) d.buildTime = CONSTRUCTION_TIME[d.cat] || 10;
-BUILD.road.buildTime = 0;
-BUILD.villa.buildTime = 20;
-BUILD.fishing.desc = "每回合产 4 鱼。需紧邻水面，持续连接道路。";
+/* All durations are seconds. These are this game's balance, not an original-game table.
+   Official 2021 history gives a two-minute anchor for granaries and warehouses. */
+const CONSTRUCTION_TIME = {road:0,house:360,municipal:600,commerce:900,agri:900,industry:1800,storage:120,culture:3600,decor:180,military:7200,wonder:129600};
+for (const d of Object.values(BUILD)) d.buildTime = CONSTRUCTION_TIME[d.cat] ?? 600;
+Object.assign(BUILD.road,{buildTime:0});
+for (const [type,seconds] of Object.entries({well:240,villa:7200,lumber:900,quarry:1200,clayPit:1200,copperMine:3600,kiln:2400,pottery:3600,mill:2400,weaver:5400,winery:5400,clinic:1800,repair:1800,school:3600,theater:7200,university:14400,bath:7200,observatory:43200,harbor:10800,market:3600,pagoda:21600})) BUILD[type].buildTime=seconds;
+const PRODUCTION_CYCLES = {farmland:1800,vegFarm:1200,orchard:1800,fishing:600,pasture:1800,lumber:300,quarry:300,clayPit:300,copperMine:600,kiln:600,pottery:900,mill:600,weaver:1200,winery:1800};
+for (const [type,seconds] of Object.entries(PRODUCTION_CYCLES)) {
+  const d=BUILD[type];d.cycleSeconds=seconds;
+  const batch=Object.entries(d.prod).map(([kind,n])=>Math.round(n*seconds/60)+' '+GOODS[kind].name).join('、');
+  d.desc='每 '+(seconds/60)+' 分钟一批，基础产出 '+batch+'；需工人、道路、原料与仓储空间。'+({lumber:'必须覆盖林地。',quarry:'必须覆盖石矿。',clayPit:'必须覆盖粘土。',copperMine:'必须覆盖铜矿。',fishing:'必须紧邻水面。'}[type]||'');
+}
+const HOUSE_UPGRADE_SECONDS=[0,300,600,1200,2400,3600,7200,14400,28800,43200];
+const VILLA_UPGRADE_SECONDS=[0,1800,3600,7200,14400,28800];
+BUILD.granary.desc='食品储量上限 +400；需工人与连通道路。';
+BUILD.warehouse.desc='材料与工艺品储量上限 +500；需工人与连通道路。';
+BUILD.harbor.desc='临水港口。商队买价降低 15%、卖价提高 15%，每分钟获得 1.5 基础贸易收入。';
 BUILD.well.desc = "提供饮水覆盖与少量美化。必须有工人且连通主路。";
 BUILD.watch.desc = "提供消防覆盖，防止周边生产建筑发生火灾。";
 BUILD.police.desc = "提供治安覆盖，提升城市声望和高档住宅的居住条件。";
@@ -421,7 +437,7 @@ let uid = 0;
 let buildCat = "house";   // 默认分类
 let pendingSave = 0;
 
-const UPGRADE_DELAY = 10;
+const UPGRADE_DELAY = 10 * 60;
 
 /* ── DOM ──────────────────────────────────────────────── */
 const $ = s => document.querySelector(s);

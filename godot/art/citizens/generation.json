@@ -1,0 +1,20 @@
+{
+  "source": "/workspace/generated_images/exec-a30951af-1a28-4e88-ae10-652a46d186f2.png",
+  "tool": "image_gen",
+  "directions": [
+    "northwest",
+    "northeast",
+    "southwest",
+    "southeast"
+  ],
+  "framesPerDirection": 4,
+  "canvas": [
+    176,
+    280
+  ],
+  "footAnchor": [
+    88,
+    264
+  ],
+  "uniformScale": 0.9343065693430657
+}

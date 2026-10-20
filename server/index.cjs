@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createApp } = require('./app.cjs');
 const root = path.resolve(__dirname, '..');
-const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.woff2':'font/woff2','.mp3':'audio/mpeg','.ogg':'audio/ogg'};
-const csp = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
+const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.wasm':'application/wasm','.pck':'application/octet-stream','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.woff2':'font/woff2','.mp3':'audio/mpeg','.ogg':'audio/ogg'};
+const csp = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
 function createServer(options = {}) {
   const app = createApp(options);
   const server = http.createServer(async (req,res) => {
@@ -20,12 +20,17 @@ function createServer(options = {}) {
     if (pathname === '/') pathname = '/index.html';
     // Explicit static allowlist prevents accidental publication of server files,
     // local accounts, .env, git metadata, tests or database backups.
-    if (!/^\/(?:index\.html|(?:style|online)\.css|(?:js|assets)\/[A-Za-z0-9_./-]+)$/.test(pathname) || pathname.split('/').some(p=>p === '..' || p.startsWith('.'))) { res.writeHead(404); return res.end('Not found'); }
-    const file = path.join(root,pathname);
+    if (!/^\/(?:index\.html|(?:style|online)\.css|(?:js|assets|engine-web)\/[A-Za-z0-9_./-]+)$/.test(pathname) || pathname.split('/').some(p=>p === '..' || p.startsWith('.'))) { res.writeHead(404); return res.end('Not found'); }
+    let file = path.join(root,pathname);
+    if (/^\/assets\/ui\/(?:actions|controls|resources|paper|wood|card|red)\.png$/.test(pathname)) file=path.join(root,'godot','art','ui',path.basename(pathname));
+    if (/^\/engine-web\/game\.(wasm|pck)$/.test(pathname) && fs.existsSync(file+'.gz')) {
+      file += '.gz';
+      res.setHeader('Content-Encoding','gzip');
+    }
     try {
       const stat = await fs.promises.stat(file);
       if (!stat.isFile()) throw new Error('not-file');
-      res.setHeader('Content-Type',types[path.extname(file)] || 'application/octet-stream');
+      res.setHeader('Content-Type',types[path.extname(pathname)] || 'application/octet-stream');
       res.setHeader('Content-Length',stat.size);
       res.setHeader('Cache-Control','no-cache');
       if (req.method === 'HEAD') return res.end();

@@ -29,7 +29,9 @@ npm start
 | `.env`、`work/` | 本地配置和开发数据；已排除出 Git |
 | `tests/online.test.cjs` | 真实 HTTP 集成测试 |
 
-`public/` 仅复制游戏 HTML、CSS、`js/`，以及美术运行文件 `assets/sprites/*.webp`、`assets/hero.webp`、`assets/sprites.json`，以及 `assets/modular/parts.json` 与其引用的 30 张 `assets/modular/parts/*.webp`。原始 PNG 图集、生成脚本、制作记录和预览图保留在源码仓库，不发布到网站；`manifest.json` 只用于来源说明，游戏运行时不读取。构建会校验精灵元数据引用是否完整。服务端代码、`.env`、账号数据、Git 信息及测试文件不会被构建为静态网页。本地服务也使用静态文件白名单。
+`public/` 发布 HTML/CSS、六个运行时 JS、Godot Web 引擎/资源包和七张在线表单共用美术。`engine-web/game.wasm.gz` 与 `game.pck.gz` 由已审核 Godot 源码导出；构建校验 SHA-256 后以原扩展名输出压缩数据，`vercel.json` 为它们显式设置 `Content-Encoding: gzip` 与 MIME。Godot 导出无需在 Vercel 重跑。不要删除这两个编码响应头，否则浏览器不能加载引擎。CSP 允许 `wasm-unsafe-eval`，未开放普通 JavaScript `unsafe-eval`。
+
+原始图集、旧 Canvas、旧精灵、生成脚本和测试文件不发布为静态网页；账号数据和 `.env` 不进入构建。本地服务使用相同压缩响应和静态文件白名单。
 
 ## 2. 环境变量
 

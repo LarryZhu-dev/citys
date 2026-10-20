@@ -1,0 +1,37 @@
+{
+  "source": "/workspace/generated_images/exec-bafedd8e-6567-4af2-9988-d1fec0be9385.png",
+  "tool": "image_gen",
+  "species": [
+    "scholar-tree",
+    "Chinese-pine",
+    "willow",
+    "bamboo"
+  ],
+  "cutting": "alpha-connected-components; original resolution, transparent edges",
+  "map": {
+    "oak": [
+      27,
+      10,
+      784,
+      591
+    ],
+    "cypress": [
+      753,
+      19,
+      1301,
+      591
+    ],
+    "willow": [
+      69,
+      594,
+      734,
+      1174
+    ],
+    "bamboo": [
+      771,
+      616,
+      1297,
+      1168
+    ]
+  }
+}

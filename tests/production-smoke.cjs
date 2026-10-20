@@ -53,7 +53,7 @@ const recoveryFile = recoveryInput ? path.resolve(recoveryInput) : path.join(pri
 const reportFile = path.resolve(`work/production-smoke-${stamp}-report.json`);
 const records = recovery?.accounts || [
   { role:'seller', username:`qa_s_${stamp}`, password:crypto.randomBytes(24).toString('base64url'), cityName:`验收云城${stamp}`, civilization:'china' },
-  { role:'buyer', username:`qa_b_${stamp}`, password:crypto.randomBytes(24).toString('base64url'), cityName:`验收海城${stamp}`, civilization:'greece' }
+  { role:'buyer', username:`qa_b_${stamp}`, password:crypto.randomBytes(24).toString('base64url'), cityName:`验收海城${stamp}`, civilization:'china' }
 ];
 const players = [];
 const report = { base, startedAt:new Date().toISOString(), recoveryOnly:!!recovery, inheritedProxyUsed:!!proxy, success:false, checks:[], cleanup:[], errors:[] };
@@ -86,6 +86,25 @@ async function idle(page) {
   await page.locator('#onlineModal .online-content[aria-busy="false"]').waitFor({timeout:30000});
   assert.equal(await page.locator('.online-notice.error').count(),0,'Online UI showed an error.');
 }
+async function dispatch(page,name,payload={}) {
+  return page.evaluate(({name,payload})=>CityBridge.dispatch(name,JSON.stringify(payload)),{name,payload});
+}
+async function bootEngine(page) {
+  await page.goto(base,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.CityBridge&&typeof S!=='undefined'&&!!S);
+  await page.waitForFunction(()=>window.godotReady===true,{},{timeout:120000});
+}
+async function openOnline(page,tab='cloud') {
+  await page.evaluate(tab=>OnlineUI.open(tab),tab);await idle(page);
+}
+// Keep independent device storage and API sessions, but release inactive WebGL
+// contexts so software-rendered CI does not spend all its GPU time on old pages.
+async function park(player) { await player.page.goto('about:blank'); }
+async function resume(player) {
+  await bootEngine(player.page);
+  if(await player.page.evaluate(()=>speed!==0))await dispatch(player.page,'pause');
+  return player.page.evaluate(()=>({wood:S.goods.wood,gold:S.gold}));
+}
 async function createPlayer(record) {
   const context = await newContext({viewport:{width:1365,height:900}});
   const player = {record,context,page:null}; players.push(player);
@@ -93,15 +112,16 @@ async function createPlayer(record) {
   const page = await context.newPage(); player.page=page;
   page.setDefaultTimeout(30000);
   page.on('pageerror',error=>pageErrors.push(error.message));
-  page.on('response',response=>{if(response.status()>=400 && /\/(?:assets|js)\/|\/(?:style|online)\.css$/.test(new URL(response.url()).pathname))assetErrors.push({path:new URL(response.url()).pathname,status:response.status()});});
-  await page.goto(base,{waitUntil:'domcontentloaded'});
-  await page.locator(`[data-civ="${record.civilization}"]`).click();
-  await page.locator('#newCityName').fill(record.cityName);
-  await page.locator('#newCitySeed').fill(`qa-${stamp}-${record.role}`);
-  await page.locator('#foundCity').click();
-  await page.locator('#quickPauseBtn').click();
+  page.on('console',message=>{if(/SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script/.test(message.text()))pageErrors.push(message.text());});
+  page.on('crash',()=>pageErrors.push('Godot browser page crashed'));
+  page.on('response',response=>{if(response.status()>=400 && /\/(?:assets|js|engine-web)\/|\/(?:style|online)\.css$/.test(new URL(response.url()).pathname))assetErrors.push({path:new URL(response.url()).pathname,status:response.status()});});
+  await bootEngine(page);
+  await dispatch(page,'new_city',{cityName:record.cityName,seed:`qa-${stamp}-${record.role}`,mode:'campaign'});
+  await dispatch(page,'pause');
   assert.equal(await page.evaluate(()=>S.tiles.length),64);
-  await page.locator('#onlineBtn').click(); await idle(page);
+  assert.equal(await page.evaluate(()=>S.civilization),'china');
+  assert.equal(await page.evaluate(()=>speed),0);
+  await openOnline(page);
   await page.locator('[data-action="auth"]').click();
   await page.locator('#onlineAuth [name="username"]').fill(record.username);
   await page.locator('#onlineAuth [name="password"]').fill(record.password);
@@ -113,7 +133,8 @@ async function createPlayer(record) {
   await page.locator('[data-action="upload"]').click(); await idle(page);
   const cloud = (await api(context,'save')).save;
   assert.equal(cloud.city.public,false); assert.equal(cloud.state.cityName,record.cityName);
-  mark(`${record.role}: browser registration and private cloud upload`);
+  assert.equal(cloud.state.version,5);assert.equal(cloud.state.clock.version,1);
+  mark(`${record.role}: full Godot startup, browser registration and private v5 cloud upload`);
   return player;
 }
 async function setPublicUI(player,value) {
@@ -186,11 +207,14 @@ async function verify() {
     if(!['localhost','127.0.0.1'].includes(parsed.hostname)) {assert.equal(health.storage,'postgres');assert.equal(health.production,true);}
     mark('persistent production health');
   } finally { await probe.close(); }
-  const seller=await createPlayer(records[0]),buyer=await createPlayer(records[1]);
+  const seller=await createPlayer(records[0]);await park(seller);
+  const buyer=await createPlayer(records[1]);await park(buyer);
   const s=seller.page,b=buyer.page;
-  const buyerHome=await b.evaluate(()=>({name:S.cityName,wood:S.goods.wood,gold:S.gold}));
+  await resume(seller);await openOnline(s);
   await setPublicUI(seller,true);
   const sellerId=seller.record.id;
+  await park(seller);await resume(buyer);await openOnline(b);
+  const buyerHome=await b.evaluate(()=>({name:S.cityName,wood:S.goods.wood,gold:S.gold}));
   const publicCity=await api(buyer.context,'cities/'+sellerId);
   assert.equal(publicCity.state.log.length,0);
   const board=await api(buyer.context,'leaderboard');assert.equal(board.competitive,false);
@@ -206,6 +230,7 @@ async function verify() {
   await b.locator('#cityVisitBar button').click();
   assert.equal(await b.evaluate(()=>S.cityName),buyerHome.name);
   assert.equal(await b.evaluate(()=>S.goods.wood),buyerHome.wood);
+  await park(buyer);await resume(seller);await openOnline(s);
   await setPublicUI(seller,false); // Minimize the public city exposure window.
   await api(buyer.context,'cities/'+sellerId,{expectedStatus:404});
   mark('temporary public visit, read-only behavior, return home, then private again');
@@ -218,14 +243,13 @@ async function verify() {
   const trade=(await api(seller.context,'trades')).mine.find(order=>order.sellerId===sellerId&&order.status==='open');
   assert.ok(trade,'The seller must have one real escrow order.');report.tradeId=trade.id;
   assert.equal(await s.evaluate(()=>S.goods.wood),sellerBefore.wood-1);
-  await b.locator('#onlineBtn').click();await idle(b);
-  await b.locator('[data-tab="market"]').click();await idle(b);
+  await park(seller);await resume(buyer);await openOnline(b,'market');
   const buyerBefore=await b.evaluate(()=>({wood:S.goods.wood,gold:S.gold}));
   await b.locator(`[data-action="buyTrade"][data-id="${trade.id}"]`).click();await idle(b);
   assert.equal(await b.evaluate(()=>S.goods.wood),buyerBefore.wood+1);
   assert.equal(await b.evaluate(()=>S.gold),buyerBefore.gold-1);
-  await s.locator('[data-tab="cloud"]').click();await idle(s);
-  assert.equal(await s.evaluate(()=>S.gold),sellerBefore.gold+1);
+  await park(buyer);const sellerResume=await resume(seller);await openOnline(s);
+  assert.equal(await s.evaluate(()=>S.gold),sellerResume.gold+1);
   const sellerCloud=(await api(seller.context,'save')).save;
   assert.equal(sellerCloud.state.goods.wood,sellerBefore.wood-1);
   const complete=(await api(seller.context,'trades')).mine.find(order=>order.id===trade.id);
@@ -243,7 +267,7 @@ async function verify() {
   } finally { await independent.close(); }
   mark('independent session login restores the persisted cloud settlement');
   await s.locator('[data-action="close"]').click();
-  await s.evaluate(async()=>{await GameArt.ready;setDayMode('day');});
+  await dispatch(s,'night',{mode:'day'});
   await s.screenshot({path:`work/production-smoke-${stamp}.png`});
   assert.deepEqual(pageErrors,[]);assert.deepEqual(assetErrors,[]);
   mark('runtime assets and browser console');
@@ -252,7 +276,7 @@ async function verify() {
 (async()=>{
   persistRecovery();
   try {
-    browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox'],...(proxy ? {proxy} : {})});
+    browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl'],...(proxy ? {proxy} : {})});
     if(recovery){for(const record of records)players.push({record,context:await newContext()});}
     else await verify();
     report.success=true;

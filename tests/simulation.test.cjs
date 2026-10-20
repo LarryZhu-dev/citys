@@ -33,7 +33,7 @@ test('seeded 64×64 world has water, all raw resources, and a viable connected s
     const before=g.run('JSON.stringify(S.tiles.map(r=>r.map(t=>t.t)))');
     g.run(`newGame({civilization:'${civ}',seed:'same-world'});`);
     assert.equal(g.run('JSON.stringify(S.tiles.map(r=>r.map(t=>t.t)))'),before);
-    g.run('for(let i=0;i<180;i++)simulate()');
+    g.run('for(let i=0;i<180;i++)step(60)');
     assert.equal(g.run('Object.values(S.goods).every(n=>Number.isFinite(n)&&n>=0)'),true);
     assert.ok(g.run('S.pop')>=12);
   }
@@ -43,34 +43,36 @@ test('construction requires a road and cannot produce goods or provide coverage 
   const g=game(); clean(g);
   assert.equal(g.run("doBuild('well',5,9)"),true);
   assert.equal(g.run("!!coveredBy(5,9,'water')"),false);
-  g.run('simulate()');
+  g.run('step(60)');
   assert.equal(g.run("tileAt(5,9).b.staffed"),false);
-  g.run('for(let i=0;i<12;i++)simulate()');
+  g.run('for(let i=0;i<12;i++)step(60)');
   assert.equal(g.run("!!coveredBy(5,9,'water')"),true);
   g.run("doBuild('farmland',20,20)");
   const remaining=g.run('tileAt(20,20).b.construction.remaining');
-  g.run('for(let i=0;i<30;i++)simulate()');
+  g.run('for(let i=0;i<30;i++)step(60)');
   assert.equal(g.run('tileAt(20,20).b.construction.remaining'),remaining);
   assert.equal(g.run('tileAt(20,20).b.idle'),true);
-  g.run('for(let y=11;y<=20;y++)setRoad(19,y);for(let i=0;i<15;i++)simulate()');
+  g.run('for(let y=11;y<=20;y++)setRoad(19,y);for(let i=0;i<15;i++)step(60)');
   assert.equal(g.run('!!tileAt(20,20).b.construction'),false);
   assert.equal(g.run('tileAt(20,20).b.staffed'),true);
 });
 
 test('simultaneous factories reserve shared inputs rather than duplicating raw material',()=>{
   const g=game(); clean(g);
-  g.run("put(4,11,'kiln');put(7,11,'pottery');S.goods.clay=3;S.goods.brick=0;S.goods.pottery=0;simulate();");
+  g.run("put(4,11,'kiln');put(7,11,'pottery');S.goods.clay=30;S.goods.brick=0;S.goods.pottery=0;step(60);");
   assert.equal(g.run('S.goods.clay'),0);
-  assert.equal(g.run('S.goods.brick+S.goods.pottery'),3);
+  assert.equal(g.run('S.goods.brick+S.goods.pottery'),0);
   assert.equal(g.run("buildings().filter(o=>['kiln','pottery'].includes(o.b.type)&&o.b.idle).length"),1);
+  g.run('step(10*60)');
+  assert.equal(g.run('S.goods.brick+S.goods.pottery'),30);
 });
 
 test('net resource change includes factory inputs, citizen consumption, production and treasury',()=>{
   const g=game(); clean(g);
-  g.run("put(4,11,'kiln');put(7,11,'farmland');const before={...S.goods,gold:S.gold,pop:S.pop};simulate();");
+  g.run("put(4,11,'kiln');put(7,11,'farmland');const before={...S.goods,gold:S.gold,pop:S.pop};step(31*60);");
   assert.equal(g.run("Object.keys(S.lastDelta).length"),g.run('Object.keys(GOODS).length+2'));
   assert.equal(g.run("Object.keys(S.lastDelta).every(k=>Math.abs(S.lastDelta[k]-((k==='gold'?S.gold:k==='pop'?S.pop:S.goods[k])-before[k]))<1e-9)"),true);
-  assert.equal(g.run('S.lastDelta.clay'),-3);
+  assert.equal(g.run('S.lastDelta.clay'),-90);
   assert.ok(g.run('S.lastDelta.grain')>0);
 });
 
@@ -92,18 +94,18 @@ test('disconnecting a staffed service immediately removes coverage; labour never
   assert.equal(g.run("!!coveredBy(2,9,'water')"),true);
   g.run('destroyBuilding(4,10)');
   assert.equal(g.run("!!coveredBy(2,9,'water')"),false);
-  g.run("tileAt(1,9).b.pop=1;simulate()");
+  g.run("tileAt(1,9).b.pop=1;step(60)");
   assert.ok(g.run('S.workersAssigned')<=g.run('Math.floor(S.pop)'));
 });
 
 test('housing upgrades have a visible construction period and preserve residents',()=>{
   const g=game();
   g.run("newGame({seed:'upgrades'});put(48,13,'well');");
-  g.run('for(let i=0;i<10;i++)simulate()');
+  g.run('for(let i=0;i<10;i++)step(60)');
   assert.equal(g.run('tileAt(47,13).b.lvl'),1);
   assert.equal(g.run('tileAt(47,13).b.construction.toLevel'),2);
   assert.equal(g.run('tileAt(47,13).b.pop'),6);
-  g.run('for(let i=0;i<8;i++)simulate()');
+  g.run('step(5*60)');
   assert.equal(g.run('tileAt(47,13).b.lvl'),2);
   assert.equal(g.run('!!tileAt(47,13).b.construction'),false);
 });
@@ -183,10 +185,10 @@ test('victory requires completed wonder and simulation continues after victory',
   assert.equal(g.run("doBuild('wonder',10,11)"),true);
   assert.equal(g.run('S.won'),false);
   assert.equal(g.run("count('wonder')"),0);
-  g.run('for(let i=0;i<90;i++)simulate()');
+  g.run('step(constructionDuration("wonder"))');
   assert.equal(g.run('S.won'),true);
   assert.equal(g.run("count('wonder')"),1);
-  const tick=g.run('S.tick');g.run('simulate()');assert.equal(g.run('S.tick'),tick+1);
+  const tick=g.run('S.tick');g.run('step(60)');assert.equal(g.run('S.tick'),tick+1);
 });
 
 
@@ -205,7 +207,7 @@ function route(x,y,size){
 }
 function build(type,x,y){route(x,y,BUILD[type].size);if(!doBuild(type,x,y))throw Error('build failed '+type+' '+x+','+y+' '+canBuildAt(type,x,y).why);}
 function findBuild(type,tx,ty){const choices=[];for(let y=2;y<60;y++)for(let x=2;x<60;x++)if(canBuildAt(type,x,y).ok)choices.push([x,y,Math.abs(x-tx)+Math.abs(y-ty)]);choices.sort((a,b)=>a[2]-b[2]);if(!choices.length)throw Error('no spot '+type);build(type,choices[0][0],choices[0][1]);}
-function waitNext(ch,max=1200){for(let i=0;i<max&&S.chapter===ch;i++)simulate();if(S.chapter===ch)throw Error('stuck chapter '+ch+' '+JSON.stringify(buildings().filter(o=>isResidence(o.b)).map(o=>({p:o.b.pop,l:o.b.lvl,need:evaluateNeeds(o).nextMissing,curr:evaluateNeeds(o).missing,clean:netBeauty(o.x,o.y)}))));}
+function waitNext(ch,max=3000){for(let i=0;i<max&&S.chapter===ch;i++)step(60);if(S.chapter===ch)throw Error('stuck chapter '+ch+' '+JSON.stringify(buildings().filter(o=>isResidence(o.b)).map(o=>({p:o.b.pop,l:o.b.lvl,need:evaluateNeeds(o).nextMissing,curr:evaluateNeeds(o).missing,clean:netBeauty(o.x,o.y)}))));}
 build('well',48,13);for(const[x,y]of[[48,15],[49,15],[51,13],[51,15],[52,13],[52,15]])build('house',x,y);
 waitNext(0);
 build('grainShop',49,12);build('grainShop',51,12);findBuild('watch',52,12);findBuild('quarry',51,22);findBuild('granary',43,18);findBuild('warehouse',42,22);
@@ -219,8 +221,8 @@ findBuild('farmland',40,32);findBuild('farmland',43,34);
 // Existing road pairs can be chosen in the outer city; central market serves the homes.
 function pair(type){for(let y=7;y<35;y++)for(let x=39;x<60;x++){if(tileAt(x,y)?.b?.type==='road'&&canBuildAt(type,x-1,y).ok&&canBuildAt(type,x+1,y).ok){build(type,x-1,y);build(type,x+1,y);return;}}throw Error('no pair '+type);}
 pair('fishShop');pair('meatShop');
-waitNext(4,2400);
-findBuild('wonder',57,10);for(let i=0;i<100;i++)simulate();
+waitNext(4,3600);
+findBuild('wonder',57,10);step(constructionDuration('wonder'));
 `);
   assert.equal(g.run('S.won'),true);
   assert.equal(g.run('S.chapterCompleted.every(Boolean)'),true);

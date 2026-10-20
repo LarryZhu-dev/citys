@@ -216,3 +216,61 @@ test('Vercel rewrite adapter preserves nested API paths, parsed request bodies a
   const malformed=await fetch(base+'/api/index?__path=account%2Flogin',{method:'POST',headers:{'Content-Type':'application/json','X-Test-Body-Error':'true'},body:'{broken'});
   assert.equal(malformed.status,400); assert.equal((await malformed.json()).error.code,'INVALID_JSON');
 });
+
+test('v5 wall clock and prepaid production survive HTTP storage while v4 engineering migrates only in the client',async t=>{
+  const directory=await fs.mkdtemp(path.join(os.tmpdir(),'citys-clock-api-'));
+  const server=createServer({env:{DATA_FILE:path.join(directory,'db.json')}}),base=await listen(server);
+  t.after(async()=>{await close(server);await fs.rm(directory,{recursive:true,force:true});});
+  const registration=await fetch(base+'/api/account/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'clock_'+crypto.randomBytes(4).toString('hex'),password:'clock regression password'})});
+  assert.equal(registration.status,201);
+  const cookie=registration.headers.get('set-cookie').split(';')[0];
+  async function upload(state,revision){const response=await fetch(base+'/api/save',{method:'PUT',headers:{Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify({state,revision,city:{name:state.cityName,public:true}})});return {status:response.status,data:await response.json()};}
+  const clock={version:1,lastWallMs:1770000000123,elapsedSeconds:9017.25,accumulatorSeconds:17.25};
+  const modern=fixture({version:5,v:5,clock,lastDeltaSeconds:60,goods:{grain:100,wood:100,stone:100,clay:10,brick:0},uid:4});
+  Object.assign(modern.tiles[0][0].b,{taxTimer:960,upTimer:480,missTicks:1200,construction:{total:510,remaining:306,fromLevel:2,toLevel:3}});
+  const kiln={id:2,type:'kiln',origin:[2,4],staffed:true,productionTicks:7,production:{duration:600,elapsed:210.25,multiplier:1.15}};
+  for(let y=4;y<6;y++)for(let x=2;x<4;x++)modern.tiles[y][x].b=kiln;
+  const wonder={id:3,type:'wonder',origin:[4,0],construction:{total:110160,remaining:80000.5}};
+  for(let y=0;y<3;y++)for(let x=4;x<7;x++)modern.tiles[y][x].b=wonder;
+  modern.tiles[7][7].b={id:4,type:'repair',origin:[7,7],damage:1080};
+  const posted=await upload(modern,0);assert.equal(posted.status,200,JSON.stringify(posted.data));
+  const downloaded=await(await fetch(base+'/api/save',{headers:{Cookie:cookie}})).json();
+  const stored=downloaded.save.state;
+  assert.equal(stored.version,5);assert.deepEqual(stored.clock,clock);
+  assert.deepEqual(stored.tiles[4][2].b.production,kiln.production);
+  assert.equal(stored.tiles[4][2].b.productionTicks,7);
+  assert.equal(stored.goods.clay,10,'prepaid inputs stay deducted through storage');
+  assert.deepEqual(stored.tiles[0][4].b.construction,wonder.construction);
+  assert.equal(stored.tiles[0][0].b.taxTimer,960);assert.equal(stored.tiles[0][0].b.upTimer,480);assert.equal(stored.tiles[0][0].b.missTicks,1200);
+  assert.equal(stored.tiles[7][7].b.damage,1080);assert.equal(stored.lastDeltaSeconds,60);
+  const publicSnapshot=await(await fetch(base+'/api/cities/'+downloaded.save.city.id)).json();
+  assert.deepEqual(publicSnapshot.state.clock,clock);assert.deepEqual(publicSnapshot.state.tiles[4][2].b.production,kiln.production);
+
+  // Exercise the real engine loader, not a test-side approximation of migration.
+  const vm=require('node:vm'),readFile=require('node:fs').readFileSync;
+  const context=vm.createContext({Date,Math,JSON,Map,Set,document:{querySelector:()=>({getContext:()=>({})})},window:{},toast(){},log(){},save(){},renderAll(){},renderBuildList(){},renderTasks(){},stored});
+  for(const name of ['data','civilizations','simulation'])vm.runInContext(readFile(path.join(__dirname,'../js/'+name+'.js'),'utf8'),context);
+  assert.equal(vm.runInContext('hydrateState(stored,{applyOffline:false})',context),true);
+  assert.equal(vm.runInContext('S.clock.lastWallMs',context),clock.lastWallMs);
+  assert.equal(vm.runInContext('tileAt(2,4).b.production.elapsed',context),210.25);
+  assert.equal(vm.runInContext('tileAt(2,4).b===tileAt(3,5).b',context),true);
+  assert.equal(vm.runInContext('S.goods.clay',context),10);
+  assert.equal(vm.runInContext('tileAt(4,0).b.construction.remaining',context),80000.5);
+
+  const legacy=fixture({version:4,v:4,uid:2});
+  legacy.tiles[1][2].b={id:2,type:'well',origin:[2,1],construction:{total:9,remaining:4.5}};
+  Object.assign(legacy.tiles[0][0].b,{taxTimer:3,upTimer:2,missTicks:4});
+  const oldPosted=await upload(legacy,downloaded.save.revision);assert.equal(oldPosted.status,200,JSON.stringify(oldPosted.data));
+  assert.equal(oldPosted.data.save.state.version,4,'server must not label old tick-based progress as seconds');
+  assert.equal(oldPosted.data.save.state.clock,undefined);
+  assert.deepEqual(oldPosted.data.save.state.tiles[1][2].b.construction,{total:9,remaining:4.5});
+  context.legacyStored=oldPosted.data.save.state;
+  assert.equal(vm.runInContext('hydrateState(legacyStored,{nowMs:1770000000999})',context),true);
+  assert.equal(vm.runInContext('S.version',context),5);
+  assert.equal(vm.runInContext('tileAt(2,1).b.construction.remaining/constructionDuration("well")',context),.5);
+  assert.equal(vm.runInContext('tileAt(0,0).b.taxTimer',context),180);
+  assert.equal(vm.runInContext('tileAt(0,0).b.upTimer',context),120);
+  assert.equal(vm.runInContext('tileAt(0,0).b.missTicks',context),240);
+  assert.equal(vm.runInContext('S.goods.wood',context),100);
+  assert.equal(vm.runInContext('S.tick',context),123,'legacy import does not award retroactive offline income');
+});

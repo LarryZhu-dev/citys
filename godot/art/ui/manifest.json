@@ -1,0 +1,1704 @@
+{
+  "schema_version": 1,
+  "style": "Original hand-painted bronze, walnut and antique gold Chinese city-builder interface",
+  "origin": "Generated with image_gen.imagegen for this project; no third-party game artwork imported.",
+  "generation_record": "godot/art/ui/sources/ui-generation-record.json",
+  "atlases": {
+    "resources": {
+      "path": "res://art/ui/resources.png",
+      "cell_size": [
+        384,
+        384
+      ],
+      "columns": 4,
+      "rows": 4,
+      "size": [
+        1536,
+        1536
+      ],
+      "alpha": true,
+      "order": [
+        "grain",
+        "veg",
+        "fruit",
+        "fish",
+        "meat",
+        "wood",
+        "stone",
+        "clay",
+        "copper",
+        "brick",
+        "pottery",
+        "cloth",
+        "bread",
+        "wine",
+        "gold",
+        "pop"
+      ]
+    },
+    "actions": {
+      "path": "res://art/ui/actions.png",
+      "cell_size": [
+        384,
+        384
+      ],
+      "columns": 4,
+      "rows": 4,
+      "size": [
+        1536,
+        1536
+      ],
+      "alpha": true,
+      "order": [
+        "build",
+        "road",
+        "world",
+        "view",
+        "menu",
+        "inventory",
+        "task",
+        "save",
+        "load",
+        "center",
+        "zoom-in",
+        "zoom-out",
+        "day",
+        "night",
+        "demolish",
+        "cancel"
+      ]
+    },
+    "controls": {
+      "path": "res://art/ui/controls.png",
+      "cell_size": [
+        384,
+        384
+      ],
+      "columns": 4,
+      "rows": 4,
+      "size": [
+        1536,
+        1536
+      ],
+      "alpha": true,
+      "order": [
+        "pause",
+        "play",
+        "settings",
+        "help",
+        "move",
+        "confirm",
+        "trade",
+        "export",
+        "import",
+        "new-city",
+        "checkbox-on",
+        "checkbox-off",
+        "overlay-water",
+        "overlay-pollution",
+        "speed",
+        "lock"
+      ]
+    }
+  },
+  "regions": {
+    "grain": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "粮食",
+      "rect": [
+        0,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        38,
+        36,
+        307,
+        312
+      ],
+      "source_rect": [
+        8,
+        5,
+        307,
+        312
+      ],
+      "native_size": [
+        307,
+        312
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "veg": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "蔬菜",
+      "rect": [
+        384,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        420,
+        43,
+        311,
+        298
+      ],
+      "source_rect": [
+        316,
+        24,
+        311,
+        298
+      ],
+      "native_size": [
+        311,
+        298
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "fruit": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "水果",
+      "rect": [
+        768,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        801,
+        48,
+        318,
+        287
+      ],
+      "source_rect": [
+        629,
+        20,
+        318,
+        287
+      ],
+      "native_size": [
+        318,
+        287
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "fish": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "鱼类",
+      "rect": [
+        1152,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        1188,
+        72,
+        311,
+        239
+      ],
+      "source_rect": [
+        943,
+        61,
+        311,
+        239
+      ],
+      "native_size": [
+        311,
+        239
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "meat": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "肉食",
+      "rect": [
+        0,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        34,
+        448,
+        316,
+        256
+      ],
+      "source_rect": [
+        5,
+        348,
+        316,
+        256
+      ],
+      "native_size": [
+        316,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "wood": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "木材",
+      "rect": [
+        384,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        416,
+        439,
+        319,
+        273
+      ],
+      "source_rect": [
+        313,
+        329,
+        319,
+        273
+      ],
+      "native_size": [
+        319,
+        273
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "stone": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "石料",
+      "rect": [
+        768,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        806,
+        437,
+        307,
+        278
+      ],
+      "source_rect": [
+        632,
+        324,
+        307,
+        278
+      ],
+      "native_size": [
+        307,
+        278
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "clay": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "黏土",
+      "rect": [
+        1152,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        1186,
+        445,
+        315,
+        261
+      ],
+      "source_rect": [
+        938,
+        340,
+        315,
+        261
+      ],
+      "native_size": [
+        315,
+        261
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "copper": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "铜矿",
+      "rect": [
+        0,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        35,
+        815,
+        313,
+        289
+      ],
+      "source_rect": [
+        4,
+        616,
+        313,
+        289
+      ],
+      "native_size": [
+        313,
+        289
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "brick": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "砖块",
+      "rect": [
+        384,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        428,
+        820,
+        296,
+        280
+      ],
+      "source_rect": [
+        325,
+        626,
+        296,
+        280
+      ],
+      "native_size": [
+        296,
+        280
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "pottery": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "陶器",
+      "rect": [
+        768,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        809,
+        819,
+        302,
+        281
+      ],
+      "source_rect": [
+        635,
+        623,
+        302,
+        281
+      ],
+      "native_size": [
+        302,
+        281
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "cloth": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "布匹",
+      "rect": [
+        1152,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        1187,
+        825,
+        314,
+        270
+      ],
+      "source_rect": [
+        939,
+        625,
+        314,
+        270
+      ],
+      "native_size": [
+        314,
+        270
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "bread": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "面包",
+      "rect": [
+        0,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        33,
+        1216,
+        317,
+        256
+      ],
+      "source_rect": [
+        4,
+        943,
+        317,
+        256
+      ],
+      "native_size": [
+        317,
+        256
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "wine": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "酒",
+      "rect": [
+        384,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        430,
+        1196,
+        292,
+        296
+      ],
+      "source_rect": [
+        332,
+        910,
+        292,
+        296
+      ],
+      "native_size": [
+        292,
+        296
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "gold": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "金币",
+      "rect": [
+        768,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        808,
+        1211,
+        303,
+        265
+      ],
+      "source_rect": [
+        636,
+        931,
+        303,
+        265
+      ],
+      "native_size": [
+        303,
+        265
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "pop": {
+      "atlas": "resources",
+      "kind": "resource",
+      "label_zh": "人口",
+      "rect": [
+        1152,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        1182,
+        1176,
+        324,
+        336
+      ],
+      "source_rect": [
+        930,
+        894,
+        324,
+        336
+      ],
+      "native_size": [
+        324,
+        336
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "build": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "营造",
+      "rect": [
+        0,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        43,
+        48,
+        298,
+        287
+      ],
+      "source_rect": [
+        26,
+        26,
+        298,
+        287
+      ],
+      "native_size": [
+        298,
+        287
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "road": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "道路",
+      "rect": [
+        384,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        429,
+        48,
+        293,
+        287
+      ],
+      "source_rect": [
+        332,
+        26,
+        293,
+        287
+      ],
+      "native_size": [
+        293,
+        287
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "world": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "世界",
+      "rect": [
+        768,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        813,
+        49,
+        294,
+        286
+      ],
+      "source_rect": [
+        633,
+        27,
+        294,
+        286
+      ],
+      "native_size": [
+        294,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "view": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "视野",
+      "rect": [
+        1152,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        1196,
+        49,
+        295,
+        286
+      ],
+      "source_rect": [
+        934,
+        26,
+        295,
+        286
+      ],
+      "native_size": [
+        295,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "menu": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "菜单",
+      "rect": [
+        0,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        43,
+        431,
+        297,
+        290
+      ],
+      "source_rect": [
+        27,
+        323,
+        297,
+        290
+      ],
+      "native_size": [
+        297,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "inventory": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "仓库",
+      "rect": [
+        384,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        429,
+        431,
+        293,
+        290
+      ],
+      "source_rect": [
+        332,
+        323,
+        293,
+        290
+      ],
+      "native_size": [
+        293,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "task": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "任务",
+      "rect": [
+        768,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        813,
+        430,
+        293,
+        291
+      ],
+      "source_rect": [
+        634,
+        322,
+        293,
+        291
+      ],
+      "native_size": [
+        293,
+        291
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "save": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "保存",
+      "rect": [
+        1152,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        1196,
+        430,
+        295,
+        292
+      ],
+      "source_rect": [
+        934,
+        322,
+        295,
+        292
+      ],
+      "native_size": [
+        295,
+        292
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "load": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "读取",
+      "rect": [
+        0,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        43,
+        818,
+        298,
+        283
+      ],
+      "source_rect": [
+        26,
+        623,
+        298,
+        283
+      ],
+      "native_size": [
+        298,
+        283
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "center": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "回城",
+      "rect": [
+        384,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        429,
+        819,
+        293,
+        281
+      ],
+      "source_rect": [
+        332,
+        625,
+        293,
+        281
+      ],
+      "native_size": [
+        293,
+        281
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "zoom-in": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "放大",
+      "rect": [
+        768,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        813,
+        819,
+        293,
+        281
+      ],
+      "source_rect": [
+        633,
+        625,
+        293,
+        281
+      ],
+      "native_size": [
+        293,
+        281
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "zoom-out": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "缩小",
+      "rect": [
+        1152,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        1196,
+        819,
+        296,
+        281
+      ],
+      "source_rect": [
+        934,
+        625,
+        296,
+        281
+      ],
+      "native_size": [
+        296,
+        281
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "day": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "白昼",
+      "rect": [
+        0,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        43,
+        1201,
+        298,
+        286
+      ],
+      "source_rect": [
+        26,
+        915,
+        298,
+        286
+      ],
+      "native_size": [
+        298,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "night": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "夜晚",
+      "rect": [
+        384,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        430,
+        1201,
+        292,
+        285
+      ],
+      "source_rect": [
+        332,
+        916,
+        292,
+        285
+      ],
+      "native_size": [
+        292,
+        285
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "demolish": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "拆除",
+      "rect": [
+        768,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        813,
+        1201,
+        293,
+        286
+      ],
+      "source_rect": [
+        633,
+        916,
+        293,
+        286
+      ],
+      "native_size": [
+        293,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "cancel": {
+      "atlas": "actions",
+      "kind": "action",
+      "label_zh": "取消",
+      "rect": [
+        1152,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        1196,
+        1200,
+        296,
+        287
+      ],
+      "source_rect": [
+        934,
+        915,
+        296,
+        287
+      ],
+      "native_size": [
+        296,
+        287
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "pause": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "暂停",
+      "rect": [
+        0,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        39,
+        47,
+        305,
+        290
+      ],
+      "source_rect": [
+        22,
+        25,
+        305,
+        290
+      ],
+      "native_size": [
+        305,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "play": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "继续",
+      "rect": [
+        384,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        426,
+        47,
+        299,
+        290
+      ],
+      "source_rect": [
+        330,
+        25,
+        299,
+        290
+      ],
+      "native_size": [
+        299,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "settings": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "设置",
+      "rect": [
+        768,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        809,
+        47,
+        301,
+        290
+      ],
+      "source_rect": [
+        630,
+        25,
+        301,
+        290
+      ],
+      "native_size": [
+        301,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "help": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "帮助",
+      "rect": [
+        1152,
+        0,
+        384,
+        384
+      ],
+      "content_rect": [
+        1193,
+        47,
+        301,
+        290
+      ],
+      "source_rect": [
+        932,
+        25,
+        301,
+        290
+      ],
+      "native_size": [
+        301,
+        290
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "move": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "迁移",
+      "rect": [
+        0,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        39,
+        428,
+        305,
+        295
+      ],
+      "source_rect": [
+        21,
+        320,
+        305,
+        295
+      ],
+      "native_size": [
+        305,
+        295
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "confirm": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "确认",
+      "rect": [
+        384,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        428,
+        428,
+        296,
+        295
+      ],
+      "source_rect": [
+        330,
+        320,
+        296,
+        295
+      ],
+      "native_size": [
+        296,
+        295
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "trade": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "交易",
+      "rect": [
+        768,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        810,
+        428,
+        300,
+        295
+      ],
+      "source_rect": [
+        629,
+        320,
+        300,
+        295
+      ],
+      "native_size": [
+        300,
+        295
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "export": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "导出",
+      "rect": [
+        1152,
+        384,
+        384,
+        384
+      ],
+      "content_rect": [
+        1194,
+        428,
+        300,
+        295
+      ],
+      "source_rect": [
+        932,
+        320,
+        300,
+        295
+      ],
+      "native_size": [
+        300,
+        295
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "import": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "导入",
+      "rect": [
+        0,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        40,
+        817,
+        304,
+        286
+      ],
+      "source_rect": [
+        21,
+        623,
+        304,
+        286
+      ],
+      "native_size": [
+        304,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "new-city": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "新城",
+      "rect": [
+        384,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        427,
+        817,
+        298,
+        286
+      ],
+      "source_rect": [
+        328,
+        623,
+        298,
+        286
+      ],
+      "native_size": [
+        298,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "checkbox-on": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "已勾选",
+      "rect": [
+        768,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        810,
+        817,
+        299,
+        286
+      ],
+      "source_rect": [
+        630,
+        623,
+        299,
+        286
+      ],
+      "native_size": [
+        299,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "checkbox-off": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "未勾选",
+      "rect": [
+        1152,
+        768,
+        384,
+        384
+      ],
+      "content_rect": [
+        1194,
+        817,
+        300,
+        286
+      ],
+      "source_rect": [
+        933,
+        623,
+        300,
+        286
+      ],
+      "native_size": [
+        300,
+        286
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "overlay-water": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "供水覆盖",
+      "rect": [
+        0,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        40,
+        1198,
+        304,
+        291
+      ],
+      "source_rect": [
+        20,
+        913,
+        304,
+        291
+      ],
+      "native_size": [
+        304,
+        291
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "overlay-pollution": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "污染覆盖",
+      "rect": [
+        384,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        426,
+        1198,
+        300,
+        291
+      ],
+      "source_rect": [
+        327,
+        913,
+        300,
+        291
+      ],
+      "native_size": [
+        300,
+        291
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "speed": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "速度",
+      "rect": [
+        768,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        809,
+        1198,
+        302,
+        291
+      ],
+      "source_rect": [
+        628,
+        913,
+        302,
+        291
+      ],
+      "native_size": [
+        302,
+        291
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    "lock": {
+      "atlas": "controls",
+      "kind": "action",
+      "label_zh": "未解锁",
+      "rect": [
+        1152,
+        1152,
+        384,
+        384
+      ],
+      "content_rect": [
+        1194,
+        1198,
+        300,
+        291
+      ],
+      "source_rect": [
+        933,
+        913,
+        300,
+        291
+      ],
+      "native_size": [
+        300,
+        291
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    }
+  },
+  "panels": {
+    "paper": {
+      "path": "res://art/ui/paper.png",
+      "size": [
+        512,
+        512
+      ],
+      "slice_margins": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "source": "godot/art/ui/sources/ui-panels-original.png",
+      "source_rect": [
+        28,
+        30,
+        576,
+        566
+      ],
+      "source_slice_margins": [
+        68,
+        68,
+        68,
+        68
+      ],
+      "processing": "Connected-alpha crop and mechanical nine-patch border normalization; original generated image preserved."
+    },
+    "wood": {
+      "path": "res://art/ui/wood.png",
+      "size": [
+        512,
+        512
+      ],
+      "slice_margins": [
+        24,
+        24,
+        24,
+        24
+      ],
+      "source": "godot/art/ui/sources/ui-panels-original.png",
+      "source_rect": [
+        643,
+        28,
+        582,
+        569
+      ],
+      "source_slice_margins": [
+        64,
+        64,
+        64,
+        64
+      ],
+      "processing": "Connected-alpha crop and mechanical nine-patch border normalization; original generated image preserved."
+    },
+    "card": {
+      "path": "res://art/ui/card.png",
+      "size": [
+        512,
+        512
+      ],
+      "slice_margins": [
+        16,
+        16,
+        16,
+        16
+      ],
+      "source": "godot/art/ui/sources/ui-panels-original.png",
+      "source_rect": [
+        30,
+        636,
+        574,
+        562
+      ],
+      "source_slice_margins": [
+        48,
+        48,
+        48,
+        48
+      ],
+      "processing": "Connected-alpha crop and mechanical nine-patch border normalization; original generated image preserved."
+    },
+    "red": {
+      "path": "res://art/ui/red.png",
+      "size": [
+        512,
+        512
+      ],
+      "slice_margins": [
+        20,
+        20,
+        20,
+        20
+      ],
+      "source": "godot/art/ui/sources/ui-panels-original.png",
+      "source_rect": [
+        644,
+        636,
+        580,
+        561
+      ],
+      "source_slice_margins": [
+        56,
+        56,
+        56,
+        56
+      ],
+      "processing": "Connected-alpha crop and mechanical nine-patch border normalization; original generated image preserved."
+    }
+  }
+}
