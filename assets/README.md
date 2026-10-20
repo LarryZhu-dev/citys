@@ -1,4 +1,4 @@
-# 帝国新纪美术资源
+# 万城纪美术资源
 
 本目录的图像由 `image_gen.imagegen` 按本项目提示词原创生成，未提取或复制《模拟帝国》的资源。生成记录见 `generation-record.json`，复用范围和动画说明见 `manifest.json`。
 
@@ -7,6 +7,7 @@
 - `sprites.json`：每张素材的尺寸、原始图集区域及锚点。
 - `construction-animation.webp`：4 行 × 4 列的规范施工动画图集，每帧 375 × 296 像素。四行依次为地基、墙体、屋顶完成和中心透明的升级脚手架。
 - `hero.webp`：原创五文明都城全景。
+- `modular/`：新增的 30 个中式结构、材质和人物部件，含独立生成原图与提示词。接口、尺寸、关节和材质复用说明见 [modular/README.md](modular/README.md)。
 
 ## 游戏接口
 
@@ -15,6 +16,8 @@
 `drawBuilding(ctx, {type, civ, level, cx, cy, width, height})` 中 `cx/cy` 是足印中心，`width/height` 是地面菱形的宽高。素材保持自身比例，底部锚在 `cy + height / 2`。成功返回 `true`；尚未加载返回 `false`，渲染器可显示即时后备图形。
 
 `drawConstruction(ctx, {cx, cy, width, height, progress, time, upgrade, fromLevel})` 单独绘制施工阶段；升级时保留已有建筑并叠加第四行脚手架。`time` 的单位是毫秒。
+
+上述整栋与通用施工接口保留供资源预览和兼容；当前华夏渲染优先使用 `ModularBuildings` 的结构装配与逐阶段施工。其他文明使用实际楼体的施工显现和占地脚手架。`thumbnail` 对华夏返回装配后的缩略图。
 
 `drawTerrain` 提供地表纹理、植物和矿石。`thumbnail(type,civ,level)` 返回可用于 UI 的图片 URL；`metadata` 提供尺寸、灯点和按文明人工校准的窑炉烟口位置。正常运营动画和昼夜光照由渲染器运行时绘制。
 

@@ -99,7 +99,7 @@ async function createPlayer(record) {
   await page.locator('#newCityName').fill(record.cityName);
   await page.locator('#newCitySeed').fill(`qa-${stamp}-${record.role}`);
   await page.locator('#foundCity').click();
-  await page.locator('[data-speed="0"]').click();
+  await page.locator('#quickPauseBtn').click();
   assert.equal(await page.evaluate(()=>S.tiles.length),64);
   await page.locator('#onlineBtn').click(); await idle(page);
   await page.locator('[data-action="auth"]').click();

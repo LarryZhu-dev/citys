@@ -73,12 +73,13 @@ test('persistent real HTTP account, saves, public cities, atomic marketplace and
     const invalid=fixture(); invalid.tiles[0][0].b.type='__proto__'; assert.equal((await save(alice,invalid)).status,400);
     const orphan=fixture(); orphan.tiles[0][0].b.type='villa'; assert.equal((await save(alice,orphan)).status,400);
     const constructing=fixture();
-    const building={id:2,type:'villa',origin:[2,2],lvl:2,construction:{remaining:5,total:10,fromLevel:1,toLevel:2},privatePassword:'not persisted'};
+    const building={id:2,type:'villa',origin:[2,2],lvl:2,productionTicks:37,construction:{remaining:5,total:10,fromLevel:1,toLevel:2},privatePassword:'not persisted'};
     for(let y=2;y<4;y++) for(let x=2;x<4;x++) constructing.tiles[y][x].b=building;
     constructing.evil='<script>alert(1)</script>'; constructing.uid=2;
     const first=await save(alice,constructing); assert.equal(first.status,200,JSON.stringify(first.data)); a=first.data.save;
     assert.equal(a.revision,1); assert.equal(a.clientRevision,1); assert.equal(a.state.evil,undefined); assert.equal(a.state.tiles[2][2].b.privatePassword,undefined);
     assert.equal(a.state.tiles[2][2].b.construction.toLevel,2);
+    assert.equal(a.state.tiles[2][2].b.productionTicks,37,'visual production stage survives cloud storage');
     b=(await save(bob,fixture())).data.save; c=(await save(carol,fixture(),0,false)).data.save;
     s=(await save(sandbox,fixture({mode:'sandbox'}))).data.save;
     const stale=await save(alice,fixture(),0); assert.equal(stale.status,409); assert.equal(stale.data.error.code,'REVISION_CONFLICT'); assert.equal(stale.data.save.revision,a.revision);

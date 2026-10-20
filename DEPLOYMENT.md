@@ -29,7 +29,7 @@ npm start
 | `.env`、`work/` | 本地配置和开发数据；已排除出 Git |
 | `tests/online.test.cjs` | 真实 HTTP 集成测试 |
 
-`public/` 仅复制游戏 HTML、CSS、`js/`，以及美术运行文件 `assets/sprites/*.webp`、`assets/hero.webp`、`assets/sprites.json`。原始 PNG 图集、生成脚本、制作记录和预览图保留在源码仓库，不发布到网站；`manifest.json` 只用于来源说明，游戏运行时不读取。构建会校验精灵元数据引用是否完整。服务端代码、`.env`、账号数据、Git 信息及测试文件不会被构建为静态网页。本地服务也使用静态文件白名单。
+`public/` 仅复制游戏 HTML、CSS、`js/`，以及美术运行文件 `assets/sprites/*.webp`、`assets/hero.webp`、`assets/sprites.json`，以及 `assets/modular/parts.json` 与其引用的 30 张 `assets/modular/parts/*.webp`。原始 PNG 图集、生成脚本、制作记录和预览图保留在源码仓库，不发布到网站；`manifest.json` 只用于来源说明，游戏运行时不读取。构建会校验精灵元数据引用是否完整。服务端代码、`.env`、账号数据、Git 信息及测试文件不会被构建为静态网页。本地服务也使用静态文件白名单。
 
 ## 2. 环境变量
 
@@ -68,7 +68,7 @@ Vercel 当前通过 Marketplace 接入外部 PostgreSQL，可选择 Neon、Supab
 
 静态文件与函数属于同一次 Vercel 部署，不需要单独运行 `npm start`。`outputDirectory` 控制静态发布目录；根目录 `api/` 下的 Node 函数由平台构建，函数依赖会包含 `server/` 与 `pg`。[官方项目配置](https://vercel.com/docs/project-configuration/vercel-json)
 
-如果按文件列表上传源码，必要集合是 `package.json`、`package-lock.json`、`vercel.json`、`api/`、`server/`、HTML/CSS、`js/`，以及上述三类运行美术文件。不要上传 `work/`、`tests/`、`research/`、原始 PNG、旧版 `game.js`、本地 `.env`、`node_modules/` 或已有 `public/`；云端会重新安装依赖并构建。Git 部署可以保留源码原始素材，构建白名单会阻止它们进入静态输出。
+如果按文件列表上传源码，必要集合是 `package.json`、`package-lock.json`、`vercel.json`、`api/`、`server/`、HTML/CSS、`js/`，以及上述运行美术文件。不要上传 `work/`、`tests/`、`research/`、原始 PNG、旧版 `game.js`、本地 `.env`、`node_modules/` 或已有 `public/`；云端会重新安装依赖并构建。Git 部署可以保留源码原始素材，构建白名单会阻止它们进入静态输出。
 
 ### API 路由兼容性
 

@@ -10,7 +10,10 @@ let renderClock=0, lastRenderFrame=0, renderState=null, rendererEpoch=0;
 let rendererBounds=null, rendererLights=[], rendererMasks=[], rendererNight=0;
 const emissionMaskCache=new Map(),terrainTextureCache=new Map(),terrainTextureMiss=new Map(),groundTileCache=new Map();
 let minimapCache=null, minimapStamp=0, minimapState=null, overlayCache=null;
-let nightSurface=null,nightGlow=null,nightSurfaceKey='';
+let nightGlow=null;
+const terrainChunkCache=new Map();
+let terrainViewportSurface=null,terrainViewportKey='';
+let terrainCacheState=null,terrainCacheCiv='',terrainSeed=1,terrainCacheBytes=0;
 const rendererStats=window.rendererStats={visibleTiles:0,visibleBuildings:0,frameMs:0};
 
 function tileToScreen(x,y){ return {sx:(x-y)*TILE_W/2,sy:(x+y)*TILE_H/2}; }
@@ -30,29 +33,32 @@ function resizeCanvas(){
   if(!oldW || !renderState) centerOnCity();
   else {view.ox+=(r.width-oldW)/2;view.oy+=(r.height-oldH)/2;clampView(r);}
 }
-function cameraUsableHeight(r){return Math.max(180,r.height-(parseFloat(getComputedStyle(document.body).getPropertyValue('--builder-h'))||205));}
+function cameraInsets(r){const supplied=window.gameViewportInsets?.();if(supplied)return{top:Math.max(0,supplied.top-cv.getBoundingClientRect().top),bottom:Math.max(0,supplied.bottom)};return{top:36,bottom:72};}
+function cameraUsableHeight(r){const insets=cameraInsets(r);return Math.max(180,r.height-insets.top-insets.bottom);}
+function cameraCenterY(r){return cameraInsets(r).top+cameraUsableHeight(r)*.52;}
 function centerOnTile(x,y,zoom){
   const r=cv.getBoundingClientRect();
   const p=tileToScreen(Math.max(0,Math.min(MAP_W-1,x)),Math.max(0,Math.min(MAP_H-1,y)));
   if(Number.isFinite(zoom))view.zoom=Math.max(.25,Math.min(2.5,zoom));
-  view.ox=r.width/2-p.sx*view.zoom;view.oy=cameraUsableHeight(r)*.52+35-p.sy*view.zoom;clampView(r);
+  view.ox=r.width/2-p.sx*view.zoom;view.oy=cameraCenterY(r)-p.sy*view.zoom;clampView(r);
 }
 function centerOnCity(){
   if(!S){centerOnTile(MAP_W/2,MAP_H/2,1);return;}
-  let points=[];
+  let points=[],homePoints=[];
   for(let y=0;y<MAP_H;y++)for(let x=0;x<MAP_W;x++){
     const b=S.tiles[y]?.[x]?.b;
     if(b&&b.type!=='road'&&(!b.origin||(b.origin[0]===x&&b.origin[1]===y))){
-      const z=(BUILD[b.type]?.size||1)-1;points.push(tileToScreen(x+z/2,y+z/2));
+      const z=(BUILD[b.type]?.size||1)-1,point=tileToScreen(x+z/2,y+z/2);points.push(point);if(isResidence(b))homePoints.push(point);
     }
   }
   if(!points.length){centerOnTile(S.start?.x??MAP_W/2,S.start?.y??MAP_H/2,1);return;}
   const r=cv.getBoundingClientRect();
+  if(r.width<=720&&homePoints.length){points=homePoints;const px=points.reduce((sum,p)=>sum+p.sx,0)/points.length,py=points.reduce((sum,p)=>sum+p.sy,0)/points.length;view.zoom=Math.max(.9,Math.min(1.05,r.width/410));view.ox=r.width/2-px*view.zoom;view.oy=cameraCenterY(r)-py*view.zoom;clampView(r);return;}
   const minX=Math.min(...points.map(p=>p.sx)),maxX=Math.max(...points.map(p=>p.sx));
   const minY=Math.min(...points.map(p=>p.sy))-100,maxY=Math.max(...points.map(p=>p.sy))+70;
   view.zoom=Math.max(.55,Math.min(1.1,(r.width-130)/(maxX-minX+TILE_W*3),(cameraUsableHeight(r)-40)/(maxY-minY+TILE_H*3)));
   view.ox=r.width/2-(minX+maxX)/2*view.zoom;
-  view.oy=cameraUsableHeight(r)*.52+35-(minY+maxY)/2*view.zoom;clampView(r);
+  view.oy=cameraCenterY(r)-(minY+maxY)/2*view.zoom;clampView(r);
 }
 function fitView(){
   const r=cv.getBoundingClientRect();
@@ -83,22 +89,23 @@ function getVisibleBounds(r){
 }
 function inViewport(sx,sy,padX=100,padY=160){return sx>rendererBounds.left-padX&&sx<rendererBounds.right+padX&&sy>rendererBounds.top-padY&&sy<rendererBounds.bottom+padY;}
 function getNightAmount(){
-  if(rendererSettings.night==='night')return .78;if(rendererSettings.night==='day')return 0;
+  if(rendererSettings.night==='night')return 1;if(rendererSettings.night==='day')return 0;
   const phase=((S?.tick||0)%480)/480;
-  return Math.max(0,Math.min(.78,(Math.cos((phase-.75)*Math.PI*2)-.15)*1.05));
+  return Math.max(0,Math.min(1,(Math.cos((phase-.75)*Math.PI*2)-.15)*1.2));
 }
 function render(){
   const started=performance.now(),r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,r.width,r.height);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.clearRect(0,0,r.width,r.height);
   const bg=ctx.createLinearGradient(0,0,r.width,r.height);bg.addColorStop(0,'#243e37');bg.addColorStop(1,'#101f20');ctx.fillStyle=bg;ctx.fillRect(0,0,r.width,r.height);
   if(!S)return;
   if(renderState!==S){renderState=S;invalidateRenderer();centerOnCity();}
   const delta=lastRenderFrame?Math.min(80,started-lastRenderFrame):0;lastRenderFrame=started;
   if(speed>0&&!rendererSettings.reducedMotion)renderClock+=delta*Math.min(speed,2);
+  window.Citizens?.update?.(S,delta/1000,{speed,reducedMotion:rendererSettings.reducedMotion});
   rendererBounds={left:-view.ox/view.zoom,right:(r.width-view.ox)/view.zoom,top:-view.oy/view.zoom,bottom:(r.height-view.oy)/view.zoom};
   rendererLights=[];rendererMasks=[];rendererNight=getNightAmount();
   ctx.save();ctx.translate(view.ox,view.oy);ctx.scale(view.zoom,view.zoom);
-  drawMapEdge();
+  drawMapEdge();drawContinuousTerrain();
   const bounds=getVisibleBounds(r),objects=[],roads=[];let tileCount=0;
   for(let sum=bounds.x0+bounds.y0;sum<=bounds.x1+bounds.y1;sum++)for(let x=bounds.x0;x<=bounds.x1;x++){
     const y=sum-x;if(y<bounds.y0||y>bounds.y1)continue;
@@ -110,18 +117,19 @@ function render(){
         const size=BUILD[b.type]?.size||1,cy=p.sy+(size-1)*TILE_H/2;
         if(inViewport(p.sx,cy,size*TILE_W,size*TILE_W+160))objects.push({kind:'building',x,y,b,depth:x+y+size-1});
       }
-    }else if(!b&&['tree','stone','clay','copper'].includes(tile.t)&&inViewport(p.sx,p.sy,100,150))objects.push({kind:tile.t,x,y,p,depth:x+y+.05});
+    }else if(!b&&['tree','stone','clay','copper'].includes(tile.t)&&inViewport(p.sx,p.sy,140,180))collectNaturalObjects(objects,x,y,tile.t);
+    if(!b&&tile.t!=='water'&&hash2(x+27,y+39)>.68){const waterSide=DIRS.find(([dx,dy])=>tileAt(x+dx,y+dy)?.t==='water');if(waterSide){const tx=x+waterSide[0]*.3+(hash2(x+81,y)-.5)*.4,ty=y+waterSide[1]*.3+(hash2(x,y+77)-.5)*.4,q=tileToScreen(tx,ty);if(inViewport(q.sx,q.sy,40,50))objects.push({kind:'reeds',x:tx,y:ty,p:q,depth:tx+ty+.05});}}
   }
   drawRoadNetwork(roads);
   drawOverlay();drawCoverage();drawSelectionGround();drawRoadPreview();
-  if(view.zoom>.45)drawCitizens(roads,objects);
+  if(view.zoom>.3)collectCitizens(objects);
   objects.sort((a,b)=>a.depth-b.depth||a.x-b.x);
-  for(const o of objects){if(o.kind==='person'){drawPerson(o.px,o.py,o.color,o.seed);continue;}if(o.kind==='building')drawBuilding(o.x,o.y,o.b);else if(o.kind==='tree')drawTree(o.p.sx,o.p.sy,o.x,o.y);else if(o.kind==='stone'||o.kind==='copper')drawRock(o.p.sx,o.p.sy,o.x,o.y,o.kind==='copper');else drawClay(o.p.sx,o.p.sy,o.x,o.y);}
+  for(const o of objects){if(o.kind==='person'){window.Citizens?.draw?.(ctx,o.entity,o.px,o.py,renderClock,{night:rendererNight,zoom:view.zoom,reducedMotion:rendererSettings.reducedMotion});continue;}if(o.kind==='reeds'){window.GameArt?.drawTerrain?.(ctx,'reeds',o.p.sx,o.p.sy,17+hash2(o.x,o.y)*12,0,0,rendererNight);continue;}if(o.kind==='building')drawBuilding(o.x,o.y,o.b);else if(o.kind==='tree')drawTree(o.p.sx,o.p.sy,o.x,o.y);else if(o.kind==='stone'||o.kind==='copper')drawRock(o.p.sx,o.p.sy,o.x,o.y,o.kind==='copper',o.natural);else drawClay(o.p.sx,o.p.sy,o.x,o.y,o.natural);}
   drawHover();
   ctx.restore();
   drawAtmosphere(r);
   drawMinimap();
-  rendererStats.visibleTiles=tileCount;rendererStats.visibleBuildings=objects.filter(o=>o.kind==='building').length;rendererStats.frameMs=Math.round((performance.now()-started)*10)/10;
+  rendererStats.visibleTiles=tileCount;rendererStats.visibleBuildings=objects.filter(o=>o.kind==='building').length;rendererStats.visibleCitizens=objects.filter(o=>o.kind==='person').length;rendererStats.visibleNatural=objects.filter(o=>!['building','person'].includes(o.kind)).length;rendererStats.frameMs=Math.round((performance.now()-started)*10)/10;
 }
 function drawMapEdge(){
   const p=tileToScreen((MAP_W-1)/2,(MAP_H-1)/2),w=MAP_W*TILE_W,h=MAP_H*TILE_H;
@@ -130,28 +138,99 @@ function drawMapEdge(){
 }
 const TERRAIN_FILL={grass:['#81966a','#809569','#83976c','#7f9469'],sand:['#c8bb8d','#c5b587','#cdbc96'],tree:['#7e9468','#7f956a'],stone:['#8e957a','#879071'],clay:['#ab9a70','#b19e78'],copper:['#a79771','#a3916b'],water:['#4c8c91','#4c9095','#508e95'],shore:['#beb68b','#c3bc94']};
 function drawTileGround(x,y,t,p){
-  const civ=currentCivilization(),seed=hash2(x,y);
-  let colors=TERRAIN_FILL[t.t]||TERRAIN_FILL.grass;
-  if(t.t==='grass'||t.t==='tree'){
-    if(civ==='egypt')colors=['#b5b77a','#b4b67a','#b7b87d'];
-    if(civ==='persia')colors=['#a4ae7d','#a6af7e','#a3ad7c'];
-    if(civ==='aztec')colors=['#708e65','#728f66','#708d64'];
+  if(t.t==='water')drawWater(x,y,p);
+  if(rendererSettings.grid||selTool){drawDiamond(p.sx,p.sy,TILE_W,TILE_H);ctx.strokeStyle='rgba(38,60,38,.12)';ctx.lineWidth=.6;ctx.stroke();}
+}
+function rendererTerrainHash(x,y,seed=terrainSeed){let n=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^seed;n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295;}
+function rendererTerrainNoise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy),a=rendererTerrainHash(ix,iy),b=rendererTerrainHash(ix+1,iy),c=rendererTerrainHash(ix,iy+1),d=rendererTerrainHash(ix+1,iy+1);return(a+(b-a)*u)*(1-v)+(c+(d-c)*u)*v;}
+function getTerrainVisual(x,y){
+  if(typeof terrainVisualAt==='function')return terrainVisualAt(x,y,S.seed);
+  return{groundBlend:Math.max(0,(rendererTerrainNoise(x*.12,y*.12)-.5)*1.2),moisture:rendererTerrainNoise(x*.07+10,y*.07),detail:rendererTerrainHash(x,y),offsetX:rendererTerrainHash(x,y)-.5,offsetY:rendererTerrainHash(x+17,y+23)-.5,scale:.75+rendererTerrainHash(x+3,y+19)*.5};
+}
+function smoothRange(a,b,value){const t=Math.max(0,Math.min(1,(value-a)/(b-a)));return t*t*(3-2*t);}
+function terrainTypeWeight(x,y,type){
+  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+  const value=(tx,ty)=>S.tiles[Math.max(0,Math.min(MAP_H-1,ty))]?.[Math.max(0,Math.min(MAP_W-1,tx))]?.t===type?1:0;
+  return(value(ix,iy)*(1-fx)+value(ix+1,iy)*fx)*(1-fy)+(value(ix,iy+1)*(1-fx)+value(ix+1,iy+1)*fx)*fy;
+}
+function groundFieldAt(wx,wy){
+  const x=wx/TILE_W+wy/TILE_H,y=wy/TILE_H-wx/TILE_W,field=getTerrainVisual(x,y),fine=rendererTerrainNoise(x*1.37+11,y*1.37-5),civ=currentCivilization();
+  const sand=terrainTypeWeight(x,y,'sand'),water=terrainTypeWeight(x,y,'water'),shoreNoise=(fine-.5)*.12;
+  let blend=Math.max(0,Math.min(.88,smoothRange(.25,.49,field.groundBlend+(fine-.5)*.13)*.76+sand*.72));
+  const grass=civ==='egypt'?[137,153,91]:civ==='persia'?[123,145,88]:civ==='aztec'?[89,126,73]:[101,147,75];
+  const soil=civ==='egypt'?[198,176,118]:[177,155,105],variation=(fine-.5)*14+(field.moisture-.5)*15;
+  let r=grass[0]+(soil[0]-grass[0])*blend+variation,g=grass[1]+(soil[1]-grass[1])*blend+variation,b=grass[2]+(soil[2]-grass[2])*blend+variation*.7;
+  // Preserve the continuous water field until rasterization. Interpolating
+  // already-coloured shoreline samples made visible eight-pixel stair steps.
+  const edge=water+shoreNoise+(rendererTerrainNoise(x*4.7-19,y*4.7+9)-.5)*.025;
+  return[r,g,b,edge,water];
+}
+function createTerrainChunk(cx,cy,tier){
+  const size=256,padding=2,worldX=cx*size-padding,worldY=cy*size-padding,total=size+padding*2,step=4,n=Math.ceil(total/step)+1;
+  const field=new Float32Array(n*n*5);
+  for(let gy=0;gy<n;gy++)for(let gx=0;gx<n;gx++){const color=groundFieldAt(worldX+gx*step,worldY+gy*step),i=(gy*n+gx)*5;for(let ch=0;ch<5;ch++)field[i+ch]=color[ch];}
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=total*tier;const dc=canvas.getContext('2d'),pixels=dc.createImageData(canvas.width,canvas.height),data=pixels.data;
+  for(let py=0;py<canvas.height;py++)for(let px=0;px<canvas.width;px++){
+    const fx=px/tier/step,fy=py/tier/step,ix=Math.floor(fx),iy=Math.floor(fy),u=fx-ix,v=fy-iy,a=(iy*n+ix)*5,b=a+5,c=a+n*5,d=c+5,i=(py*canvas.width+px)*4;
+    const edge=(field[a+3]*(1-u)+field[b+3]*u)*(1-v)+(field[c+3]*(1-u)+field[d+3]*u)*v,water=(field[a+4]*(1-u)+field[b+4]*u)*(1-v)+(field[c+4]*(1-u)+field[d+4]*u)*v;
+    const grain=(rendererTerrainHash(Math.floor(worldX*tier+px),Math.floor(worldY*tier+py))-.5)*11;
+    const fleck=(rendererTerrainHash(Math.floor((worldX+px/tier)/1.7),Math.floor((worldY+py/tier)/.85))-.5)*6;
+    const bank=smoothRange(.414,.447,edge)*(1-smoothRange(.476,.487,edge)),flow=smoothRange(.481,.493,edge),deep=smoothRange(.56,1,water);
+    for(let ch=0;ch<3;ch++){
+      let color=(field[a+ch]*(1-u)+field[b+ch]*u)*(1-v)+(field[c+ch]*(1-u)+field[d+ch]*u)*v;
+      color+=((ch===0?160:ch===1?151:104)-color)*bank;
+      color+=((ch===0?38-deep*11:ch===1?141-deep*24:149-deep*15)-color)*flow;
+      data[i+ch]=color+grain*(1-flow*.6)+fleck*(1-flow);
+    }
+    data[i+3]=255;
   }
-  const fill=colors[Math.floor(seed*colors.length)],surface=['sand','water'].includes(t.t)?t.t:'grass';
-  const ground=getGroundTile(fill,surface);ctx.drawImage(ground,p.sx-ground.width/2,p.sy-ground.height/2);
-  if(t.t==='water'){drawWater(x,y,p);return;}
-  if(t.b?.type==='road')return;
-  // Sparse reusable details keep the terrain quiet enough for the architecture.
-  if(view.zoom>.42){
-    ctx.fillStyle=t.t==='sand'?'rgba(107,100,66,.16)':'rgba(52,87,43,.13)';
-    for(let i=0;i<3;i++){const hx=hash2(x+i*61,y+19),hy=hash2(x+39,y+i*47);ctx.fillRect(p.sx+(hx-.5)*TILE_W*.6,p.sy+(hy-.5)*TILE_H*.54,1.5+seed*2,1);}
-    if(!t.b&&seed>.89&&(t.t==='grass'||t.t==='tree')){ctx.fillStyle='#b9bf89';ctx.fillRect(p.sx+8,p.sy+2,2,1.3);ctx.fillRect(p.sx+11,p.sy+4,2,1.3);}
+  dc.putImageData(pixels,0,0);
+  // Tiny irregular blade clusters belong to world space, not the tile lattice.
+  // Their high-frequency texture breaks up the broad meadow colour fields.
+  dc.setTransform(tier,0,0,tier,0,0);dc.lineWidth=.45;
+  for(let i=0;i<340;i++){
+    const x=rendererTerrainHash(cx*911+i,cy*73+7)*size+padding,y=rendererTerrainHash(cx*311+i,cy*47+19)*size+padding;
+    const wx=worldX+x,wy=worldY+y,tx=wx/TILE_W+wy/TILE_H,ty=wy/TILE_H-wx/TILE_W;if(terrainTypeWeight(tx,ty,'water')>.36)continue;
+    const f=rendererTerrainHash(cx*47+i,cy*17);dc.strokeStyle=f>.5?'rgba(193,203,116,.24)':'rgba(43,88,40,.19)';
+    dc.beginPath();dc.moveTo(x-1.3,y+.4);dc.lineTo(x-.4,y-1.3-f);dc.moveTo(x,y);dc.lineTo(x+1.2,y-.9-f*1.6);dc.stroke();
   }
-  for(const [dx,dy] of DIRS){if(tileAt(x+dx,y+dy)?.t==='water'){
-    const ex=p.sx+(dx-dy)*TILE_W/4,ey=p.sy+(dx+dy)*TILE_H/4;
-    ctx.strokeStyle='rgba(222,211,157,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(ex-(dx+dy)*TILE_W/4,ey+(dx-dy)*TILE_H/4);ctx.lineTo(ex+(dx+dy)*TILE_W/4,ey-(dx-dy)*TILE_H/4);ctx.stroke();
-  }}
-  if(rendererSettings.grid||selTool){drawDiamond(p.sx,p.sy,TILE_W,TILE_H);ctx.strokeStyle='rgba(41,61,38,.16)';ctx.lineWidth=.65;ctx.stroke();}
+  const chunk={canvas,x:worldX,y:worldY,size:total,bytes:canvas.width*canvas.height*4};
+  // Retain immutable pixels and release the temporary raster canvas once the
+  // browser has made the image. Evicted chunks also release their image data.
+  if(typeof createImageBitmap==='function')createImageBitmap(canvas).then(bitmap=>{if(chunk.disposed){bitmap.close();return;}chunk.bitmap=bitmap;canvas.width=canvas.height=1;}).catch(()=>{});
+  return chunk;
+}
+function drawContinuousTerrain(){
+  const civ=currentCivilization();
+  if(terrainCacheState!==S||terrainCacheCiv!==civ){
+    for(const old of terrainChunkCache.values()){old.disposed=true;old.bitmap?.close();}
+    terrainChunkCache.clear();terrainCacheBytes=0;terrainViewportKey='';terrainCacheState=S;terrainCacheCiv=civ;
+    terrainSeed=Array.from(String(S.seed||'dawn')).reduce((n,c)=>Math.imul(n^c.charCodeAt(0),16777619),2166136261)>>>0;
+  }
+  const dpr=Math.min(2,devicePixelRatio||1),rasterScale=view.zoom*dpr,tier=Math.max(1,Math.ceil(rasterScale*2)/2),size=256;
+  const terrainNight=Math.round(rendererNight*20)/20,key=[view.ox,view.oy,view.zoom,cv.width,cv.height,civ,terrainNight].join(':');
+  if(!terrainViewportSurface)terrainViewportSurface=document.createElement('canvas');
+  if(terrainViewportKey!==key){
+    terrainViewportKey=key;
+    if(terrainViewportSurface.width!==cv.width||terrainViewportSurface.height!==cv.height){terrainViewportSurface.width=cv.width;terrainViewportSurface.height=cv.height;}
+    const ground=terrainViewportSurface.getContext('2d');ground.setTransform(1,0,0,1,0,0);ground.clearRect(0,0,cv.width,cv.height);ground.setTransform(rasterScale,0,0,rasterScale,view.ox*dpr,view.oy*dpr);ground.imageSmoothingQuality='low';
+    const x0=Math.floor(Math.max(-MAP_H*TILE_W/2,rendererBounds.left)/size),x1=Math.floor(Math.min(MAP_W*TILE_W/2,rendererBounds.right)/size),y0=Math.floor(Math.max(-TILE_H/2,rendererBounds.top)/size),y1=Math.floor(Math.min((MAP_W+MAP_H)*TILE_H/2,rendererBounds.bottom)/size);
+    const p=tileToScreen((MAP_W-1)/2,(MAP_H-1)/2),hw=MAP_W*TILE_W/2,hh=MAP_H*TILE_H/2;
+    ground.save();ground.beginPath();ground.moveTo(p.sx,p.sy-hh);ground.lineTo(p.sx+hw,p.sy);ground.lineTo(p.sx,p.sy+hh);ground.lineTo(p.sx-hw,p.sy);ground.closePath();ground.clip();
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+      const cacheKey=x+','+y+','+tier;let chunk=terrainChunkCache.get(cacheKey);
+      if(!chunk){
+        chunk=createTerrainChunk(x,y,tier);terrainChunkCache.set(cacheKey,chunk);terrainCacheBytes+=chunk.bytes;
+        while(terrainChunkCache.size>512||terrainCacheBytes>96*1024*1024){const first=terrainChunkCache.keys().next().value,old=terrainChunkCache.get(first);terrainCacheBytes-=old.bytes;old.disposed=true;old.bitmap?.close();terrainChunkCache.delete(first);}
+      }else{terrainChunkCache.delete(cacheKey);terrainChunkCache.set(cacheKey,chunk);}
+      ground.drawImage(chunk.bitmap||chunk.canvas,chunk.x,chunk.y,chunk.size,chunk.size);
+    }
+    if(terrainNight>.02){ground.globalCompositeOperation='multiply';ground.fillStyle=`rgba(64,111,157,${terrainNight*.24})`;ground.fillRect(rendererBounds.left,rendererBounds.top,rendererBounds.right-rendererBounds.left,rendererBounds.bottom-rendererBounds.top);ground.fillStyle=`rgba(79,125,184,${terrainNight*.39})`;ground.fillRect(rendererBounds.left,rendererBounds.top,rendererBounds.right-rendererBounds.left,rendererBounds.bottom-rendererBounds.top);ground.globalCompositeOperation='source-over';}
+    ground.restore();
+  }
+  // The map outline and overlapping world chunks are composited once per
+  // camera change. The static view is then one exact-resolution pixel copy.
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(terrainViewportSurface,0,0);ctx.restore();
 }
 function getGroundTile(fill,surface){
   const key=fill+surface;if(groundTileCache.has(key))return groundTileCache.get(key);
@@ -161,21 +240,19 @@ function getGroundTile(fill,surface){
   groundTileCache.set(key,tile);return tile;
 }
 function getTerrainTexture(surface){
-  if(terrainTextureCache.has(surface))return terrainTextureCache.get(surface);
+  const scale=view.zoom*Math.min(2,devicePixelRatio||1),tier=Math.max(1,Math.ceil(scale*2)/2),night=Math.round(rendererNight*12)/12,key=surface+':'+tier+':'+night;
+  if(terrainTextureCache.has(key))return terrainTextureCache.get(key);
   const now=performance.now();if((terrainTextureMiss.get(surface)||0)>now)return null;
-  const texture=document.createElement('canvas');texture.width=TILE_W+2;texture.height=TILE_H+2;
-  if(!window.GameArt?.drawTerrain?.(texture.getContext('2d'),surface,texture.width/2,texture.height/2,TILE_W+.5,TILE_H+.5)){terrainTextureMiss.set(surface,now+300);return null;}
-  terrainTextureCache.set(surface,texture);return texture;
+  const texture=document.createElement('canvas');texture.width=(TILE_W+2)*tier;texture.height=(TILE_H+2)*tier;const tc=texture.getContext('2d');tc.setTransform(tier,0,0,tier,0,0);
+  if(!window.GameArt?.drawTerrain?.(tc,surface,(TILE_W+2)/2,(TILE_H+2)/2,TILE_W+.5,TILE_H+.5,0,night)){terrainTextureMiss.set(surface,now+300);return null;}
+  terrainTextureCache.set(key,texture);if(terrainTextureCache.size>32)terrainTextureCache.delete(terrainTextureCache.keys().next().value);return texture;
 }
 function drawWater(x,y,p){
   const seed=hash2(x,y),time=renderClock/2300;
   if(view.zoom>.35){ctx.strokeStyle=`rgba(185,226,213,${.13+Math.sin(time+seed*8)*.055})`;ctx.lineWidth=1;
     for(let i=0;i<2;i++){const a=p.sx+(seed-.5)*34+i*7,b=p.sy-4+i*8;ctx.beginPath();ctx.moveTo(a-9,b);ctx.quadraticCurveTo(a,b+Math.sin(time+seed*10)*1.5,a+8,b);ctx.stroke();}
   }
-  for(const [dx,dy]of DIRS){const n=tileAt(x+dx,y+dy);if(n&&n.t!=='water'){
-    const ex=p.sx+(dx-dy)*TILE_W/4,ey=p.sy+(dx+dy)*TILE_H/4;
-    ctx.strokeStyle='rgba(203,229,204,.42)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(ex-(dx+dy)*TILE_W/4,ey+(dx-dy)*TILE_H/4);ctx.lineTo(ex+(dx+dy)*TILE_W/4,ey-(dx-dy)*TILE_H/4);ctx.stroke();
-  }}
+
 }
 function drawRoadNetwork(roads){
   const groups={normal:[],main:[],bridge:[]};
@@ -186,36 +263,50 @@ function drawRoadNetwork(roads){
     const path=new Path2D();for(const{x,y,p}of items){let count=0;for(const[dx,dy]of DIRS){if(tileAt(x+dx,y+dy)?.b?.type!=='road')continue;path.moveTo(p.sx,p.sy);path.lineTo(p.sx+(dx-dy)*TILE_W/2,p.sy+(dx+dy)*TILE_H/2);count++;}if(!count){path.moveTo(p.sx-.1,p.sy);path.lineTo(p.sx+.1,p.sy);}}
     paths.push({k,path});ctx.strokeStyle='rgba(88,79,48,.27)';ctx.lineWidth=19;ctx.stroke(path);
   }
-  for(const{k,path}of paths){ctx.strokeStyle=k==='bridge'?'#ad936a':k==='main'?'#c1b68f':'#b5aa84';ctx.lineWidth=16;ctx.stroke(path);}
+  for(const{k,path}of paths){const color=k==='bridge'?[173,147,106]:k==='main'?[193,182,143]:[181,170,132];ctx.strokeStyle=`rgb(${Math.round(color[0]*(1-rendererNight*.18)*(1-rendererNight*.26918))},${Math.round(color[1]*(1-rendererNight*.135)*(1-rendererNight*.19882))},${Math.round(color[2]*(1-rendererNight*.092)*(1-rendererNight*.10859))})`;ctx.lineWidth=16;ctx.stroke(path);}
   ctx.lineCap='butt';
   if(view.zoom>.5)for(const{x,y,p}of roads){if(S.tiles[y][x].t!=='water')drawRoadTexture(x,y,p);drawRoadDetails(x,y,S.tiles[y][x].b,p,S.tiles[y][x].t==='water');}
 }
 function drawRoadTexture(x,y,p){
   if(!window.GameArt?.drawTerrain)return;
-  ctx.save();ctx.beginPath();ctx.rect(p.sx-5,p.sy-5,10,10);
+  // Keep the centre and road arms in the same winding direction. A clockwise
+  // centre rectangle punched a square hole in the counterclockwise arm mask.
+  ctx.save();ctx.beginPath();ctx.arc(p.sx,p.sy,7,0,Math.PI*2,true);
   for(const[dx,dy]of DIRS){if(tileAt(x+dx,y+dy)?.b?.type!=='road')continue;const vx=(dx-dy)*TILE_W/4,vy=(dx+dy)*TILE_H/4,len=Math.hypot(vx,vy),nx=-vy/len*8,ny=vx/len*8;ctx.moveTo(p.sx+nx,p.sy+ny);ctx.lineTo(p.sx+vx+nx,p.sy+vy+ny);ctx.lineTo(p.sx+vx-nx,p.sy+vy-ny);ctx.lineTo(p.sx-nx,p.sy-ny);ctx.closePath();}
-  ctx.clip();ctx.globalAlpha=.42;const texture=getTerrainTexture('road');if(texture)ctx.drawImage(texture,p.sx-texture.width/2,p.sy-texture.height/2);ctx.restore();
+  ctx.clip();ctx.globalAlpha=.42-rendererNight*.13;const texture=getTerrainTexture('road');if(texture)ctx.drawImage(texture,p.sx-(TILE_W+2)/2,p.sy-(TILE_H+2)/2,TILE_W+2,TILE_H+2);ctx.restore();
 }
 function drawRoadDetails(x,y,b,p,bridge){
   const links=DIRS.filter(([dx,dy])=>tileAt(x+dx,y+dy)?.b?.type==='road');
   ctx.strokeStyle=bridge?'rgba(96,77,49,.33)':'rgba(237,222,178,.45)';ctx.lineWidth=.7;
   for(const[dx,dy]of links){const ex=p.sx+(dx-dy)*TILE_W/4,ey=p.sy+(dx+dy)*TILE_H/4;for(let i=1;i<=2;i++){const f=i/3,xx=p.sx+(ex-p.sx)*f,yy=p.sy+(ey-p.sy)*f;ctx.beginPath();ctx.moveTo(xx-3*(dx+dy),yy+3*(dx-dy));ctx.lineTo(xx+3*(dx+dy),yy-3*(dx-dy));ctx.stroke();}}
   if(bridge){ctx.strokeStyle='#7e714c';ctx.lineWidth=1.6;for(const[dx,dy]of links){const ex=p.sx+(dx-dy)*TILE_W/2,ey=p.sy+(dx+dy)*TILE_H/2;for(const side of[-1,1]){const off=side*7;ctx.beginPath();ctx.moveTo(p.sx+off,p.sy-6);ctx.lineTo(ex+off,ey-6);ctx.stroke();for(const f of[0,.5,1]){const xx=p.sx+(ex-p.sx)*f+off,yy=p.sy+(ey-p.sy)*f;ctx.beginPath();ctx.moveTo(xx,yy-7);ctx.lineTo(xx,yy+2);ctx.stroke();}}}}
-  if(b.main&&hash2(x,y)>.82){ctx.fillStyle='#6c6242';ctx.fillRect(p.sx-15,p.sy-14,2,14);ctx.fillStyle='#d7bd70';ctx.fillRect(p.sx-18,p.sy-17,8,5);if(rendererNight>.1)rendererLights.push({x:p.sx-14,y:p.sy-16,r:36,power:.65});}
+  if(b.main&&hash2(x,y)>.82){ctx.fillStyle='#6c6242';ctx.fillRect(p.sx-15,p.sy-14,2,14);ctx.fillStyle='#d7bd70';ctx.fillRect(p.sx-18,p.sy-17,8,5);if(rendererNight>.1)rendererLights.push({x:p.sx-14,y:p.sy-16,r:17,power:.72});}
 }
 function drawTile(x,y){const t=tileAt(x,y);if(t)drawTileGround(x,y,t,tileToScreen(x,y));}
+function collectNaturalObjects(objects,x,y,type){
+  const natural=getTerrainVisual(x,y);
+  if(type==='tree'){const tx=x+natural.offsetX*.82,ty=y+natural.offsetY*.82;objects.push({kind:type,x,y,p:tileToScreen(tx,ty),natural,depth:tx+ty+.05});return;}
+  const neighbours=DIRS.reduce((n,[dx,dy])=>n+(tileAt(x+dx,y+dy)?.t===type?1:0),0),count=2+Math.floor(hash2(x+23,y+71)*3);
+  for(let i=0;i<count;i++){
+    // Several unequal props share each mineral patch. Neighbouring patches
+    // deliberately overlap their sampling domains instead of repeating one tile.
+    const tx=x+(hash2(x+i*13+41,y+81)-.5)*1.45,ty=y+(hash2(x+23,y+i*31+19)-.5)*1.45,seed=hash2(x+i*19,y+47);
+    const scale=(i===0&&neighbours>1?.52:.17)+seed*(i===0?.25:.19),p=tileToScreen(tx,ty);if(!inViewport(p.sx,p.sy,80,100))continue;
+    objects.push({kind:type,x,y,p,natural:{...natural,propScale:scale,propSeed:seed,index:i},depth:tx+ty+.05});
+  }
+}
 function drawTree(sx,sy,x,y){
-  const seed=hash2(x,y),s=.8+seed*.5,wind=Math.sin(renderClock/1600+x)*1.3;
-  const civ=currentCivilization(),variant=civ==='egypt'?2:civ==='persia'?(seed>.6?1:2):civ==='greece'?(seed>.5?1:0):civ==='china'&&seed>.82?3:0;
-  if(window.GameArt?.drawTerrain?.(ctx,'tree',sx,sy,TILE_W*(.65+seed*.22),TILE_H*.35,variant))return;
+  const natural=getTerrainVisual(x,y),seed=hash2(x,y),s=natural.scale,wind=Math.sin(renderClock/1600+x)*1.3;
+  const civ=currentCivilization(),variant=civ==='egypt'?2:civ==='persia'?(seed>.6?1:2):civ==='greece'?(seed>.5?1:0):civ==='china'&&natural.moisture>.62&&seed>.83?3:0;
+  if(window.GameArt?.drawTerrain?.(ctx,'tree',sx,sy,TILE_W*(.47+seed*.19)*natural.scale,TILE_H*.12,variant,rendererNight))return;
   ctx.fillStyle='rgba(32,53,31,.17)';ctx.beginPath();ctx.ellipse(sx+6,sy+3,17*s,7*s,-.12,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#6d6b43';ctx.fillRect(sx-2*s,sy-28*s,4*s,30*s);
   const layers=[[-9,-28,13,'#4c7047'],[7,-31,15,'#557a4b'],[-2,-43,16,'#628650'],[-8,-42,10,'#77935a'],[5,-49,10,'#79975b']];
   for(const[a,b,r,c]of layers){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(sx+(a+wind)*s,sy+b*s,r*s,r*s*.85,0,0,Math.PI*2);ctx.fill();}
   ctx.fillStyle='rgba(182,197,114,.25)';ctx.beginPath();ctx.ellipse(sx-5*s+wind,sy-48*s,7*s,5*s,-.2,0,Math.PI*2);ctx.fill();
 }
-function drawRock(sx,sy,x,y,copper=false){
-  if(window.GameArt?.drawTerrain?.(ctx,copper?'copper':'stone',sx,sy,TILE_W*.78,TILE_H*.4,0))return;
+function drawRock(sx,sy,x,y,copper=false,detail={}){
+  const size=detail.propScale||.5,flip=detail.propSeed>.5;ctx.save();ctx.translate(sx,sy);if(flip)ctx.scale(-1,1);const painted=window.GameArt?.drawTerrain?.(ctx,copper?'copper':'stone',0,0,TILE_W*size,0,0,rendererNight);ctx.restore();if(painted)return;
   const seed=hash2(x,y);ctx.fillStyle='rgba(37,49,29,.16)';ctx.beginPath();ctx.ellipse(sx+3,sy+3,19,7,0,0,Math.PI*2);ctx.fill();
   for(const[dx,dy,w,h]of [[0,0,18,22],[13,3,11,12],[-13,3,10,12]]){
     const xx=sx+dx,yy=sy+dy;polygon([[xx-w/2,yy],[xx-w*.65,yy-h*.5],[xx-w*.1,yy-h],[xx+w*.5,yy-h*.7],[xx+w*.6,yy-h*.15],[xx+w*.3,yy+2]],copper?'#a48b68':'#9d9e8a');
@@ -223,16 +314,38 @@ function drawRock(sx,sy,x,y,copper=false){
     polygon([[xx-w*.65,yy-h*.5],[xx-w*.1,yy-h],[xx+w*.5,yy-h*.7],[xx,yy-h*.3]],copper?'#c5ab7d':'#b3b39a');
   }
 }
-function drawClay(sx,sy,x,y){if(window.GameArt?.drawTerrain?.(ctx,'clay',sx,sy,TILE_W*.82,TILE_H*.45,0))return;ctx.fillStyle='#a38d63';ctx.beginPath();ctx.ellipse(sx,sy+2,22,9,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#c0a67c';ctx.beginPath();ctx.ellipse(sx-5,sy-1,15,7,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#8d7954';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx-12,sy+2);ctx.lineTo(sx+3,sy+5);ctx.lineTo(sx+12,sy);ctx.stroke();}
+const clayPropCache=new Map();
+function clayProp(seed,night=0){
+  const nightLevel=Math.round(night*12)/12,key=Math.floor(seed*8)+':'+nightLevel;if(clayPropCache.has(key))return clayPropCache.get(key);
+  const variant=Math.floor(seed*8),image=document.createElement('canvas');image.width=192;image.height=100;const dc=image.getContext('2d');
+  for(let mound=0;mound<5;mound++){
+    const mx=30+mound*31,my=66+rendererTerrainHash(variant,mound)*16,w=24+rendererTerrainHash(variant+13,mound)*16,h=w*(.32+rendererTerrainHash(variant+31,mound)*.19);
+    dc.save();dc.beginPath();
+    for(let j=0;j<13;j++){const angle=j/13*Math.PI*2,r=.78+rendererTerrainHash(variant*71+j,mound)*.22,x=mx+Math.cos(angle)*w*r,y=my+Math.sin(angle)*h*r-h*.7*(1-Math.cos(angle)**2);dc[j?'lineTo':'moveTo'](x,y);}
+    dc.closePath();const gradient=dc.createLinearGradient(mx-w,my-h*1.7,mx+w,my+h);gradient.addColorStop(0,'#b19c70');gradient.addColorStop(.36,'#99815a');gradient.addColorStop(1,'#726241');dc.fillStyle=gradient;dc.fill();dc.clip();
+    for(let j=0;j<180;j++){const px=mx+(rendererTerrainHash(variant*31+j,mound+11)-.5)*w*2,py=my+(rendererTerrainHash(variant*19+j,mound+41)-.5)*h*3;dc.fillStyle=j%3?'rgba(63,50,31,.24)':'rgba(222,203,156,.35)';dc.fillRect(px,py,.8+rendererTerrainHash(j,variant)*1.5,.6+rendererTerrainHash(j+71,variant)*1.2);}
+    dc.strokeStyle='rgba(65,53,35,.35)';dc.lineWidth=.8;for(let j=0;j<4;j++){const px=mx-w*.6+j*w*.4,py=my-h*.4+rendererTerrainHash(j,variant)*h;dc.beginPath();dc.moveTo(px,py);dc.lineTo(px+3,py-2);dc.lineTo(px+7,py-.8);dc.stroke();}dc.restore();
+  }
+  if(nightLevel){const pixels=dc.getImageData(0,0,image.width,image.height),data=pixels.data;for(let i=0;i<data.length;i+=4){data[i]*=1-nightLevel*.26918;data[i+1]*=1-nightLevel*.19882;data[i+2]*=1-nightLevel*.10859;}dc.putImageData(pixels,0,0);}
+  clayPropCache.set(key,image);if(clayPropCache.size>64)clayPropCache.delete(clayPropCache.keys().next().value);return image;
+}
+function drawClay(sx,sy,x,y,detail={}){
+  const seed=detail.propSeed??hash2(x,y),width=(detail.propScale||.5)*TILE_W*.83,image=clayProp(seed,rendererNight),height=width*image.height/image.width;
+  ctx.drawImage(image,sx-width/2,sy-height*.82,width,height);
+}
 function buildingGeometry(x,y,b){const size=BUILD[b.type]?.size||1,p=tileToScreen(x,y);return{cx:p.sx,cy:p.sy+(size-1)*TILE_H/2,size,width:size*TILE_W,height:size*TILE_H};}
 function drawFoundation(g,b){
   drawDiamond(g.cx,g.cy,g.width*.91,g.height*.91);ctx.fillStyle=b.construction?'#aaa17a':'#b6b18f';ctx.fill();
   ctx.strokeStyle='rgba(70,76,51,.25)';ctx.lineWidth=1;ctx.stroke();
 }
+function legacyBuildingGeometry(g,b){
+  const scale=b.type==='well'?.66:['grainShop','vegShop','fruitShop','fishShop','meatShop'].includes(b.type)?.82:b.type==='treeDeco'?.72:1;
+  return scale===1?g:{...g,width:g.width*scale};
+}
 function drawBuildingArt(g,b,level=b.lvl||1,opacity=1){
   if(opacity!==1){ctx.save();ctx.globalAlpha*=opacity;}
-  let drawn=false;
-  if(window.GameArt?.drawBuilding)drawn=window.GameArt.drawBuilding(ctx,{type:b.type,civ:currentCivilization(),level,cx:g.cx,cy:g.cy,width:g.width,height:g.height,time:renderClock,construction:b.construction||null})!==false;
+  let drawn=!!window.ModularBuildings?.draw?.(ctx,{type:b.type,civ:currentCivilization(),level,cx:g.cx,cy:g.cy,width:g.width,height:g.height,time:renderClock/1000,construction:null,building:{...b,lvl:level,construction:null},night:rendererNight});
+  if(!drawn&&window.GameArt?.drawBuilding){const art=legacyBuildingGeometry(g,b);drawn=window.GameArt.drawBuilding(ctx,{type:b.type,civ:currentCivilization(),level,cx:art.cx,cy:art.cy,width:art.width,height:art.height,time:renderClock,construction:b.construction||null,night:rendererNight})!==false;}
   if(!drawn)drawStructure(g.cx,g.cy,{...b,lvl:level},g.size===1?1.7:g.size===2?2.35:3.2,g.size);
   if(opacity!==1)ctx.restore();return drawn;
 }
@@ -240,13 +353,13 @@ function drawBuilding(x,y,b){
   const d=BUILD[b.type];if(!d)return;
   const g=buildingGeometry(x,y,b),selected=window.selectedTile&&tileAt(window.selectedTile.x,window.selectedTile.y)?.b===b;
   ctx.save();
-  drawFoundation(g,b);
   const underConstruction=b.construction&&b.construction.remaining>0;
   const transparent=rendererSettings.overlay==='foundation'||rendererSettings.overlay==='foundations';
   if(transparent)ctx.globalAlpha=.23;
-  if(underConstruction)drawConstruction(g,b);else{drawBuildingArt(g,b);drawBuildingAnimation(g,b);}
+  const modular=window.ModularBuildings?.draw?.(ctx,{type:b.type,civ:currentCivilization(),level:b.lvl||1,cx:g.cx,cy:g.cy,width:g.width,height:g.height,time:renderClock/1000,construction:underConstruction?b.construction:null,building:b,night:rendererNight});
+  if(!modular){if(underConstruction)drawConstruction(g,b);else{drawBuildingArt(g,b);drawBuildingAnimation(g,b);}}
   ctx.restore();
-  if(rendererNight>.1)addBuildingLights(g,b,underConstruction);
+  if(rendererNight>.1){if(modular){for(const light of modular.lights||[])rendererLights.push({...light,r:Math.min(26,light.r||18),power:light.power??.75});}else addBuildingLights(g,b,underConstruction);}
   if((selected||view.zoom>1.35)&&isResidence(b)){
     const state=b.met,col=state?.canUpgrade?'#a4cd82':state?.currentOk?'#dfc27e':'#df9170';
     const xx=g.cx+g.width*.33,yy=g.cy-g.height*.45;
@@ -258,40 +371,37 @@ function drawBuilding(x,y,b){
   }
 }
 function drawConstruction(g,b){
-  const c=b.construction,progress=Math.max(0,Math.min(1,1-c.remaining/Math.max(1,c.total)));
-  const upgrade=!!c.fromLevel;
-  if(upgrade)drawBuildingArt(g,b,c.fromLevel,.8);
-  ctx.save();
-  // Reveal the new architecture from its base; upgrades preserve the existing building.
-  const bottom=g.cy+g.height*.5,height=g.width*(.32+progress*.85);
-  ctx.beginPath();ctx.rect(g.cx-g.width*.6,bottom-height,g.width*1.2,height+8);ctx.clip();
-  drawBuildingArt(g,b,c.toLevel||b.lvl||1,upgrade?.5:.93);ctx.restore();
-  if(progress<.25&&!upgrade){ctx.fillStyle='rgba(173,156,106,.55)';drawDiamond(g.cx,g.cy,g.width*.84,g.height*.84);ctx.fill();}
-  const siteSprite=window.GameArt?.drawConstruction?.(ctx,{type:b.type,civ:currentCivilization(),cx:g.cx,cy:g.cy,width:g.width,height:g.height,progress,fromLevel:c.fromLevel||0,toLevel:c.toLevel||b.lvl||1,time:renderClock+b.id*73,upgrade});
-  if(siteSprite){
-    const barW=Math.min(55,g.width*.45),by=g.cy+g.height*.5+7;
-    ctx.fillStyle='#394937';ctx.fillRect(g.cx-barW/2,by,barW,3);ctx.fillStyle='#dfc484';ctx.fillRect(g.cx-barW/2,by,barW*progress,3);
-    return;
+  const c=b.construction,progress=Math.max(0,Math.min(1,1-c.remaining/Math.max(1,c.total))),upgrade=!!c.fromLevel;
+  const targetLevel=c.toLevel||b.lvl||1,meta=window.GameArt?.metadata?.(b.type,currentCivilization(),targetLevel),spriteH=meta?.width?g.width*meta.height/meta.width:g.width*.85;
+  const bottom=g.cy+g.height/2,frameHeight=Math.max(g.height*.3,spriteH-g.height*.26),w=g.width*.40,h=g.height*.39;
+  if(upgrade)drawBuildingArt(g,b,c.fromLevel,1);else drawFoundation(g,b);
+  // Reveal the actual target silhouette in staggered structural bays. A generic
+  // construction illustration must never replace every unrelated building.
+  const bays=Math.max(3,g.size*3),bayWidth=g.width/bays;
+  for(let bay=0;bay<bays;bay++){
+    const local=Math.max(0,Math.min(1,(progress-.07-(bay%3)*.035)/.82));if(!local)continue;
+    const height=spriteH*local;ctx.save();ctx.beginPath();ctx.rect(g.cx-g.width/2+bay*bayWidth-.3,bottom-height,bayWidth+.6,height+2);ctx.clip();drawBuildingArt(g,b,targetLevel,upgrade?Math.min(1,.65+progress*.35):1);ctx.restore();
   }
-  const scaffoldH=g.width*(.23+progress*.35),w=g.width*.38,h=g.height*.38;
-  const posts=[[-w,0],[0,h],[w,0],[0,-h]];
-  ctx.lineWidth=1.7;ctx.strokeStyle='#7a6240';
-  for(const[a,z]of posts){ctx.beginPath();ctx.moveTo(g.cx+a,g.cy+z);ctx.lineTo(g.cx+a,g.cy+z-scaffoldH);ctx.stroke();}
-  for(let k=1;k<=3;k++){const y=scaffoldH*k/3;ctx.beginPath();ctx.moveTo(g.cx-w,g.cy-y);ctx.lineTo(g.cx,g.cy+h-y);ctx.lineTo(g.cx+w,g.cy-y);ctx.stroke();}
-  ctx.strokeStyle='#a88c59';ctx.lineWidth=1.1;
-  for(const direction of [-1,1]){ctx.beginPath();ctx.moveTo(g.cx,g.cy+h);ctx.lineTo(g.cx+direction*w,g.cy-scaffoldH);ctx.moveTo(g.cx+direction*w,g.cy);ctx.lineTo(g.cx,g.cy+h-scaffoldH);ctx.stroke();}
-  ctx.strokeStyle='#d1bc82';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(g.cx-w,g.cy-scaffoldH*.67);ctx.lineTo(g.cx,g.cy+h-scaffoldH*.67);ctx.lineTo(g.cx+w,g.cy-scaffoldH*.67);ctx.stroke();
-  // A small hoist, moving workers and rising dust communicate active construction.
-  const move=rendererSettings.reducedMotion?0:Math.sin(renderClock/900+b.id);
-  ctx.strokeStyle='#785a39';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(g.cx+w*.7,g.cy-scaffoldH-7);ctx.lineTo(g.cx+w*.7,g.cy-5);ctx.moveTo(g.cx+w*.35,g.cy-scaffoldH-7);ctx.lineTo(g.cx+w*1.15,g.cy-scaffoldH-7);ctx.stroke();
-  ctx.strokeStyle='#c8b082';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(g.cx+w*1.1,g.cy-scaffoldH-7);ctx.lineTo(g.cx+w*1.1,g.cy-scaffoldH*.4+move*6);ctx.stroke();ctx.fillStyle='#9e7a47';ctx.fillRect(g.cx+w*1.1-3,g.cy-scaffoldH*.4+move*6,6,5);
-  for(let i=0;i<2;i++){const phase=(renderClock/5500+i*.45+b.id*.13)%1,px=g.cx-w+phase*w*2,py=g.cy+h*.6+Math.sin(phase*Math.PI)*5;drawPerson(px,py,i?'#a95138':'#e0c284',i);}
-  if(!rendererSettings.reducedMotion&&speed>0)for(let i=0;i<3;i++){const f=(renderClock/1700+i*.33)%1;ctx.fillStyle=`rgba(228,212,173,${(1-f)*.25})`;ctx.beginPath();ctx.arc(g.cx+w*.4+Math.sin(i*5)*8,g.cy+h*.5-f*20,2+f*5,0,Math.PI*2);ctx.fill();}
-  const barW=Math.min(55,g.width*.45),by=g.cy+g.height*.5+7;
-  ctx.fillStyle='#394937';ctx.fillRect(g.cx-barW/2,by,barW,3);ctx.fillStyle='#dfc484';ctx.fillRect(g.cx-barW/2,by,barW*progress,3);
+  const elevation=frameHeight*(.2+progress*.77),rows=Math.max(1,Math.ceil(elevation/23)),open=Math.max(.1,1-smoothRange(.82,1,progress));
+  ctx.save();ctx.globalAlpha=open;ctx.lineCap='round';
+  // Each front edge has separate scaffold bays; footprint and height come from
+  // this building's sprite, including low farms and tall monuments.
+  for(const side of [-1,1])for(let bay=0;bay<Math.max(2,g.size+1);bay++){
+    const count=Math.max(2,g.size+1),f0=bay/count,f1=(bay+1)/count;
+    const x0=g.cx+side*w*(1-f0),y0=g.cy+h*f0,x1=g.cx+side*w*(1-f1),y1=g.cy+h*f1;
+    const top=elevation*(.92+((bay+b.id)%3)*.04);ctx.strokeStyle='#735c38';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0,y0-top);ctx.moveTo(x1,y1);ctx.lineTo(x1,y1-top);ctx.stroke();
+    ctx.strokeStyle='#b59662';ctx.lineWidth=1;
+    for(let row=1;row<=rows;row++){const rise=top*row/rows;ctx.beginPath();ctx.moveTo(x0,y0-rise);ctx.lineTo(x1,y1-rise);ctx.moveTo(x0,y0-rise);ctx.lineTo(x1,y1-rise+top/rows);ctx.stroke();}
+    ctx.strokeStyle='#d0b582';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0,y0-top);ctx.lineTo(x1,y1-top);ctx.stroke();
+  }
+  ctx.restore();
+  const wave=rendererSettings.reducedMotion?0:Math.sin(renderClock/1500+b.id),phase=.5+.35*wave;
+  drawPerson(g.cx-w+phase*w*2,g.cy+h*.74,'#b55e39',b.id);
+  if(g.size>1)drawPerson(g.cx+w*.67,g.cy+h*.25,'#d1b67c',b.id+1);
+  const barW=Math.min(48,g.width*.4),by=bottom+5;ctx.fillStyle='#304735';ctx.fillRect(g.cx-barW/2,by,barW,2);ctx.fillStyle='#dbbf77';ctx.fillRect(g.cx-barW/2,by,barW*progress,2);
 }
 function drawBuildingAnimation(g,b){
-  if(view.zoom<.4)return;
+  if(view.zoom<.4)return;g=legacyBuildingGeometry(g,b);
   const t=b.type,d=BUILD[t],active=!d.workers||b.staffed,tm=renderClock/1000;
   const artMeta=window.GameArt?.metadata?.(t,currentCivilization(),b.lvl||1),artH=artMeta?.width?g.width*artMeta.height/artMeta.width:g.width,artTop=g.cy+g.height/2-artH;
   if(['kiln','pottery'].includes(t)&&active&&!rendererSettings.reducedMotion){
@@ -314,55 +424,56 @@ function drawBuildingAnimation(g,b){
 }
 function getEmissionMask(g,b,meta){
   if(!meta?.width||!meta?.height||!meta.lights?.length)return null;
-  if(emissionMaskCache.has(meta.key))return emissionMaskCache.get(meta.key);
-  const mask=document.createElement('canvas');mask.width=256;mask.height=Math.ceil(256*meta.height/meta.width);const mc=mask.getContext('2d');
-  mc.fillStyle='#ffe5a0';
-  for(const point of meta.lights){const x=point.x*mask.width,y=point.y*mask.height,skew=point.x<.5?1:-1;mc.beginPath();mc.moveTo(x-3,y-4);mc.lineTo(x+3,y-4+2*skew);mc.lineTo(x+3,y+4+2*skew);mc.lineTo(x-3,y+4);mc.closePath();mc.fill();}
+  const required=g.width*view.zoom*Math.min(2,devicePixelRatio||1),resolution=Math.max(128,Math.min(1024,2**Math.ceil(Math.log2(required)))),key=meta.key+':'+resolution;
+  if(emissionMaskCache.has(key))return emissionMaskCache.get(key);
+  const mask=document.createElement('canvas');mask.width=resolution;mask.height=Math.ceil(resolution*meta.height/meta.width);const mc=mask.getContext('2d'),scale=resolution/256;
+  mc.fillStyle='#ffd487';
+  for(const point of meta.lights){const x=point.x*mask.width,y=point.y*mask.height,skew=point.x<.5?1:-1;mc.beginPath();mc.moveTo(x-3*scale,y-4*scale);mc.lineTo(x+3*scale,y+(-4+2*skew)*scale);mc.lineTo(x+3*scale,y+(4+2*skew)*scale);mc.lineTo(x-3*scale,y+4*scale);mc.closePath();mc.fill();}
   // The actual sprite alpha clips the emissive windows to the architecture.
   mc.globalCompositeOperation='destination-in';
-  const loaded=GameArt.drawBuilding(mc,{type:b.type,civ:currentCivilization(),level:b.lvl||1,cx:128,cy:mask.height-64,width:256,height:128});
+  const loaded=GameArt.drawBuilding(mc,{type:b.type,civ:currentCivilization(),level:b.lvl||1,cx:resolution/2,cy:mask.height-resolution/4,width:resolution,height:resolution/2});
   if(!loaded)return null;
-  emissionMaskCache.set(meta.key,mask);return mask;
+  emissionMaskCache.set(key,mask);if(emissionMaskCache.size>64)emissionMaskCache.delete(emissionMaskCache.keys().next().value);return mask;
 }
 function addBuildingLights(g,b,construction){
+  g=legacyBuildingGeometry(g,b);
   if(!construction&&['farmland','vegFarm','pasture','orchard','treeDeco','quarry','clayPit','copperMine','monument'].includes(b.type))return;
   const meta=window.GameArt?.metadata?.(b.type,currentCivilization(),b.lvl||1);
   if(!construction&&meta?.width&&meta?.height){
     const h=g.width*meta.height/meta.width,top=g.cy+g.height/2-h;
-    for(const point of meta.lights||[])rendererLights.push({x:g.cx-g.width/2+point.x*g.width,y:top+point.y*h,r:26+g.size*8,power:.63,masked:true});
+    for(const point of meta.lights||[])rendererLights.push({x:g.cx-g.width/2+point.x*g.width,y:top+point.y*h,r:12+g.size*4,power:.75,masked:true});
     const mask=getEmissionMask(g,b,meta);if(mask)rendererMasks.push({mask,x:g.cx-g.width/2,y:top,width:g.width,height:h});return;
   }
   const size=g.size,points=construction?[[-.27,.13],[.25,.1]]:[[-.2,-.13],[.19,-.05],[0,.19]];
   if(['farmland','vegFarm','pasture','treeDeco','quarry','clayPit'].includes(b.type))return;
-  for(let i=0;i<Math.min(points.length,size+1);i++){const[a,c]=points[i];rendererLights.push({x:g.cx+a*g.width,y:g.cy+c*g.height-5,r:(construction?34:30)+size*9,power:construction?.7:.64});}
+  for(let i=0;i<Math.min(points.length,size+1);i++){const[a,c]=points[i];rendererLights.push({x:g.cx+a*g.width,y:g.cy+c*g.height-5,r:(construction?14:12)+size*4,power:construction?.7:.72});}
 }
 function drawPerson(x,y,color,seed){
   ctx.fillStyle='rgba(28,35,22,.2)';ctx.beginPath();ctx.ellipse(x+1,y+1,3,1.4,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.fillRect(x-1.5,y-5,3,4);ctx.fillStyle='#d0ae7b';ctx.beginPath();ctx.arc(x,y-6,1.5,0,Math.PI*2);ctx.fill();
   if(view.zoom>.7){ctx.strokeStyle='#655d43';ctx.lineWidth=.8;const step=Math.sin(renderClock/120+seed)*1.2;ctx.beginPath();ctx.moveTo(x-.6,y-1);ctx.lineTo(x-1+step,y+1);ctx.moveTo(x+.6,y-1);ctx.lineTo(x+1-step,y+1);ctx.stroke();}
 }
-function drawCitizens(roads,objects){
-  let drawn=0;
-  for(const{x,y,p}of roads){if(hash2(x+9,y+7)>.16||drawn>=36)continue;
-    const links=DIRS.filter(([dx,dy])=>tileAt(x+dx,y+dy)?.b?.type==='road');if(!links.length)continue;
-    const seed=hash2(x,y),[dx,dy]=links[Math.floor(seed*links.length)],phase=(renderClock/6200+seed)%1;
-    objects.push({kind:'person',x,y,depth:x+y+(dx+dy)*phase+.08,px:p.sx+(dx-dy)*TILE_W/2*phase,py:p.sy+(dx+dy)*TILE_H/2*phase,color:['#b25b3d','#d3bf83','#4d726c'][Math.floor(seed*3)],seed:x+y});drawn++;
-  }
+function collectCitizens(objects){
+  for(const entity of window.Citizens?.collect?.()||[]){const p=tileToScreen(entity.x,entity.y);if(!inViewport(p.sx,p.sy,20,30))continue;objects.push({kind:'person',entity,x:entity.x,y:entity.y,depth:entity.x+entity.y+.1,px:p.sx,py:p.sy});}
 }
 function drawAtmosphere(r){
   if(rendererNight<.02)return;
-  ctx.save();ctx.fillStyle=`rgba(10,25,45,${rendererNight*.78})`;ctx.fillRect(0,0,r.width,r.height);
-  if(!nightSurface)nightSurface=document.createElement('canvas');
-  if(nightSurface.width!==Math.ceil(r.width)||nightSurface.height!==Math.ceil(r.height)){nightSurface.width=Math.ceil(r.width);nightSurface.height=Math.ceil(r.height);}
-  if(!nightGlow){nightGlow=document.createElement('canvas');nightGlow.width=nightGlow.height=128;const gc=nightGlow.getContext('2d'),gradient=gc.createRadialGradient(64,64,0,64,64,64);gradient.addColorStop(0,'rgba(255,188,75,.62)');gradient.addColorStop(.3,'rgba(241,160,50,.21)');gradient.addColorStop(1,'rgba(236,160,59,0)');gc.fillStyle=gradient;gc.fillRect(0,0,128,128);}
-  const lightKey=[view.ox,view.oy,view.zoom,r.width,r.height,rendererNight.toFixed(3),rendererEpoch,rendererLights.length,rendererMasks.length,rendererLights.reduce((sum,p)=>sum+p.x*.13+p.y*.17+p.r*.71,0)].join(':');
-  if(lightKey===nightSurfaceKey){ctx.globalCompositeOperation='screen';ctx.drawImage(nightSurface,0,0,r.width,r.height);ctx.restore();return;}
-  nightSurfaceKey=lightKey;
-  const light=nightSurface.getContext('2d');light.setTransform(1,0,0,1,0,0);light.clearRect(0,0,nightSurface.width,nightSurface.height);light.translate(view.ox,view.oy);light.scale(view.zoom,view.zoom);
-  // Composite the complete emission layer once. Per-building screen blending
-  // stalls software/mobile canvas backends in large cities.
-  for(const point of rendererLights){const power=point.power*rendererNight;light.globalAlpha=power;light.drawImage(nightGlow,point.x-point.r,point.y-point.r,point.r*2,point.r*2);if(!point.masked){light.globalAlpha=1;light.fillStyle=`rgba(255,221,139,${Math.min(.95,power+.15)})`;light.fillRect(point.x-1.5,point.y-3,3,4);}}
-  light.globalAlpha=Math.min(1,rendererNight*1.2);for(const item of rendererMasks)light.drawImage(item.mask,item.x,item.y,item.width,item.height);light.globalAlpha=1;
-  ctx.globalCompositeOperation='screen';ctx.drawImage(nightSurface,0,0,r.width,r.height);ctx.restore();
+  if(!nightGlow){
+    nightGlow=document.createElement('canvas');nightGlow.width=nightGlow.height=128;
+    const gc=nightGlow.getContext('2d'),gradient=gc.createRadialGradient(64,64,0,64,64,64);
+    gradient.addColorStop(0,'rgba(255,187,78,.48)');gradient.addColorStop(.22,'rgba(248,157,43,.17)');gradient.addColorStop(1,'rgba(236,146,40,0)');gc.fillStyle=gradient;gc.fillRect(0,0,128,128);
+  }
+  // Static moonlight is baked into the terrain and sprite caches. Draw only
+  // small emissive regions here: copying a nearly empty full-screen canvas
+  // forced an expensive high-DPR canvas transfer every frame in Chromium.
+  ctx.save();ctx.translate(view.ox,view.oy);ctx.scale(view.zoom,view.zoom);
+  for(const point of rendererLights){
+    const radius=Math.min(26,point.r||18);ctx.globalAlpha=(point.power??.75)*rendererNight;
+    ctx.drawImage(nightGlow,point.x-radius,point.y-radius,radius*2,radius*2);
+    if(!point.masked){ctx.globalAlpha=rendererNight;ctx.fillStyle='#ffe5ae';ctx.fillRect(point.x-1.2,point.y-2.3,2.4,3.6);}
+  }
+  ctx.globalAlpha=rendererNight;
+  for(const item of rendererMasks)ctx.drawImage(item.mask,item.x,item.y,item.width,item.height);
+  ctx.restore();
 }
 function drawStructure(cx,cy,b,sc,size){
   const t = b.type;

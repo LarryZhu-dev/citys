@@ -53,6 +53,7 @@ function sanitizeState(raw) {
         if (origin[0]+size > width || origin[1]+size > height || x < origin[0] || x >= origin[0]+size || y < origin[1] || y >= origin[1]+size) invalid('建筑占地越界或重叠。');
         b = { type:input.type, id, origin };
         for (const key of ['pop','taxTimer','upTimer','missTicks','damage']) if (input[key] !== undefined) b[key] = number(input[key], `建筑.${key}`);
+        if (input.productionTicks !== undefined) b.productionTicks = number(input.productionTicks, '生产阶段', 0, MAX_INVENTORY, true);
         if (input.lvl !== undefined) b.lvl = number(input.lvl, '建筑等级', 1, input.type === 'villa' ? 6 : 10, true);
         for (const key of ['staffed','idle','main']) if (input[key] !== undefined) {
           if (typeof input[key] !== 'boolean') invalid(`建筑.${key} 必须是布尔值。`);

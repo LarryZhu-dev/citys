@@ -1,5 +1,8 @@
 /* 万城纪 — city workbench, accessible controls and local saves. */
 const UI_ICONS={
+ map:'m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5ZM9 3v16M15 5v16',
+ menu:'M4 6h16M4 12h16M4 18h16',
+ play:'m8 4 12 8-12 8V4Z',
  inventory:'M3 7h18v14H3z M3 7l3-4h12l3 4 M9 11h6 M12 11v6',
  globe:'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM3 12h18M12 3c5 5 5 13 0 18M12 3c-5 5-5 13 0 18',
  save:'M4 3h13l4 4v14H3V3h1ZM7 3v6h9V3M7 21v-8h10v8',
@@ -41,12 +44,16 @@ function isVisiting(){return !!window.OnlineUI?.visiting;}
 function protectVisit(){if(isVisiting()){toast('正在参观他人的城市，请先结束参观。','bad');return true;}return false;}
 window.selectedTile=null;
 window.roadPreview=[];
+const hud={builder:false,info:false,tasks:false,view:false,menu:false,minimap:false,log:false};
+let inspectedBuildingId=null;
 let buildSearch='';
 let modalPreviousSpeed=0;
 let modalCanClose=true;
 let lastSaveError='';
 let uiSaveSuppressed=false;
 let buildRenderSignature='';
+let buildTabsSignature='';
+let detailInteraction=false;
 let uiSettings={reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches,autosave:true};
 try{Object.assign(uiSettings,JSON.parse(localStorage.getItem('wan-city-settings')||'{}'));}catch(err){console.warn('设置无法读取',err);}
 
@@ -59,9 +66,12 @@ function updateCityIdentity(){
 }
 function resourceDelta(k){const d=S.lastDelta||{};return Number(k==='gold'?d.gold:k==='pop'?d.pop:(d.goods?.[k]??d[k]??0))||0;}
 function renderResources(){
- const shown=['grain','wood','stone','gold','pop'];
- $('#resources').innerHTML=shown.map(k=>{const v=k==='gold'?S.gold:k==='pop'?S.pop:S.goods[k]||0;const delta=resourceDelta(k);const name=k==='pop'?'人口':goodName(k);return '<button class="res '+(k==='grain'&&v<40?'warn':'')+'" data-good="'+k+'" title="'+name+' '+Math.floor(v)+'；上回合净变化 '+(delta>=0?'+':'')+delta.toFixed(1)+'"><span class="resource-symbol">'+icon(k==='pop'?'people':k)+'</span><span><span class="v">'+shortNum(v)+'</span><small>'+name+'</small></span>'+(delta?'<span class="d '+(delta<0?'dn':'')+'">'+(delta>0?'+':'')+delta.toFixed(1)+'</span>':'')+'</button>';}).join('');
- $('#resources').querySelectorAll('button').forEach(b=>b.onclick=openInventory);
+ const shown=['gold','pop','grain'];
+ if(!$('#resources').querySelector('.res')){
+  $('#resources').innerHTML=shown.map(k=>'<button class="res" data-good="'+k+'"><span class="resource-symbol">'+icon(k==='pop'?'people':k)+'</span><span><span class="v"></span><small>'+(k==='pop'?'人口':goodName(k))+'</small></span><span class="d"></span></button>').join('');
+  $('#resources').querySelectorAll('button').forEach(b=>b.onclick=openInventory);
+ }
+ for(const k of shown){const v=k==='gold'?S.gold:k==='pop'?S.pop:S.goods[k]||0,delta=resourceDelta(k),name=k==='pop'?'人口':goodName(k),button=$('#resources [data-good="'+k+'"]');button.querySelector('.v').textContent=shortNum(v);button.classList.toggle('warn',k==='grain'&&v<40);button.title=name+' '+Math.floor(v)+'；上回合净变化 '+(delta>=0?'+':'')+delta.toFixed(1);button.setAttribute('aria-label',name+' '+Math.floor(v)+'，查看全部库存');button.querySelector('.d').textContent=delta?(delta>0?'+':'')+delta.toFixed(1):'';}
  const total=Math.floor(S.pop),used=Math.floor(S.workersAssigned||0);$('#labour').classList.toggle('short',(S.workersNeeded||used)>total);$('#labourText').textContent=used+' / '+total;$('#labourBar').style.width=Math.min(100,total?used/total*100:0)+'%';
  updateCityIdentity();
 }
@@ -71,24 +81,27 @@ function renderTasks(){
  $('#chapterName').textContent=S.mode==='sandbox'?'自由营造 · 你的理想城':ch.title;$('#taskCount').textContent=done.filter(Boolean).length+' / '+done.length;$('#chapterProgress').style.width=(done.filter(Boolean).length/done.length*100)+'%';
  $('#taskBody').innerHTML=S.mode==='sandbox'?'<div class="task cur"><span class="box">∞</span><span>全部建筑已解锁。规划街区、完整产业链与文明奇观。</span></div>':ch.tasks.map((t,i)=>'<div class="task '+(done[i]?'done':i===first?'cur':'')+'"><span class="box">'+(done[i]?'✓':'')+'</span><span class="task-label">'+esc(t.text)+'</span></div>').join('');
 }
-function renderBuildTabs(){const html=[{key:'recommended',name:'起步'},...BUILD_CATS].map(c=>'<button role="tab" aria-selected="'+(buildCat===c.key)+'" class="btab '+(buildCat===c.key?'on':'')+'" data-c="'+c.key+'">'+icon(c.key==='recommended'?'laurel':c.key==='agri'?'grain':c.key==='decor'?'beauty':c.key==='municipal'?'water':c.key)+esc(c.name)+'</button>').join('');if($('#buildTabs').innerHTML!==html){$('#buildTabs').innerHTML=html;$('#buildTabs').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{buildCat=b.dataset.c;buildSearch='';$('#buildSearch').value='';buildRenderSignature='';renderBuildList();});}}
+function renderBuildTabs(){if(buildTabsSignature===buildCat)return;buildTabsSignature=buildCat;const html=[{key:'recommended',name:'起步'},...BUILD_CATS].map(c=>'<button role="tab" aria-selected="'+(buildCat===c.key)+'" class="btab '+(buildCat===c.key?'on':'')+'" data-c="'+c.key+'">'+icon(c.key==='recommended'?'laurel':c.key==='agri'?'grain':c.key==='decor'?'beauty':c.key==='municipal'?'water':c.key)+esc(c.name)+'</button>').join('');if($('#buildTabs').innerHTML!==html){$('#buildTabs').innerHTML=html;$('#buildTabs').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{buildCat=b.dataset.c;buildSearch='';$('#buildSearch').value='';buildRenderSignature='';renderBuildList();});}}
 function buildingThumb(type,civ=S?.civilization||'china',level=1,cls='building-thumb'){
- const src=window.GameArt?.thumbnail?.(type,civ,level);return '<span class="'+cls+'">'+(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':icon(BUILD[type]?.cat||'build'))+'</span>';
+ if(civ==='china'&&window.ModularBuildings&&(!ModularBuildings.recipe||ModularBuildings.recipe(type,level)))return '<span class="'+cls+'"><canvas width="320" height="248" data-building-thumb="'+esc(type)+'" data-level="'+level+'" aria-hidden="true"></canvas></span>';const src=window.GameArt?.thumbnail?.(type,civ,level);return '<span class="'+cls+'">'+(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':icon(BUILD[type]?.cat||'build'))+'</span>';
 }
 function buildLockReason(type){const d=BUILD[type];return d.civilization&&d.civilization!==S.civilization?(CIV_UI[d.civilization]?.name||getCivilization(d.civilization).name)+'文明专属':'第 '+(d.chapter||1)+' 章解锁';}
 function renderBuildList(){
  renderBuildTabs();const unlocked=currentUnlocked();const list=(buildCat==='recommended'&&!buildSearch?['house','road','well','farmland','lumber','quarry','granary','grainShop']:Object.keys(BUILD)).filter(k=>BUILD[k]&&(buildSearch?(BUILD[k].name+' '+BUILD[k].desc).includes(buildSearch):buildCat==='recommended'||BUILD[k].cat===buildCat));
  const sig=[buildCat,buildSearch,selTool,S.civilization,Array.from(unlocked).join(','),list.map(k=>afford(k)?1:0).join(''),!!window.GameArt].join('|');if(sig===buildRenderSignature)return;buildRenderSignature=sig;
  $('#buildList').innerHTML=list.length?list.map(k=>{const d=BUILD[k],lock=!unlocked.has(k),able=afford(k);return '<button class="bcard '+(lock?'locked ':'')+(!able?'deny ':'')+(selTool===k?'sel':'')+'" data-t="'+k+'" aria-pressed="'+(selTool===k)+'" title="'+esc(d.name+'：'+d.desc)+'">'+buildingThumb(k,BUILD[k].civilization||S.civilization)+'<span class="nm">'+esc(d.name)+(lock?'<span class="lock-note">'+esc(buildLockReason(k))+'</span>':'')+'</span><span class="cs">'+Object.entries(d.cost||{}).map(([r,v])=>'<span class="cost-line">'+esc(goodName(r))+' '+v+'</span>').slice(0,2).join('')+'</span><span class="sz">'+d.size+'×'+d.size+'</span></button>';}).join(''):'<div class="empty">没有找到符合条件的建筑。试试「住宅」「粮食」或「供水」。</div>';
- $('#buildList').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(protectVisit())return;const t=b.dataset.t;if(!unlocked.has(t)){toast(BUILD[t].name+'：'+buildLockReason(t)+'。'+(BUILD[t].civilization&&BUILD[t].civilization!==S.civilization?'建立对应文明的城市体验专属建筑。':'完成城市篇章继续发展。'));return;}selTool=selTool===t?null:t;window.selectedTile=null;window.relocatingBuilding=null;renderBuildList();renderInfo();updateHint();});
- $('#buildModeHint').textContent=selTool?'正在营造 · '+BUILD[selTool].name:'';$('#buildCount').textContent=list.length+' 种建筑 · '+list.filter(k=>unlocked.has(k)).length+' 种可建造';
+ $('#buildList').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(protectVisit())return;const t=b.dataset.t;if(!unlocked.has(t)){toast(BUILD[t].name+'：'+buildLockReason(t)+'。'+(BUILD[t].civilization&&BUILD[t].civilization!==S.civilization?'建立对应文明的城市体验专属建筑。':'完成城市篇章继续发展。'));return;}selectBuildTool(t);});
+ paintBuildingThumbnails($('#buildList'));$('#buildModeHint').textContent=selTool?'正在营造 · '+BUILD[selTool].name:'';$('#buildCount').textContent=list.length+' 种建筑 · '+list.filter(k=>unlocked.has(k)).length+' 种可建造';
 }
 function selectedBuilding(){const p=window.selectedTile;if(!p||!inB(p.x,p.y))return null;const t=tileAt(p.x,p.y);if(!t?.b)return null;const origin=t.b.origin||[p.x,p.y];return {x:origin[0],y:origin[1],b:t.b,tile:tileAt(origin[0],origin[1])};}
 function renderInfo(){
- const box=$('#infoBody');const selected=selectedBuilding();$('#infoPanel').classList.toggle('advisor-idle',!selTool&&!selected);$('#closeInfo').hidden=!selTool&&!selected;
- if(selTool){const d=BUILD[selTool];$('#infoHead').textContent=window.relocatingBuilding?'迁移建筑 · 保留等级':'营造蓝图';box.innerHTML=buildingThumb(selTool,S.civilization,1,'info-art')+'<h3>'+esc(d.name)+'</h3><p class="desc">'+esc(d.desc)+'</p><div class="kv"><b>占地</b><span>'+d.size+' × '+d.size+' 格</span><b>'+ (window.relocatingBuilding?'迁移成本':'建造成本') +'</b><span>'+costText(window.relocatingBuilding?Object.fromEntries(Object.entries(d.cost||{}).map(([k,v])=>[k,Math.ceil(v*.15)])):d.cost)+'</span>'+(d.workers?'<b>所需劳工</b><span>'+d.workers+' 人</span>':'')+(d.radius?'<b>服务范围</b><span>半径 '+d.radius+' 格</span>':'')+(d.prod?'<b>每回合产出</b><span>'+costText(d.prod)+'</span>':'')+(d.input?'<b>每回合消耗</b><span>'+costText(d.input)+'</span>':'')+'</div><div class="act"><button id="cancelSel">取消营造 · Esc</button></div>';$('#cancelSel').onclick=clearSelection;return;}
- if(selected){$('#infoHead').textContent='建筑档案 · '+selected.x+', '+selected.y;box.innerHTML=buildingInfoHTML(selected.x,selected.y,selected.b);bindInfoActions(selected.x,selected.y);return;}
- $('#infoHead').textContent='执政官手札';box.innerHTML='<h3>让一座城，生长。</h3><p>'+advisorText()+'</p><div class="act"><button id="advisorHelp">查看城建指南</button></div>';$('#advisorHelp').onclick=openHelp;
+ if(detailInteraction)return;
+ const box=$('#infoBody'),selected=selectedBuilding();
+ if(selTool||!selected){hud.info=false;inspectedBuildingId=null;$('#side').hidden=true;return;}
+ if(selected.b.id!==inspectedBuildingId){inspectedBuildingId=selected.b.id;closeHudPanels('info');hud.info=true;}
+ $('#side').hidden=!hud.info;if(!hud.info)return;
+ $('#closeInfo').hidden=false;$('#infoHead').textContent='建筑 · '+selected.x+', '+selected.y;
+ const scroll=box.scrollTop;box.innerHTML=buildingInfoHTML(selected.x,selected.y,selected.b);bindInfoActions(selected.x,selected.y);paintBuildingThumbnails(box);box.scrollTop=scroll;
 }
 function constructionInfo(b){
  const c=b.construction;if(!c)return '';const total=Number(c.total||c.duration||1),remaining=Number(c.remaining??c.left??0);const progress=typeof c==='number'?0:Math.max(0,Math.min(1,1-remaining/total));return '<div class="need-title">'+(b.upgrading||c.toLevel||c.kind==='upgrade'?'升级施工中':'建筑施工中')+' · '+Math.round(progress*100)+'%</div><div class="construction-bar"><i style="width:'+progress*100+'%"></i></div><p class="desc">施工完成后投入运行'+(remaining?' · 剩余 '+Math.ceil(remaining)+' 回合':'')+'</p>';
@@ -105,26 +118,31 @@ function buildingInfoHTML(x,y,b){
  if(!(b.type==='road'&&b.main)&&!isVisiting())html+='<div class="act"><button id="focusBuilding">定位</button>'+ (b.type!=='road'?'<button id="moveBuildingBtn">迁移</button>':'') +'<button class="danger" id="demBtn">拆除</button></div>';return html;
 }
 function bindInfoActions(x,y){if($('#moveBuildingBtn'))$('#moveBuildingBtn').onclick=()=>startRelocation(x,y);if($('#focusBuilding'))$('#focusBuilding').onclick=()=>centerOnTile(x,y);if($('#demBtn'))$('#demBtn').onclick=()=>{if(protectVisit())return;const b=tileAt(x,y)?.b;if(!b)return;modal({title:'拆除'+BUILD[b.type].name,body:'<p>拆除后返还部分建材。住宅中的居民会离开，你可以在这里重新规划。</p>',buttons:[{text:'保留建筑'},{text:'确认拆除',primary:true,fn:()=>{demolish(x,y);window.selectedTile=null;renderAll();save();}}]});};}
-function advisorText(){const bl=buildings(),homes=bl.filter(o=>isResidence(o.b));if(!homes.length)return '从一座<b>住宅</b>开始，用道路连接主干道，迎接第一批定居者。';const unlinked=homes.filter(o=>!connectedToMain(o.x,o.y,BUILD[o.b.type].size));if(unlinked.length)return '有 <b>'+unlinked.length+' 座住宅</b>尚未连接主路。修筑道路，让居民走进新家。';const dry=homes.filter(o=>!coveredBy(o.x,o.y,'water'));if(dry.length)return '有 <b>'+dry.length+' 座住宅</b>需要饮用水。在附近建造<b>水井</b>，让生活更安稳。';if(S.goods.grain<40)return '<span class="no">粮食储备偏低。</span>扩建粮田，确保有道路和工人，再观察顶部的净产量。';const hungry=homes.filter(o=>!(o.b.met||evaluateNeeds(o)).map.grain);if(hungry.length&&currentUnlocked().has('grainShop'))return '建立一对<b>隔路相对的粮店</b>，让粮食抵达居民的餐桌。';if((S.workersNeeded||0)>Math.floor(S.pop))return '劳动力不足。建造住宅、改善服务，让更多移民定居。';if(S.won)return '奇观已经落成。你可以继续营造街区、完善高级住宅，或开放城市，邀请其他城主参观。';return '你的城市正在生长。点击任意建筑查看需求，完成左侧篇章，解锁新的营造蓝图。';}
+function advisorText(){const bl=buildings(),homes=bl.filter(o=>isResidence(o.b));if(!homes.length)return '从一座<b>住宅</b>开始，用道路连接主干道，迎接第一批定居者。';const unlinked=homes.filter(o=>!connectedToMain(o.x,o.y,BUILD[o.b.type].size));if(unlinked.length)return '有 <b>'+unlinked.length+' 座住宅</b>尚未连接主路。修筑道路，让居民走进新家。';const dry=homes.filter(o=>!coveredBy(o.x,o.y,'water'));if(dry.length)return '有 <b>'+dry.length+' 座住宅</b>需要饮用水。在附近建造<b>水井</b>，让生活更安稳。';if(S.goods.grain<40)return '<span class="no">粮食储备偏低。</span>扩建粮田，确保有道路和工人，再观察顶部的净产量。';const hungry=homes.filter(o=>!(o.b.met||evaluateNeeds(o)).map.grain);if(hungry.length&&currentUnlocked().has('grainShop'))return '建立一对<b>隔路相对的粮店</b>，让粮食抵达居民的餐桌。';if((S.workersNeeded||0)>Math.floor(S.pop))return '劳动力不足。建造住宅、改善服务，让更多移民定居。';if(S.won)return '奇观已经落成。你可以继续营造街区、完善高级住宅，或开放城市，邀请其他城主参观。';return '你的城市正在生长。点击任意建筑查看需求，展开篇章徽记，解锁新的营造蓝图。';}
 function renderLog(){const el=$('#log');el.innerHTML=(S.log||[]).slice(-50).map(l=>'<div class="'+esc(l.cls||'')+'">'+esc(l.msg)+'</div>').join('');el.scrollTop=el.scrollHeight;}
-function updateHint(){const el=$('#hint');el.style.display=selTool?'block':'none';el.textContent=selTool?(window.relocatingBuilding?'选择位置迁移 '+BUILD[selTool].name+' · Esc 取消':selTool==='road'?'按住拖动铺路 · 松开确认 · 右键取消':'点击空地营造 '+BUILD[selTool].name+' · Esc 取消'):'';cv.style.cursor=selTool?'crosshair':'grab';}
-function clearSelection(){selTool=null;window.relocatingBuilding=null;window.selectedTile=null;window.roadPreview=[];renderBuildList();renderInfo();updateHint();}
-function toast(msg,cls){const el=document.createElement('div');el.className='toast '+(cls||'');el.textContent=msg;$('#toasts').appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .35s';},4200);setTimeout(()=>el.remove(),4600);}
+function updateHint(){
+ const active=!!selTool;$('#hint').hidden=!active;document.body.classList.toggle('placing',active);cv.style.cursor=active?'crosshair':'grab';
+ if(active){const d=BUILD[selTool];$('#placementName').textContent=(window.relocatingBuilding?'迁移 · ':'营造 · ')+d.name;$('#placementCost').textContent=selTool==='road'?'拖动铺路 · 石料 2 / 格':costText(window.relocatingBuilding?Object.fromEntries(Object.entries(d.cost||{}).map(([k,v])=>[k,Math.ceil(v*.15)])):d.cost);}
+}
+function clearSelection(){selTool=null;window.relocatingBuilding=null;window.selectedTile=null;window.roadPreview=[];hud.info=false;inspectedBuildingId=null;$('#side').hidden=true;renderBuildList();updateHint();}
+function toast(msg,cls){const el=document.createElement('div');el.className='toast '+(cls||'');el.textContent=msg;$('#toasts').replaceChildren(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .35s';},4200);setTimeout(()=>el.remove(),4600);}
 function log(msg,cls){if(!S)return;S.log=S.log||[];S.log.push({msg,cls:cls||'',tick:S.tick});if(S.log.length>150)S.log.shift();if($('#log'))renderLog();}
 function closeModal(restore=true){if(!$('#modal').classList.contains('show'))return;$('#modal').classList.remove('show');$('#modalCard').className='modal-card';if(restore)setSpeed(modalPreviousSpeed);modalCanClose=true;cv.focus({preventScroll:true});}
 function modal(opts){
+ closeHudPanels();
  if(!$('#modal').classList.contains('show'))modalPreviousSpeed=speed;setSpeed(0);modalCanClose=opts.closable!==false;
  $('#modalCard').className='modal-card '+(opts.className||'');$('#modalCard').innerHTML=(modalCanClose?'<button class="mini-btn modal-close" aria-label="关闭">'+icon('close')+'</button>':'')+'<div class="modal-kicker">万城纪 / EMPIRES AT DAWN</div><h2 id="modalTitle">'+esc(opts.title)+'</h2><div class="modal-body">'+(opts.body||'')+'</div><div class="btns">'+(opts.buttons||[{text:'返回城市',primary:true}]).map((b,i)=>'<button data-i="'+i+'" class="'+(b.primary?'primary':'')+'">'+esc(b.text)+'</button>').join('')+'</div>';$('#modal').classList.add('show');
  if($('.modal-close'))$('.modal-close').onclick=()=>closeModal();$('#modalCard').querySelectorAll('[data-i]').forEach(btn=>btn.onclick=()=>{const b=opts.buttons?.[+btn.dataset.i];closeModal();if(b?.fn)b.fn();});setTimeout(()=>$('#modalCard button, #modalCard input')?.focus(),30);
 }
 function openInventory(){const rows=Object.entries(GOODS).map(([k,d])=>{const v=S.goods[k]||0,cap=d.cat==='food'?S.caps.food:S.caps.mat,delta=resourceDelta(k);return '<div class="inventory-row"><span>'+esc(d.name)+'</span><b>'+shortNum(v)+'</b><small>库存上限 '+shortNum(cap)+'</small><small class="'+(delta<0?'no':'ok')+'">净变化 '+(delta>=0?'+':'')+delta.toFixed(1)+'/回合</small><div class="inventory-bar"><i style="width:'+Math.min(100,v/cap*100)+'%"></i></div></div>';}).join('');modal({title:'城市仓储',body:'<p>上回合实际净变化包含生产、消耗与生活需求。扩建粮仓和仓库提升储存上限。</p><div class="inventory-grid">'+rows+'</div>'+(!isVisiting()?'<div class="save-options"><button class="outline-btn" id="caravanBtn">与商队交易</button></div>':'' )});if($('#caravanBtn'))$('#caravanBtn').onclick=openCaravan;}
-function openHelp(){modal({title:'一座城市的诞生',body:'<p>从道路、住宅和饮用水开始。让生产、供应与日常生活在街道上相遇。</p><div class="help-grid">'+[['01 / 连通街区','建筑要接入主路才能获得劳动力。左下角小地图可以快速导航，H 回到城镇。'],['02 / 照顾居民','住宅需求在建筑档案中显示。提供供水、食物、治安与教育，稳定满足后自动升级。'],['03 / 经营供给','粮店等商铺需要同种两座隔路相对。工坊消耗原料，净变化显示在顶部与城市仓储中。'],['04 / 分区规划','把工业与住宅适当分开。花园缓解污染；覆盖层可检查道路、供水与污染。'],['05 / 营造操作','点击蓝图再点地图放置，修路可按住拖动。双指缩放、拖动平移；Esc 退出当前操作。'],['06 / 留存文明','每隔数回合自动保存；城市档案提供 3 个手动槽与 JSON 导入导出。「世界」打开在线功能。']].map(([h,p])=>'<div class="help-item"><h3>'+h+'</h3><p>'+p+'</p></div>').join('')+'</div><div style="margin-top:15px">'+[['空格','暂停 / 继续'],['1 / 2 / 4','游戏速度'],['B / I / N','建造栏 / 仓储 / 昼夜'],['H / + / −','回到城镇 / 缩放'],['Ctrl / ⌘ + S','保存进度']].map(([k,v])=>'<div class="shortcut-row"><span>'+v+'</span><kbd>'+k+'</kbd></div>').join('')+'</div>'});}
+function openHelp(){modal({title:'一座城市的诞生',body:'<p>从道路、住宅和饮用水开始。让生产、供应与日常生活在街道上相遇。</p><div class="help-grid">'+[['01 / 连通街区','建筑要接入主路才能获得劳动力。左下角小地图可以快速导航，H 回到城镇。'],['02 / 照顾居民','住宅需求在建筑档案中显示。提供供水、食物、治安与教育，稳定满足后自动升级。'],['03 / 经营供给','粮店等商铺需要同种两座隔路相对。工坊消耗原料，净变化显示在顶部与城市仓储中。'],['04 / 分区规划','把工业与住宅适当分开。花园缓解污染；覆盖层可检查道路、供水与污染。'],['05 / 营造操作','点击蓝图目录点选后，在地图放置；修路可按住拖动。双指缩放、拖动平移；Esc 退出当前操作。'],['06 / 留存文明','每隔数回合自动保存；城市档案提供 3 个手动槽与 JSON 导入导出。「世界」打开在线功能。']].map(([h,p])=>'<div class="help-item"><h3>'+h+'</h3><p>'+p+'</p></div>').join('')+'</div><div style="margin-top:15px">'+[['空格','暂停 / 继续'],['1 / 2 / 4','游戏速度'],['B / I / N','建造栏 / 仓储 / 昼夜'],['H / + / −','回到城镇 / 缩放'],['Ctrl / ⌘ + S','保存进度']].map(([k,v])=>'<div class="shortcut-row"><span>'+v+'</span><kbd>'+k+'</kbd></div>').join('')+'</div>'});}
 function openSettings(){modal({title:'偏好设置',body:'<div class="setting-row"><label>减少动态效果<small>停用装饰动画，保留城市经营进程</small></label><input id="motionSetting" type="checkbox" '+(uiSettings.reducedMotion?'checked':'')+'></div><div class="setting-row"><label>自动保存<small>当前城市自动保存在这台设备</small></label><input id="autoSaveSetting" type="checkbox" '+(uiSettings.autosave?'checked':'')+'></div><div class="setting-row"><label>昼夜景观<small>自然昼夜随城市时间变化</small></label><select id="daySetting"><option value="auto">自然昼夜</option><option value="day">恒定白昼</option><option value="night">恒定夜晚</option></select></div><div class="save-options"><button class="outline-btn" id="settingsSaves">城市与存档</button><button class="outline-btn" id="settingsHelp">查看城建指南</button><button class="outline-btn" id="settingsNew">建立新城</button></div>'});$('#daySetting').value=typeof rendererSettings!=='undefined'?rendererSettings.night:'auto';$('#motionSetting').onchange=e=>{uiSettings.reducedMotion=e.target.checked;persistSettings();};$('#autoSaveSetting').onchange=e=>{uiSettings.autosave=e.target.checked;persistSettings();};$('#daySetting').onchange=e=>changeDayMode(e.target.value);$('#settingsSaves').onclick=openSaves;$('#settingsHelp').onclick=openHelp;$('#settingsNew').onclick=()=>{if(!protectVisit())openNewGame(false);};}
 function persistSettings(){if(typeof rendererSettings!=='undefined')rendererSettings.reducedMotion=uiSettings.reducedMotion;try{localStorage.setItem('wan-city-settings',JSON.stringify(uiSettings));}catch(err){toast('偏好设置保存失败：'+err.message,'bad');}}
 function changeDayMode(mode){if(typeof setDayMode==='function')setDayMode(mode);$('#dayLabel').textContent={auto:'自然昼夜',day:'恒定白昼',night:'灯火之城'}[mode];$('#dayBtn [data-icon]').innerHTML=icon(mode==='night'?'moon':'sun');}
 
 const CIV_UI={china:{name:'华夏',en:'CHINA',glyph:'华',desc:'层叠飞檐与青绿山水之间，营造秩序井然的东方都城。',bonus:'精于耕作与木构营造',city:'长乐'},egypt:{name:'埃及',en:'EGYPT',glyph:'埃',desc:'让河谷孕育丰饶，在金色沙岸上镌刻永恒的石之文明。',bonus:'擅长采石与粮食储藏',city:'曦河'},greece:{name:'希腊',en:'GREECE',glyph:'希',desc:'以石柱与庭院书写城邦，让思想、商业与艺术共同繁荣。',bonus:'重视学术与城邦文化',city:'白石'},persia:{name:'波斯',en:'PERSIA',glyph:'波',desc:'沿商路建起花园都市，让琉璃、穹顶与绿洲彼此辉映。',bonus:'商贸与园林兴盛',city:'星庭'},aztec:{name:'阿兹特克',en:'AZTEC',glyph:'阿',desc:'在繁茂雨林中拓展街区，以阶梯神庙仰望太阳与群星。',bonus:'善于耕种与神庙营造',city:'日耀'}};
 function openNewGame(first=false){
+ closeHudPanels();
  if(protectVisit())return;if(!$('#modal').classList.contains('show'))modalPreviousSpeed=speed;setSpeed(0);modalCanClose=!first;let chosen='china';
  $('#modalCard').className='modal-card setup-card';$('#modalCard').innerHTML='<div class="setup-intro"><div class="modal-kicker">EMPIRES<br>AT DAWN</div><h1>万城纪<span>文明，始于一城。</span></h1><p>从第一条街道到万家灯火，<br>从一片荒野到不朽的奇观。<br><br>你的选择，<br>将成为这座城市的历史。</p><div class="intro-footer">FIVE CIVILIZATIONS<br>ONE CITY. YOUR STORY.</div></div><div class="setup-content">'+(!first?'<button class="mini-btn modal-close" aria-label="关闭">'+icon('close')+'</button>':'')+'<div class="modal-kicker">CHAPTER ZERO / 创世之章</div><h2 id="modalTitle">选择你的文明</h2><p class="subtitle">五种建筑语言，五条发展道路。一座属于你的城市。</p><div class="civ-grid">'+Object.entries(CIV_UI).map(([key,c])=>'<button class="civ-card '+(key===chosen?'selected':'')+'" data-civ="'+key+'" aria-pressed="'+(key===chosen)+'"><span class="civ-art">'+(window.GameArt?.thumbnail?'<img src="'+esc(GameArt.thumbnail('wonder',key,3))+'" alt="" loading="eager" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="civ-glyph" hidden>'+c.glyph+'</span>':'<span class="civ-glyph">'+c.glyph+'</span>')+'</span><b>'+c.name+'</b><small>'+c.en+'</small></button>').join('')+'</div><div class="civ-detail" id="civDetail"></div><div class="setup-fields"><label><span class="field-label">为新城命名</span><input id="newCityName" value="长乐" maxlength="20" autocomplete="off" aria-label="城市名称"></label><label><span class="field-label">世界种子</span><input id="newCitySeed" value="'+Math.floor(Math.random()*9999999)+'" maxlength="30" autocomplete="off" aria-label="世界种子"></label></div><div class="mode-options"><label class="mode-option"><input type="radio" name="gameMode" value="campaign" checked><span><b>文明征程</b><small>随篇章逐步解锁，体验城市成长。</small></span></label><label class="mode-option"><input type="radio" name="gameMode" value="sandbox"><span><b>自由营造</b><small>全建筑开放，更充裕的开局资源。</small></span></label></div><div class="setup-error" id="setupError" role="alert"></div><div class="setup-footer"><small>64 × 64 广阔疆域<br>昼夜轮转 · 本地自动保存</small><button class="primary" id="foundCity">奠基新城　→</button></div></div>';
  const intro=$('.setup-intro');if(window.GameArt?.hero){intro.classList.add('has-hero');intro.style.setProperty('--hero-image','url("'+GameArt.hero+'")');}const details=()=>{window.GameArt?.preloadCivilization?.(chosen);let bonus=CIV_UI[chosen].bonus;try{const c=getCivilization(chosen);bonus=c.bonuses?.join(' · ')||c.bonusText||c.description||c.desc||bonus;}catch{}$('#civDetail').innerHTML='<b>'+CIV_UI[chosen].name+'文明</b>'+esc(CIV_UI[chosen].desc)+'<br>'+esc(bonus);};details();$('#modal').classList.add('show');if($('.modal-close'))$('.modal-close').onclick=()=>closeModal();
@@ -144,7 +162,7 @@ function openSaves(){if(isVisiting()){toast('参观城市时不能覆盖自己�
 }
 function exportSave(){try{const data=stateSnapshot();data.savedAt=new Date().toISOString();data.cloudSync=window.OnlineUI?.saveMetadata?.()||null;const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(S.cityName||'万城纪').replace(/[\\/:*?"<>|]/g,'_')+'-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('存档已导出。','good');}catch(err){toast('导出失败：'+err.message,'bad');}}
 async function importSaveFile(file){if(!file||protectVisit())return;try{if(file.size>12*1024*1024)throw new Error('文件超过 12 MB');const data=JSON.parse(await file.text());if(!data||!Array.isArray(data.tiles))throw new Error('这不是有效的城市存档');modal({title:'导入城市档案',body:'<p>即将导入「'+esc(data.cityName||'未命名的城市')+'」。当前城市将先备份。</p>',buttons:[{text:'取消',fn:openSaves},{text:'导入并进入',primary:true,fn:()=>{const previous=stateSnapshot();try{save('wan-city-backup');restoreState(data);save();renderAll();centerOnCity();toast('城市档案已导入。','good');}catch(err){restoreState(previous);toast('导入失败：'+err.message,'bad');}}}]});}catch(err){toast('无法导入：'+err.message,'bad');}}
-function setSpeed(sp){if(isVisiting()||window.OnlineUI?.opened)sp=0;speed=Number(sp);document.querySelectorAll('.speedbox button').forEach(b=>{b.classList.toggle('on',+b.dataset.speed===speed);b.setAttribute('aria-pressed',+b.dataset.speed===speed);});restartTimer();}
+function setSpeed(sp){if(isVisiting()||window.OnlineUI?.opened)sp=0;speed=Number(sp);$('#quickPauseBtn').classList.toggle('paused',speed===0);$('#quickPauseBtn').innerHTML=icon(speed===0?'play':'pause');$('#quickPauseBtn').setAttribute('aria-label',speed===0?'继续游戏':'暂停游戏');$('#speedCycleBtn').textContent=(speed||1)+'×';document.querySelectorAll('.speedbox button').forEach(b=>{b.classList.toggle('on',+b.dataset.speed===speed);b.setAttribute('aria-pressed',+b.dataset.speed===speed);});restartTimer();}
 function restartTimer(){if(timer)clearInterval(timer);timer=null;if(speed===0||!S)return;timer=setInterval(()=>{try{simulate();renderResources();renderPrestige();renderTasks();renderBuildList();renderInfo();saveThrottled();}catch(err){setSpeed(0);toast('城市进程已暂停：'+err.message,'bad');console.error(err);}},TICK_MS/speed);}
 function refreshArt(){buildRenderSignature='';renderBuildList();renderInfo();}
 function openCaravan(kind='grain',quantity=10){
@@ -156,5 +174,35 @@ function openCaravan(kind='grain',quantity=10){
 window.relocatingBuilding=null;
 function startRelocation(x,y){
  if(protectVisit())return;const b=tileAt(x,y)?.b;if(!b||b.type==='road')return;
- window.relocatingBuilding={x,y,type:b.type};window.selectedTile=null;selTool=b.type;renderInfo();renderBuildList();updateHint();toast('选择新的位置，迁移保留居民、等级与建设进度。');
+ closeHudPanels();window.relocatingBuilding={x,y,type:b.type};window.selectedTile=null;selTool=b.type;renderInfo();renderBuildList();updateHint();toast('选择新的位置，迁移保留居民、等级与建设进度。');
 }
+
+
+/* Small, mutually exclusive map tools. Opening a sheet never moves the camera. */
+function syncHud(){
+ const bindings={builder:'#buildPanel',info:'#side',tasks:'#taskPanel',view:'#viewPanel',menu:'#cityMenu',minimap:'#minimapBox',log:'#logPanel'};
+ for(const [key,selector] of Object.entries(bindings))$(selector).hidden=!hud[key];
+ $('#buildPanel').classList.toggle('collapsed',!hud.builder);document.body.classList.toggle('builder-collapsed',!hud.builder);
+ $('#taskPanel').classList.toggle('collapsed',!hud.tasks);
+ $('#buildOpenBtn').setAttribute('aria-expanded',hud.builder);$('#buildToggle').setAttribute('aria-expanded',hud.builder);$('#taskToggle').setAttribute('aria-expanded',hud.tasks);$('#viewBtn').setAttribute('aria-expanded',hud.view);$('#menuBtn').setAttribute('aria-expanded',hud.menu);
+}
+function closeHudPanels(except){for(const key of Object.keys(hud))if(key!==except)hud[key]=false;syncHud();}
+function toggleHudPanel(key){const opening=!hud[key];closeHudPanels();hud[key]=opening;syncHud();}
+function setBuilderOpen(open){if(open){clearSelection();closeHudPanels();hud.builder=true;renderBuildList();}else hud.builder=false;syncHud();}
+function selectBuildTool(type){
+ if(protectVisit())return;if(!currentUnlocked().has(type)){toast(buildLockReason(type));return;}
+ closeHudPanels();selTool=type;window.selectedTile=null;window.relocatingBuilding=null;inspectedBuildingId=null;renderBuildList();renderInfo();updateHint();
+}
+function paintBuildingThumbnails(root=document){
+ if(!window.ModularBuildings)return;
+ root.querySelectorAll('canvas[data-building-thumb]').forEach(canvas=>{const context=canvas.getContext('2d');context.clearRect(0,0,canvas.width,canvas.height);try{if(ModularBuildings.thumbnail)ModularBuildings.thumbnail(context,{type:canvas.dataset.buildingThumb,level:Number(canvas.dataset.level)||1,width:canvas.width,height:canvas.height});else ModularBuildings.draw(context,{type:canvas.dataset.buildingThumb,civ:'china',level:Number(canvas.dataset.level)||1,cx:160,cy:200,width:214,height:100,time:0,night:0});}catch(error){console.warn('建筑缩略图暂不可用',error);}});
+}
+function openBlueprint(){
+ if(!selTool)return;const d=BUILD[selTool];modal({title:d.name+' · 营造蓝图',body:buildingThumb(selTool,S.civilization,1,'info-art')+'<p>'+esc(d.desc)+'</p><div class="kv"><b>占地</b><span>'+d.size+' × '+d.size+'</span><b>建造成本</b><span>'+costText(d.cost)+'</span>'+(d.workers?'<b>劳工</b><span>'+d.workers+' 人</span>':'')+(d.radius?'<b>服务</b><span>半径 '+d.radius+' 格</span>':'')+'</div><p style="margin-top:14px">点击空地放置；拖动可平移地图，双指或滚轮缩放。点放置条右端的 × 退出营造。</p>'});paintBuildingThumbnails($('#modalCard'));
+}
+function openCityOverview(){modal({title:S.cityName||'城市概况',body:'<p>'+esc(civilizationName())+' · '+(S.mode==='sandbox'?'自由营造':'文明征程')+'</p><div class="kv"><b>定居人口</b><span>'+shortNum(S.pop)+' 人</span><b>已分配劳工</b><span>'+Math.floor(S.workersAssigned||0)+' / '+Math.floor(S.pop)+'</span><b>城市声望</b><span>'+prestigeTier(S.prestige).name+' · '+Math.round(S.prestige)+'</span><b>金币</b><span>'+shortNum(S.gold)+'</span></div><p style="margin-top:17px">'+advisorText()+'</p>'});}
+window.gameViewportInsets=()=>{
+ const bar=$('#topbar').getBoundingClientRect(),dock=$('#toolDock').hidden?$('#hint'):$('#toolDock');
+ const bottomRect=(selTool?$('#hint'):dock).getBoundingClientRect();
+ return {top:bar.bottom+8,bottom:Math.max(68,innerHeight-bottomRect.top+8),left:0,right:0};
+};

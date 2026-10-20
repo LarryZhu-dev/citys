@@ -30,28 +30,109 @@ function cityRandom(){
   let t = S.rngState; t = Math.imul(t ^ t >>> 15,t | 1); t ^= t + Math.imul(t ^ t >>> 7,t | 61);
   return ((t ^ t >>> 14) >>> 0) / 4294967296;
 }
-function generateTerrain(seed, civilization = "china", width = MAP_W, height = MAP_H){
-  const rng = seededRandom(hashSeed(seed));
-  const arid = civilization === "egypt" || civilization === "persia";
-  const tiles = Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>{
-    const river = width * 0.29 + Math.sin(y * 0.12) * 3 + Math.sin(y * 0.31) * 1.3;
-    const distance = Math.abs(x - river);
-    const lake = ((x-width*0.72)/7)**2 + ((y-height*0.72)/5)**2;
-    let t = "grass";
-    if (distance < 1.7 || lake < 1) t = "water";
-    else if (distance < 2.7 || (lake < 1.3) || (arid && rng() < 0.38)) t = "sand";
-    else {
-      const woodland = Math.sin(x*0.31) + Math.cos(y*0.27) + Math.sin((x+y)*0.16);
-      if (woodland > 0.8 && rng() < 0.7) t = "tree";
-      else if (rng() < 0.025) t = rng() < 0.48 ? "stone" : rng() < 0.7 ? "clay" : "copper";
-    }
-    return {t,b:null,variant:Math.floor(rng()*4)};
-  }));
-  // Clusters make 2×2 extractors legible at a glance and guarantee all raw materials.
-  const patches = [[8,10,"stone"],[30,9,"clay"],[35,38,"copper"],[10,43,"tree"],[55,47,"stone"],[38,52,"clay"],[54,36,"copper"]];
-  for (const [px,py,kind] of patches) for (let dy=0;dy<4;dy++) for (let dx=0;dx<4;dx++) {
-    if (tiles[py+dy] && tiles[py+dy][px+dx] && tiles[py+dy][px+dx].t !== "water") tiles[py+dy][px+dx].t = kind;
+/* Smooth seeded fields are shared by world generation and the terrain renderer.
+   No rendering metadata is required in a saved tile: an old city can derive it. */
+function terrainHash(x,y,seed){
+  let h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^(seed>>>0);
+  h=Math.imul(h^(h>>>13),1274126177);
+  return ((h^(h>>>16))>>>0)/4294967296;
+}
+function terrainNoise(x,y,seed){
+  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+  const sx=fx*fx*fx*(fx*(fx*6-15)+10),sy=fy*fy*fy*(fy*(fy*6-15)+10);
+  const a=terrainHash(ix,iy,seed),b=terrainHash(ix+1,iy,seed),c=terrainHash(ix,iy+1,seed),d=terrainHash(ix+1,iy+1,seed);
+  return ((a+(b-a)*sx)*(1-sy)+(c+(d-c)*sx)*sy)*2-1;
+}
+function terrainFractal(x,y,seed,octaves=3){
+  let value=0,weight=0,amplitude=1;
+  for(let i=0;i<octaves;i++){
+    value+=terrainNoise(x,y,(seed+Math.imul(i+1,1013904223))>>>0)*amplitude;
+    weight+=amplitude;amplitude*=0.5;x=x*2.03+17.13;y=y*2.03-9.71;
   }
+  return value/weight;
+}
+const terrainVisualCache=new Map();
+function terrainVisualAt(x,y,seed){
+  const worldSeed=String(seed??(S&&S.seed)??"empire"),key=worldSeed+":"+x+","+y;
+  const cached=terrainVisualCache.get(key);if(cached)return cached;
+  const h=hashSeed(worldSeed),warpX=terrainFractal(x*.035,y*.035,h+19,2)*3.2,warpY=terrainFractal(x*.035,y*.035,h+37,2)*3.2;
+  const wx=x+warpX,wy=y+warpY;
+  const soil=terrainFractal(wx*.075,wy*.075,h+71,4);
+  const groundBlend=Math.max(0,Math.min(1,(soil+0.12)/0.72));
+  const result={
+    groundBlend,moisture:Math.max(0,Math.min(1,.5+terrainFractal(wx*.055,wy*.055,h+89,3)*.6)),
+    detail:terrainHash(x,y,h+107),offsetX:terrainHash(x,y,h+131)-.5,offsetY:terrainHash(x,y,h+173)-.5,
+    scale:.75+terrainHash(x,y,h+211)*.5,
+    // Generation fields also let grass/dirt and wilderness share the same coherent shapes.
+    soil,warpX,warpY,woodland:terrainFractal(wx*.115,wy*.115,h+251,3),
+  };
+  if(terrainVisualCache.size>=24000)terrainVisualCache.clear();
+  terrainVisualCache.set(key,result);return result;
+}
+function generateTerrain(seed, civilization = "china", width = MAP_W, height = MAP_H){
+  const h=hashSeed(seed),rng=seededRandom(h),arid=civilization==="egypt"||civilization==="persia";
+  const riverBase=width*(.24+rng()*.085),riverShift=rng()*300;
+  const lakes=Array.from({length:2},(_,i)=>({
+    x:width*(i===0?.51+rng()*.16:.70+rng()*.16),y:height*(i===0?.65+rng()*.19:.43+rng()*.17),
+    rx:4.4+rng()*4.4,ry:3.1+rng()*3.6,rotation:rng()*Math.PI,phase:rng()*90,
+  }));
+  const deposits=[];
+  for(const [kind,n,low,high] of [["stone",6,2.7,5.0],["clay",5,2.3,4.2],["copper",5,1.5,3.1]]){
+    for(let i=0;i<n;i++)deposits.push({kind,x:3+rng()*(width-6),y:4+rng()*(height-8),rx:low+rng()*(high-low),ry:low*.65+rng()*(high*.9-low*.65),rotation:rng()*Math.PI,phase:rng()*80});
+  }
+  // Different resources branch from nearby starting landmarks, never from filled rectangles.
+  // These centres only guarantee an accessible early economy; their outlines and areas vary by seed.
+  const startDeposits=[
+    {kind:"tree",x:47.1+(rng()-.5),y:23.7+(rng()-.5),rx:3.3+rng()*1.8,ry:3.8+rng()*1.8,anchor:[48,22]},
+    {kind:"stone",x:52.5+(rng()-.5),y:21.9+(rng()-.5),rx:2.0+rng()*1.0,ry:1.3+rng()*1.0,anchor:[51,22]},
+    {kind:"clay",x:51.6+(rng()-.5),y:27.7+(rng()-.5),rx:3.1+rng()*1.0,ry:1.5+rng()*1.3,anchor:[51,26]},
+    {kind:"copper",x:54.5+(rng()-.5),y:25.0+(rng()-.5),rx:1.4+rng()*.7,ry:1.7+rng()*1.1,anchor:[54,25]},
+  ].map(p=>({...p,rotation:rng()*Math.PI,phase:rng()*80}));
+  const inlet={x:59.2+(rng()-.5)*.5,y:20.7+(rng()-.5)*1.0,rx:2.5+rng()*.5,ry:3.3+rng()*.7,rotation:(rng()-.5)*.3,phase:rng()*80};
+  const shape=(x,y,p,field)=>{
+    const dx=x-p.x,dy=y-p.y,c=Math.cos(p.rotation),sn=Math.sin(p.rotation);
+    const u=(dx*c+dy*sn)/p.rx,v=(-dx*sn+dy*c)/p.ry;
+    const edge=.22*terrainNoise(x*.57+p.phase,y*.57-p.phase,h+313)+.13*field;
+    return u*u+v*v<1+edge;
+  };
+  const tiles=Array.from({length:height},(_,y)=>Array.from({length:width},(_,x)=>{
+    const f=terrainVisualAt(x,y,seed),wx=x+f.warpX,wy=y+f.warpY;
+    const meadow=((x-49)/11.9)**2+((y-15)/12.6)**2<1+.12*f.woodland;
+    const riverX=riverBase+terrainFractal(0,wy*.043+riverShift,h+317,3)*6.0+terrainNoise(0,wy*.105+riverShift,h+331)*1.6;
+    const riverWidth=1.25+(terrainNoise(0,y*.10+riverShift,h+353)+1)*.45;
+    let water=Math.abs(wx-riverX)<riverWidth;
+    if(!meadow)water=water||lakes.some(l=>shape(wx,wy,l,f.woodland));
+    // An irregular inlet near the settlement makes fishing accessible without moving the river.
+    if(width>=62&&height>=30&&x>55&&y>15&&y<27)water=water||shape(x,y,inlet,f.woodland);
+    if(meadow&&x<55)water=false;
+    let t=water?"water":f.soil>(arid?.21:.32)?"sand":"grass";
+    if(!water&&!meadow){
+      const forestThreshold=civilization==="aztec"?.17:.24;
+      if(f.woodland>forestThreshold || (f.woodland>forestThreshold-.09&&f.detail>.96))t="tree";
+      for(const p of deposits){
+        if(Math.abs(x-p.x)>p.rx*1.8||Math.abs(y-p.y)>p.ry*1.8)continue;
+        if(shape(wx,wy,p,f.woodland))t=p.kind;
+      }
+    }
+    // Keep the residential centre open while resource belts grow along its southern edge.
+    if(!water&&y>=20)for(const p of startDeposits){
+      if(Math.abs(x-p.x)>p.rx*1.9||Math.abs(y-p.y)>p.ry*1.9)continue;
+      if(shape(x,y,p,f.woodland))t=p.kind;
+    }
+    return {t,b:null,variant:Math.floor(f.detail*4)};
+  }));
+  // Thin, broken banks soften water/land transitions instead of forming a uniform sand ring.
+  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
+    const tile=tiles[y][x],f=terrainVisualAt(x,y,seed);
+    if(tile.t!=="grass"||f.detail<.38)continue;
+    if(DIRS.some(([dx,dy])=>tiles[y+dy]?.[x+dx]?.t==="water"))tile.t="sand";
+  }
+  // A single anchor per resource is enough for a 2×2 mine and does not prescribe its footprint.
+  for(const p of startDeposits){
+    const [x,y]=p.anchor;if(tiles[y]?.[x])tiles[y][x].t=p.kind;
+  }
+  // The starter lumber footprint is always dry, even on custom maps derived from a later generator.
+  if(width>=50&&height>=24)for(let y=22;y<24;y++)for(let x=48;x<50;x++)if(tiles[y][x].t==="water")tiles[y][x].t="grass";
   return tiles;
 }
 function newGame(options = {}){
@@ -74,16 +155,10 @@ function newGame(options = {}){
     signpost:{x:63,y:0},start:{x:49,y:14},lastDelta:Object.fromEntries([...Object.keys(GOODS),"gold","pop"].map(k=>[k,0])),
   };
   invalidateWorld();
-  // A broad, buildable meadow prevents terrain from trapping the tutorial settlement.
-  for (let y=6;y<=29;y++) for (let x=38;x<=60;x++) S.tiles[y][x].t = "grass";
   for (let x=0;x<MAP_W;x++) setRoad(x,0,true);
   for (let y=1;y<MAP_H;y++) setRoad(MAP_W-1,y,true);
   for (let y=1;y<=28;y++) setRoad(50,y);
   for (let x=42;x<=57;x++) setRoad(x,14);
-  const patch = (x,y,t) => { for(let dy=0;dy<3;dy++) for(let dx=0;dx<2;dx++) tileAt(x+dx,y+dy).t=t; };
-  patch(48,22,"tree"); patch(51,22,"stone"); patch(51,26,"clay"); patch(54,25,"copper");
-  // A small lake supports the fishing/harbor stages without a long trip to the river.
-  for (let y=18;y<=22;y++) for (let x=57;x<=60;x++) tileAt(x,y).t = "water";
   const a = put(47,13,"house"), b = put(49,13,"house");
   a.pop = b.pop = 6;
   put(45,15,"farmland"); put(48,22,"lumber");
@@ -304,6 +379,7 @@ function simulate(){
     const room=Math.min(1,...Object.entries(d.prod).map(([kind,n])=>Math.max(0,resourceCapacity(kind)-(S.goods[kind]||0))/(n*mult)));
     if (room<=0) { o.b.idle=true; continue; }
     o.b.idle=false;
+    o.b.productionTicks=(o.b.productionTicks||0)+1;
     if (d.input) for (const [kind,n] of Object.entries(d.input)) S.goods[kind]-=n*room;
     for (const [kind,n] of Object.entries(d.prod)) S.goods[kind]=Math.min(resourceCapacity(kind),(S.goods[kind]||0)+n*mult*room);
   }
@@ -575,6 +651,7 @@ function hydrateState(data){
       b.upTimer=numeric(raw.upTimer,0,UPGRADE_DELAY); b.missTicks=numeric(raw.missTicks,0,45);
     }
     if (raw.damage) b.damage=numeric(raw.damage,0,60);
+    if (raw.productionTicks) b.productionTicks=Math.floor(numeric(raw.productionTicks,0,1e9));
     if (raw.construction && b.type!=="road") {
       const total=Math.max(1,Math.floor(numeric(raw.construction.total,BUILD[b.type].buildTime,600)));
       const remaining=Math.max(1,Math.floor(numeric(raw.construction.remaining,total,total)));
