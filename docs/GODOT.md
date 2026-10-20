@@ -59,4 +59,4 @@ Godot GUI 使用官方触摸鼠标仿真，并启用 Web 移动虚拟键盘；�
 
 ## 当前发布
 
-2026-10-20 的正式部署由 GitHub 固定提交 `ec00cd196dab306d626003af78b3b082bf3c5e47` 构建，地址 https://wanchengji.vercel.app 。部署 READY 和本地浏览器通过的范围见 `VALIDATION.md`；生产健康、真实手机持续性能仍未完成验收。
+2026-10-20 的 2.1 独立图片构件版由 GitHub 固定提交 `288ed36a7b9f92dd5b454f345d681c2564b3079d` 构建，部署 `dpl_H48dPZXLTp8SV5F1SeUfxvMKEPfF` 已 READY，正式域名 https://wanchengji.vercel.app 已绑定。实际浏览器通过范围与仍低的软件 GPU 帧率见 [VALIDATION.md](../VALIDATION.md)；生产健康、真实手机持续性能仍未完成验收。

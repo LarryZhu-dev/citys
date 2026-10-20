@@ -51,6 +51,6 @@
 
 ## 生产环境
 
-目标地址：https://wanchengji.vercel.app 。用户已授权发布并连接 Neon。历史数据库 PgBouncer 启动参数修复有真实数据库回归，但生产健康检查和真实双账号线上流程仍未复验。本任务直接访问正式域名受出站策略限制，连接器页面及运行日志读取返回 403。
+已发布至 https://wanchengji.vercel.app 。Vercel 部署 `dpl_H48dPZXLTp8SV5F1SeUfxvMKEPfF` 返回 READY、target:production、aliasError:null，正式域名已绑定，服务端记录的源码 SHA 为 `288ed36a7b9f92dd5b454f345d681c2564b3079d`。不变部署地址为 https://wanchengji-9zhwbgld7-larry-zhus-projects-e7157b21.vercel.app 。
 
-本地双账号流程、部署 READY 和生产数据库健康分别记录；不将构建成功视为在线服务已恢复。本轮固定源码提交与部署编号在成功发布后记录于 [DEPLOYMENT.md](DEPLOYMENT.md)。
+用户已授权发布并连接 Neon。历史数据库 PgBouncer 启动参数修复有真实数据库回归，但生产健康检查和真实双账号线上流程仍未复验。本任务直接访问正式域名受出站策略限制，连接器页面及运行日志读取返回 403。本地双账号流程、部署 READY 和生产数据库健康分别记录；不将构建成功视为在线服务已恢复。运维信息见 [DEPLOYMENT.md](DEPLOYMENT.md)。

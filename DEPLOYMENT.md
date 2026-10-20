@@ -1,11 +1,12 @@
 # 万城纪：部署、运维与在线接口
 
-2026-10-20 已发布 **2.0 Godot Web** 至 https://wanchengji.vercel.app 。Vercel 返回 READY、aliasError:null，正式域名已指向该版本。
+2026-10-20 已发布 **2.1 独立图片构件版** 至 https://wanchengji.vercel.app 。Vercel 返回 READY、target:production、aliasError:null，正式域名已指向该版本。
 
-- 源码：`ec00cd196dab306d626003af78b3b082bf3c5e47`，分支 `codex/wanchengji-release`。
-- 部署：`dpl_J5Vys6fQ7q7beor5Pb17GBCV21rF`，通过 GitHub 固定提交构建，Node.js 24、区域 iad1。
-- 不变地址：https://wanchengji-r7ebsvi3t-larry-zhus-projects-e7157b21.vercel.app 。
-- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 33,040,016 bytes，摘要见 `engine-web/manifest.json`。
+- 源码：`288ed36a7b9f92dd5b454f345d681c2564b3079d`，分支 `codex/wanchengji-release`。
+- 部署：`dpl_H48dPZXLTp8SV5F1SeUfxvMKEPfF`，通过 GitHub 固定提交构建，Node.js 24、区域 iad1。
+- 不变地址：https://wanchengji-9zhwbgld7-larry-zhus-projects-e7157b21.vercel.app 。
+- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 55,429,814 bytes。PCK SHA-256 为 `53d11fe8853a0c1c46867a643e275d507688b806d6f562a4441f24562592d50b`，源码/美术摘要见 `engine-web/manifest.json`。
+- 本轮新增 72 张独立建筑构件及 56 张工人动作帧；旧整栋、房间和完整屋顶素材已移除。98 项测试通过、2 项专用数据库环境跳过，实际网页检查与尚未解决的软件 GPU 性能问题见 [VALIDATION.md](VALIDATION.md)。
 
 用户已连接 Neon，生产 `DATABASE_URL` 变量已确认存在，未读取值。历史健康检查返回503；连接池兼容性修复此前随1.1发布，本地数据库回归通过，但**生产健康和真实双账号线上流程仍未复验**。当前执行环境出站策略及连接器403阻止直接验收；没有再次要求用户提供密钥或重复应用同一环境配置。READY 仅证明构建与域名发布成功。
 
@@ -252,7 +253,7 @@ npm run build
 
 在线测试不使用假用户响应或 mock HTTP：测试启动真实随机端口服务并发送请求。当前 12 项在线检查覆盖本地重启持久化、账号会话、公开权限、损坏存档、完整占地、版本冲突、托管与幂等、并发购买、购买/撤单竞态、卖家建设进度合并、CSRF、请求上限、限流及 Vercel 重写入口。
 
-已另外在临时 PostgreSQL 17 实例验证持久化和交易测试，两个独立 API 实例同时操作同一个数据库，确认共享限流与单次结算。最新新增的 Vercel 入口检查在本地真实 HTTP 环境验证；外部 Vercel 构建已完成，线上业务验收仍待完成。
+历史版本已另外在临时 PostgreSQL 17 实例验证持久化和交易测试，两个独立 API 实例同时操作同一个数据库，确认共享限流与单次结算。本轮未配置该专用数据库环境，相关两项测试明确跳过；Vercel 入口及本地双账号流程通过真实 HTTP/浏览器验证。外部 Vercel 构建已完成，线上业务验收仍待完成。
 
 要复验 PostgreSQL，将 `TEST_DATABASE_URL` 通过测试环境秘密配置指向**专用一次性数据库**，再运行 `npm run test:online`。测试会创建账号、城市和交易，并触发真实限流；不要指向生产库。连续复用同一测试数据库可能受上一轮限流影响，建议每轮新建测试库。
 
