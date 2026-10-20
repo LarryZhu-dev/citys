@@ -74,8 +74,8 @@
 | 本地浏览器移动布局与触控 | 通过 | 390×844 与 844×390，DPR 2；触屏建造、捏合、HUD 边界、昼夜和重载通过 |
 | 本轮性能 | 测量完成，绘制预算通过 | 数据见下表；软件 GPU FPS 不是流畅性通过标准 |
 | 真实移动设备性能 | 未验证 | 当前无实体手机测试结果 |
-| Vercel 部署 | 待填写 | 最终部署 ID、READY 状态、正式域名、产物或提交对应关系 |
-| 生产浏览器与在线业务 | 待生产验证 | 本地完整双账号 Godot Web 流程已通过；不等同于生产 Neon 验收 |
+| Vercel 部署 | READY | `dpl_EbnAesDYNcvtXipZizUEk2qYs1tK`，正式域名已绑定，`aliasError:null` |
+| 生产资源与在线业务 | 资源清单与 PostgreSQL 健康通过；生产双账号闭环未验证 | 正式域名清单匹配本次导出，健康正文正常；未向生产写入测试账号 |
 
 用户对本轮美术的评价尚未取得。此项与技术验证、构建成功及部署成功分别记录。
 
@@ -111,3 +111,17 @@ Chromium 154.0.8037.57，1440×900，DPR 1，ANGLE OpenGL / Mesa llvmpipe LLVM 1
 `DISPLAY=:92 CHROMIUM_ANGLE_BACKEND=gl npm run test:browser` 通过。测试加载真实 Godot Web 场景，两个账号走实际 HTTP 和界面：注册、主动公开城市、云档上传下载、只读参观、托管成交、卖家本地建设进度合并、旧云档迁移、响应丢失后精确一次重试、成交成功但列表刷新失败，以及手机在线表单。没有浏览器或 Godot 脚本错误。证据：[完整日志](../work/art-v4/online-browser-final.log)、[浏览器与 GPU](../work/browser-runtime.json)。
 
 此项使用开发文件存储。生产数据库连通性、生产双账号交易和浏览器访问另行记录，不能以本地流程通过或 Vercel READY 取代。
+
+## 生产发布及正式域名复核
+
+已发布到 [wanchengji.vercel.app](https://wanchengji.vercel.app)。Vercel 部署 `dpl_EbnAesDYNcvtXipZizUEk2qYs1tK` 返回 `READY`、`target:production`、`aliasError:null`，正式域名已绑定。构建来自实际推送并经过测试的提交 `62ca1bdd0ba5c696277f05ad044994e5f440f1e9`。不变部署地址：[wanchengji-olzedopxp](https://wanchengji-olzedopxp-larry-zhus-projects-e7157b21.vercel.app)。[部署响应](../work/art-v4/vercel-deployment.json)。
+
+部署就绪后，通过已连接 TinyFish 对正式域名的 `/api/health` 和 `/engine-web/manifest.json` 作单次 `ttl:0` 只读读取。健康正文为：
+
+```json
+{"ok":true,"storage":"postgres","persistent":true,"production":true,"competitive":false}
+```
+
+线上 manifest 的源码摘要 `c0e19e8220168fec6c6de162f0ac3c05482154e0a24733d59ac4a4e33dbfe1e0` 与 PCK 摘要 `ba4f6cbc3b34a8cf81405f105569e61e38bebde9df246299359ba4bfd4b16d3e` 均和本次导出相同。工具没有提供数值 HTTP 状态，也没有在这一步下载二进制重新散列；据此报告的是实际健康正文和线上资源清单匹配。原始响应：[release-health-manifest.json](../work/online-v4/release-health-manifest.json)。
+
+此前直接网络与 Vercel 页面读取通道受限；本次已通过正常授权的远程读取取得正式接口响应，没有改动访问保护或读取密钥。生产数据库健康不再列为未验证。生产双账号完整交易、正式站点连续浏览器操作及实体手机长时性能仍未完成；本地双账号验收不能替代这些项目。

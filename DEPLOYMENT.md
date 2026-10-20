@@ -1,14 +1,16 @@
 # 万城纪：部署、运维与在线接口
 
-2026-10-20 已发布 **2.1 独立图片构件版** 至 https://wanchengji.vercel.app 。Vercel 返回 READY、target:production、aliasError:null，正式域名已指向该版本。
+2026-10-20 已发布 **2.2 华夏构件与演员重制版** 至 https://wanchengji.vercel.app 。Vercel 返回 READY、target:production、aliasError:null，正式域名已绑定。
 
-- 源码：`288ed36a7b9f92dd5b454f345d681c2564b3079d`，分支 `codex/wanchengji-release`。
-- 部署：`dpl_H48dPZXLTp8SV5F1SeUfxvMKEPfF`，通过 GitHub 固定提交构建，Node.js 24、区域 iad1。
-- 不变地址：https://wanchengji-9zhwbgld7-larry-zhus-projects-e7157b21.vercel.app 。
-- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 55,429,814 bytes。PCK SHA-256 为 `53d11fe8853a0c1c46867a643e275d507688b806d6f562a4441f24562592d50b`，源码/美术摘要见 `engine-web/manifest.json`。
-- 本轮新增 72 张独立建筑构件及 56 张工人动作帧；旧整栋、房间和完整屋顶素材已移除。98 项测试通过、2 项专用数据库环境跳过，实际网页检查与尚未解决的软件 GPU 性能问题见 [VALIDATION.md](VALIDATION.md)。
+- 源码：`62ca1bdd0ba5c696277f05ad044994e5f440f1e9`，已推送到 `codex/wanchengji-release`，部署固定该提交。
+- 部署：`dpl_EbnAesDYNcvtXipZizUEk2qYs1tK`，Node.js 24、区域 iad1。
+- 不变地址：https://wanchengji-olzedopxp-larry-zhus-projects-e7157b21.vercel.app 。
+- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 52,490,781 bytes。PCK SHA-256 为 `ba4f6cbc3b34a8cf81405f105569e61e38bebde9df246299359ba4bfd4b16d3e`，源码/美术摘要见 `engine-web/manifest.json`。
+- 新版包含 96 个建筑图像构件、192 帧施工工人、225 项物流图集资源；整件施工、人物动作和地图剩余时间已在实际 Web 验证。详细结果见 [2.2 验证记录](docs/VALIDATION-2.2.md)。
 
-用户已连接 Neon，生产 `DATABASE_URL` 变量已确认存在，未读取值。历史健康检查返回503；连接池兼容性修复此前随1.1发布，本地数据库回归通过，但**生产健康和真实双账号线上流程仍未复验**。当前执行环境出站策略及连接器403阻止直接验收；没有再次要求用户提供密钥或重复应用同一环境配置。READY 仅证明构建与域名发布成功。
+发布后经已连接 TinyFish 对正式域名进行 `ttl:0` 只读复核，`/api/health` 返回 `{"ok":true,"storage":"postgres","persistent":true,"production":true,"competitive":false}`；线上 `/engine-web/manifest.json` 的源码与 PCK 摘要均匹配本次导出。因此历史 503 当前未再出现，生产 PostgreSQL 健康检查已通过。未读取连接串或改动访问保护。工具没有暴露数值 HTTP 状态，记录不虚构状态码。
+
+本地双账号云档、参观、交易及重试流程通过；生产双账号完整交易与实体手机长时性能仍未验证。生产健康和资源清单匹配不等同于这些闭环验收。历史发布记录见 [2.1 验证](docs/VALIDATION-2.1.md)。
 
 连接池修复移除了 PostgreSQL 启动报文中的 `options`，改用同一事务内的 `SET LOCAL statement_timeout` 和 `SET LOCAL lock_timeout`，保留 TLS 校验；查询异常时销毁连接，避免超时后复用未完成的事务。严格 PgBouncer 1.26 回归真实复现了旧参数被拒绝，新实现通过全部 21 项数据库及 HTTP 测试。这个结果证明修复有效，但尚不能单独认定它就是生产 503 的唯一原因。[Neon 官方说明](https://neon.com/docs/connect/connection-errors#unsupported-startup-parameter)
 
