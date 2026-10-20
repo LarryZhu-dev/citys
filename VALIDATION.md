@@ -81,7 +81,9 @@
 
 ## 发布状态与仍需验收的范围
 
-2026-10-19 已连接 Vercel 并创建 `wanchengji` 项目；包含上述修复的生产部署 `dpl_BFx8ZVaToeKfpkT1wH7ZtPZnEFV8` 为 **READY**，正式地址为 https://wanchengji.vercel.app 。已核对 Neon 提供的生产 `DATABASE_URL` 变量存在，未读取密钥值。**修复后生产健康检查待用户刷新确认，线上双账号浏览器验收仍未完成**。构建成功不等于在线业务验收通过。
+2026-10-20 已发布 1.1 模块美术、移动 HUD、地图与行人更新；包含此前数据库兼容性修复的生产部署 `dpl_ugErgBDikzSZxdV3DL1aMoTbJbJ7` 为 **READY**，正式地址为 https://wanchengji.vercel.app 。已核对 Neon 提供的生产 `DATABASE_URL` 变量存在，未读取密钥值。**修复后生产健康检查待用户刷新确认，线上双账号浏览器验收仍未完成**。构建成功不等于在线业务验收通过。
+
+部署代码提交为 `0726558892d4e3ab5ffb4f8ae9c0b94db2d97dc6`；202 个上传文件的清单 SHA-256 为 `49df85a368572f5679d697f18dfa2e234e2fa35656cfb05b32166a98d133b639`。Vercel 返回的 128 个可读取源码文件哈希全部与本地匹配，包含全部前端脚本、HTML/CSS 和服务端文件；连接器截断了 44 个旧精灵条目及 30 个嵌套模块条目的详细信息，不能把截断当成文件缺失或完整哈希验收。云端构建通过并将正式域名指向新部署。
 
 本任务运行实例仍保留包管理器域名限定的旧出站策略，代理拒绝访问正式域名；这只解释代理环境无法执行自动验收，与用户浏览器已经到达 API 后遇到的数据库 503 是两个不同问题。用户已在 UI 发布新的环境配置，但 Codex Cloud 的环境重新发布只作用于新任务，现有任务保留原环境状态；继续重复应用或重启当前任务不能证明配置已更新。[官方 Codex Cloud 说明](https://help.openai.com/en/articles/20001545-using-codex-cloud) · [官方环境说明](https://learn.chatgpt.com/docs/environments/cloud-environments)。后续在已发布环境的新任务中，从 `codex/wanchengji-release` 分支继续，步骤见 [NEXT_TASK.md](NEXT_TASK.md)。无需再次提交数据库密钥。
 

@@ -2,7 +2,7 @@
 
 本文对应当前仓库实现。2026-10-19 已创建 Vercel 项目 `wanchengji`，生产部署状态为 **READY**，域名为 https://wanchengji.vercel.app 。用户已连接 Neon；已核对生产环境存在敏感变量 `DATABASE_URL`，未读取其值。初次上线后，用户实测健康检查返回 HTTP 503 `SERVICE_UNAVAILABLE`。现已部署连接池兼容性修复，正在等待线上健康检查复验；双账号生产浏览器验收尚未完成。构建成功不等于在线业务验收通过。
 
-当前部署 ID：`dpl_BFx8ZVaToeKfpkT1wH7ZtPZnEFV8`；Node.js 24，区域 `iad1`。通过审核后的本地文件快照直接部署；源码交付分支为 `codex/wanchengji-release`。上传清单 SHA-256：`608f9e89637ffe8c8e67769c6058f7a923e16b71bf4ba6f7192ee0731f568665`。用户已将环境网络改为不受限制，但现有任务继续使用启动时的旧限制，新任务才能采用已发布的新环境；Vercel 插件的日志和保护页面读取另返回团队范围 403。这些限制阻止当前任务直接进行线上浏览器验收，不影响已完成的项目创建与部署。
+2026-10-20 已发布 1.1 模块美术与移动 HUD 更新；源码提交为 `0726558892d4e3ab5ffb4f8ae9c0b94db2d97dc6`。当前部署 ID：`dpl_ugErgBDikzSZxdV3DL1aMoTbJbJ7`；Node.js 24，区域 `iad1`。通过本地功能与浏览器回归后的 202 个源码及运行资源文件快照直接部署；源码交付分支为 `codex/wanchengji-release`。上传清单 SHA-256：`49df85a368572f5679d697f18dfa2e234e2fa35656cfb05b32166a98d133b639`。用户已将环境网络改为不受限制，但现有任务继续使用启动时的旧限制，新任务才能采用已发布的新环境；Vercel 插件的日志和保护页面读取另返回团队范围 403。这些限制阻止当前任务直接进行线上浏览器验收，不影响已完成的项目创建与部署。
 
 连接池修复移除了 PostgreSQL 启动报文中的 `options`，改用同一事务内的 `SET LOCAL statement_timeout` 和 `SET LOCAL lock_timeout`，保留 TLS 校验；查询异常时销毁连接，避免超时后复用未完成的事务。严格 PgBouncer 1.26 回归真实复现了旧参数被拒绝，新实现通过全部 21 项数据库及 HTTP 测试。这个结果证明修复有效，但尚不能单独认定它就是生产 503 的唯一原因。[Neon 官方说明](https://neon.com/docs/connect/connection-errors#unsupported-startup-parameter)
 

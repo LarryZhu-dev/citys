@@ -11,8 +11,10 @@
 | Vercel 项目 ID | `prj_vLp3krayQRErSYJyoMic8C01dEJ1` |
 | 正式地址 | https://wanchengji.vercel.app |
 | 健康接口 | https://wanchengji.vercel.app/api/health |
-| 本次修复部署 | `dpl_BFx8ZVaToeKfpkT1wH7ZtPZnEFV8`，平台状态 **READY** |
+| 当前 1.1 部署 | `dpl_ugErgBDikzSZxdV3DL1aMoTbJbJ7`，平台状态 **READY** |
 | 在线范围 | 账号、云存档、公开参观、休闲排行、异步玩家交易；没有实时共同建城或战争 |
+
+游戏代码提交：`0726558892d4e3ab5ffb4f8ae9c0b94db2d97dc6`。当前分支另有仅更新发布记录的文档提交。
 
 用户已连接 Vercel 和 Neon，生产 `DATABASE_URL` 已确认存在；未读取或输出它的值。不要再次要求用户发送数据库连接串、口令或部署令牌。Vercel 连接器使用默认范围可以创建和部署项目；显式团队参数及部分日志接口曾返回 403，不能把它们当作游戏接口返回。
 
