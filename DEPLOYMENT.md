@@ -2,10 +2,10 @@
 
 2026-10-20 已发布 **2.0 Godot Web** 至 https://wanchengji.vercel.app 。Vercel 返回 READY、aliasError:null，正式域名已指向该版本。
 
-- 源码：`f09ce363bcf17412dce3cf16d67029dd4d27276a`，分支 `codex/wanchengji-release`。
-- 部署：`dpl_G56kMxriHDk4ypkF6rfMUiAAT48h`，通过 GitHub 固定提交构建，Node.js 24、区域 iad1。
-- 不变地址：https://wanchengji-d25hieuu7-larry-zhus-projects-e7157b21.vercel.app 。
-- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 33,040,012 bytes，摘要见 `engine-web/manifest.json`。
+- 源码：`ec00cd196dab306d626003af78b3b082bf3c5e47`，分支 `codex/wanchengji-release`。
+- 部署：`dpl_J5Vys6fQ7q7beor5Pb17GBCV21rF`，通过 GitHub 固定提交构建，Node.js 24、区域 iad1。
+- 不变地址：https://wanchengji-r7ebsvi3t-larry-zhus-projects-e7157b21.vercel.app 。
+- 产物：Godot 4.6.3 Compatibility 单线程；WASM gzip 9,471,510 bytes、PCK gzip 33,040,016 bytes，摘要见 `engine-web/manifest.json`。
 
 用户已连接 Neon，生产 `DATABASE_URL` 变量已确认存在，未读取值。历史健康检查返回503；连接池兼容性修复此前随1.1发布，本地数据库回归通过，但**生产健康和真实双账号线上流程仍未复验**。当前执行环境出站策略及连接器403阻止直接验收；没有再次要求用户提供密钥或重复应用同一环境配置。READY 仅证明构建与域名发布成功。
 
