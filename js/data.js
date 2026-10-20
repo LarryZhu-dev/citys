@@ -13,6 +13,11 @@ const TAX_INTERVAL = 30 * 60;
 const OFFLINE_ECONOMY_SECONDS = 8 * 3600;
 const OFFLINE_CONSTRUCTION_SECONDS = 72 * 3600;
 const NEED_GRACE_SECONDS = 45 * 60;
+const LOGISTICS_EDGE_SECONDS = 3;
+const LOGISTICS_LOAD_SECONDS = 15;
+const LOGISTICS_UNLOAD_SECONDS = 10;
+const LOGISTICS_MAX_JOBS = 128;
+const LOGISTICS_MAX_ROUTE = 512;
 const DIRS = [[1,0],[-1,0],[0,1],[0,-1]];
 
 /* ── 地形 ─────────────────────────────────────────────── */
@@ -53,7 +58,7 @@ const BUILD = {
   },
   house: {
     name:"住宅", em:"🏠", size:1, cost:{wood:10,stone:5}, cat:"house", chapter:1,
-    desc:"普通住宅。满足需求后逐级升级，容纳更多居民。",
+    desc:"从帐篷起步。需求和入住人数稳定后，手动下达升级工程，支付材料并等待施工。",
   },
   villa: {
     name:"高档住宅", em:"🏡", size:2, cost:{wood:60,stone:50,pottery:20}, cat:"house", chapter:4,
@@ -273,10 +278,13 @@ for (const [type,seconds] of Object.entries(PRODUCTION_CYCLES)) {
 }
 const HOUSE_UPGRADE_SECONDS=[0,300,600,1200,2400,3600,7200,14400,28800,43200];
 const VILLA_UPGRADE_SECONDS=[0,1800,3600,7200,14400,28800];
+// Original, deliberately modest renovation costs; quoted before a manual order.
+const HOUSE_UPGRADE_COSTS=[{}, {wood:5,stone:2}, {wood:8,stone:4}, {wood:12,stone:6}, {wood:16,stone:8}, {wood:20,stone:10}, {wood:24,stone:12}, {wood:28,stone:16,brick:4}, {wood:32,stone:20,brick:6}, {wood:36,stone:24,brick:8}];
+const VILLA_UPGRADE_COSTS=[{}, {wood:20,stone:15}, {wood:30,stone:25}, {wood:40,stone:35,brick:8}, {wood:50,stone:45,brick:12}, {wood:60,stone:55,brick:16}];
 BUILD.granary.desc='食品储量上限 +400；需工人与连通道路。';
 BUILD.warehouse.desc='材料与工艺品储量上限 +500；需工人与连通道路。';
 BUILD.harbor.desc='临水港口。商队买价降低 15%、卖价提高 15%，每分钟获得 1.5 基础贸易收入。';
-BUILD.well.desc = "提供饮水覆盖与少量美化。必须有工人且连通主路。";
+BUILD.well.desc = "居民沿路取水后送回住宅，储水按人口消耗；水井需工人、道路并在服务范围内。";
 BUILD.watch.desc = "提供消防覆盖，防止周边生产建筑发生火灾。";
 BUILD.police.desc = "提供治安覆盖，提升城市声望和高档住宅的居住条件。";
 BUILD.clinic.desc = "为周边住宅提供健康服务，提升城市声望。";
@@ -311,6 +319,7 @@ const HOUSE_LEVELS = [
   { lvl:9,  pop:78,  tax:280, needs:["road","water","grain","woodMat","veg","clayMat","fruit","stoneMat","fish","meat","temple","pottery","school","wine"] },
   { lvl:10, pop:96,  tax:400, needs:["road","water","grain","woodMat","veg","clayMat","fruit","stoneMat","fish","meat","temple","pottery","school","wine","cloth","fun"] },
 ];
+['帐篷','木骨草棚','夯土小屋','木宅','瓦房','院宅','深院','楼院','府邸','大宅'].forEach((name,i)=>HOUSE_LEVELS[i].name=name);
 
 const VILLA_LEVELS = [
   { lvl:1, pop:30, tax:50, needs:["road","water","grain"] },

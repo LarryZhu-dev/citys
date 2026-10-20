@@ -1,0 +1,106 @@
+[
+  {
+    "direction": "nw",
+    "circle_center_source": [
+      384.0,
+      534.0
+    ],
+    "quarter_center_source": [
+      384,
+      384
+    ],
+    "full_ground_ellipse_size": [
+      848.5281374238571,
+      424.26406871192853
+    ],
+    "wall_height_pixels": 66.0,
+    "outer_radial_ground_endpoints": [
+      [
+        83.99999999999994,
+        384.0
+      ],
+      [
+        684.0,
+        384.0
+      ]
+    ]
+  },
+  {
+    "direction": "ne",
+    "circle_center_source": [
+      852.0,
+      384.0
+    ],
+    "quarter_center_source": [
+      1152,
+      384
+    ],
+    "full_ground_ellipse_size": [
+      848.5281374238571,
+      424.26406871192853
+    ],
+    "wall_height_pixels": 66.0,
+    "outer_radial_ground_endpoints": [
+      [
+        1152.0,
+        233.99999999999997
+      ],
+      [
+        1152.0,
+        534.0
+      ]
+    ]
+  },
+  {
+    "direction": "sw",
+    "circle_center_source": [
+      684.0,
+      1152.0
+    ],
+    "quarter_center_source": [
+      384,
+      1152
+    ],
+    "full_ground_ellipse_size": [
+      848.5281374238571,
+      424.26406871192853
+    ],
+    "wall_height_pixels": 66.0,
+    "outer_radial_ground_endpoints": [
+      [
+        384.00000000000006,
+        1302.0
+      ],
+      [
+        383.99999999999994,
+        1002.0
+      ]
+    ]
+  },
+  {
+    "direction": "se",
+    "circle_center_source": [
+      1152.0,
+      1002.0
+    ],
+    "quarter_center_source": [
+      1152,
+      1152
+    ],
+    "full_ground_ellipse_size": [
+      848.5281374238571,
+      424.26406871192853
+    ],
+    "wall_height_pixels": 66.0,
+    "outer_radial_ground_endpoints": [
+      [
+        1452.0,
+        1152.0
+      ],
+      [
+        852.0,
+        1152.0
+      ]
+    ]
+  }
+]

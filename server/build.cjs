@@ -14,6 +14,8 @@ for(const file of ['data.js','civilizations.js','simulation.js','godot-bridge.js
 // those reproducible artifacts; it does not install a 1.2 GB engine toolchain.
 const engineRoot=path.join(root,'engine-web');
 const engineManifest=JSON.parse(fs.readFileSync(path.join(engineRoot,'manifest.json'),'utf8'));
+const {sourceDigest}=require('./godot-source.cjs');
+if(engineManifest.sourceSha256!==sourceDigest(path.join(root,'godot')))throw new Error('Godot source/art changed after export. Run npm run engine:export before publishing.');
 const crypto=require('node:crypto'),zlib=require('node:zlib');
 fs.mkdirSync(path.join(output,'engine-web'),{recursive:true});
 for(const entry of engineManifest.files){
@@ -21,10 +23,11 @@ for(const entry of engineManifest.files){
  const compressed=fs.readFileSync(path.join(engineRoot,entry.file+'.gz'));
  const raw=zlib.gunzipSync(compressed);
  if(crypto.createHash('sha256').update(raw).digest('hex')!==entry.sha256)throw new Error('Godot artifact checksum mismatch: '+entry.file);
+ if(entry.file==='game.pck'&&(raw.includes(Buffer.from('art/architecture/'))||raw.includes(Buffer.from('architecture-atlas.webp'))))throw new Error('Rejected legacy building artwork remains in the exported PCK.');
  // Served with Content-Encoding:gzip and the original MIME type.
  fs.writeFileSync(path.join(output,'engine-web',entry.file),compressed);
 }
 for(const file of ['game.js','game.audio.worklet.js','game.audio.position.worklet.js','manifest.json'])fs.copyFileSync(path.join(engineRoot,file),path.join(output,'engine-web',file));
 fs.mkdirSync(path.join(output,'assets','ui'),{recursive:true});
 for(const file of ['actions.png','controls.png','resources.png','paper.png','wood.png','card.png','red.png'])fs.copyFileSync(path.join(root,'godot','art','ui',file),path.join(output,'assets','ui',file));
-console.log('Built Godot Web, shared HUD artwork and simulation bridge. Legacy Canvas and unused sprite assets are excluded; online API remains a Vercel Node function.');
+console.log('Built Godot Web, shared HUD artwork and simulation bridge with verified source/art digests; rejected legacy architecture is absent. Online API remains a Vercel Node function.');

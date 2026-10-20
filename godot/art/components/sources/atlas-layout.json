@@ -1,0 +1,663 @@
+{
+  "schema": 1,
+  "padding": 16,
+  "layout_mode": "single_shared_texture",
+  "migration": "godot/art/components/sources/migrations/2026-10-20-single-atlas/migration.json",
+  "page_sizes": {
+    "0": [
+      4096,
+      4096
+    ]
+  },
+  "placements": {
+    "stone_block": {
+      "page": 0,
+      "rect": [
+        16,
+        1685,
+        529,
+        338
+      ]
+    },
+    "stone_step": {
+      "page": 0,
+      "rect": [
+        474,
+        3336,
+        547,
+        259
+      ]
+    },
+    "post_wood": {
+      "page": 0,
+      "rect": [
+        1852,
+        16,
+        78,
+        492
+      ]
+    },
+    "post_red": {
+      "page": 0,
+      "rect": [
+        1740,
+        16,
+        80,
+        508
+      ]
+    },
+    "beam_wood": {
+      "page": 0,
+      "rect": [
+        2064,
+        2195,
+        587,
+        92
+      ]
+    },
+    "beam_painted": {
+      "page": 0,
+      "rect": [
+        3030,
+        2064,
+        582,
+        93
+      ]
+    },
+    "wall_earth": {
+      "page": 0,
+      "rect": [
+        908,
+        1166,
+        398,
+        485
+      ]
+    },
+    "wall_plaster": {
+      "page": 0,
+      "rect": [
+        16,
+        1166,
+        390,
+        487
+      ]
+    },
+    "wall_timber": {
+      "page": 0,
+      "rect": [
+        1286,
+        625,
+        402,
+        487
+      ]
+    },
+    "wall_brick": {
+      "page": 0,
+      "rect": [
+        1338,
+        1166,
+        398,
+        480
+      ]
+    },
+    "brace_wood": {
+      "page": 0,
+      "rect": [
+        2426,
+        16,
+        457,
+        472
+      ]
+    },
+    "dougong": {
+      "page": 0,
+      "rect": [
+        1477,
+        2064,
+        423,
+        407
+      ]
+    },
+    "door_wood": {
+      "page": 0,
+      "rect": [
+        1378,
+        16,
+        330,
+        512
+      ]
+    },
+    "door_red": {
+      "page": 0,
+      "rect": [
+        1026,
+        16,
+        320,
+        513
+      ]
+    },
+    "window_lattice": {
+      "page": 0,
+      "rect": [
+        16,
+        2064,
+        433,
+        418
+      ]
+    },
+    "window_paper": {
+      "page": 0,
+      "rect": [
+        1026,
+        2064,
+        419,
+        413
+      ]
+    },
+    "railing": {
+      "page": 0,
+      "rect": [
+        1028,
+        2946,
+        638,
+        274
+      ]
+    },
+    "lantern": {
+      "page": 0,
+      "rect": [
+        319,
+        16,
+        229,
+        519
+      ]
+    },
+    "tiles_gray": {
+      "page": 0,
+      "rect": [
+        1016,
+        3842,
+        466,
+        123
+      ]
+    },
+    "tiles_green": {
+      "page": 0,
+      "rect": [
+        520,
+        3842,
+        464,
+        124
+      ]
+    },
+    "tiles_glazed": {
+      "page": 0,
+      "rect": [
+        1514,
+        3842,
+        465,
+        123
+      ]
+    },
+    "thatch_course": {
+      "page": 0,
+      "rect": [
+        16,
+        3842,
+        472,
+        133
+      ]
+    },
+    "eave_gray": {
+      "page": 0,
+      "rect": [
+        2064,
+        2064,
+        451,
+        99
+      ]
+    },
+    "eave_gold": {
+      "page": 0,
+      "rect": [
+        2547,
+        2064,
+        451,
+        98
+      ]
+    },
+    "ridge_gray": {
+      "page": 0,
+      "rect": [
+        2683,
+        2195,
+        493,
+        80
+      ]
+    },
+    "ridge_gold": {
+      "page": 0,
+      "rect": [
+        3208,
+        2195,
+        488,
+        80
+      ]
+    },
+    "ridge_beast": {
+      "page": 0,
+      "rect": [
+        3817,
+        16,
+        248,
+        282
+      ]
+    },
+    "rafter": {
+      "page": 0,
+      "rect": [
+        16,
+        4007,
+        521,
+        69
+      ]
+    },
+    "fabric_canvas": {
+      "page": 0,
+      "rect": [
+        557,
+        2946,
+        439,
+        295
+      ]
+    },
+    "fabric_awning": {
+      "page": 0,
+      "rect": [
+        1491,
+        1685,
+        456,
+        296
+      ]
+    },
+    "sack": {
+      "page": 0,
+      "rect": [
+        813,
+        625,
+        441,
+        498
+      ]
+    },
+    "crate": {
+      "page": 0,
+      "rect": [
+        2064,
+        528,
+        482,
+        466
+      ]
+    },
+    "barrel": {
+      "page": 0,
+      "rect": [
+        427,
+        625,
+        354,
+        502
+      ]
+    },
+    "timber_stack": {
+      "page": 0,
+      "rect": [
+        481,
+        2064,
+        513,
+        416
+      ]
+    },
+    "bucket": {
+      "page": 0,
+      "rect": [
+        2064,
+        16,
+        330,
+        480
+      ]
+    },
+    "wheel": {
+      "page": 0,
+      "rect": [
+        438,
+        1166,
+        438,
+        485
+      ]
+    },
+    "kiln_masonry": {
+      "page": 0,
+      "rect": [
+        3618,
+        528,
+        424,
+        441
+      ]
+    },
+    "furnace_mouth": {
+      "page": 0,
+      "rect": [
+        540,
+        2514,
+        468,
+        393
+      ]
+    },
+    "chimney_course": {
+      "page": 0,
+      "rect": [
+        577,
+        1685,
+        448,
+        331
+      ]
+    },
+    "pottery_vessel": {
+      "page": 0,
+      "rect": [
+        2578,
+        528,
+        449,
+        463
+      ]
+    },
+    "loom_frame": {
+      "page": 0,
+      "rect": [
+        16,
+        625,
+        379,
+        509
+      ]
+    },
+    "workbench": {
+      "page": 0,
+      "rect": [
+        3059,
+        528,
+        527,
+        458
+      ]
+    },
+    "rice_seedling": {
+      "page": 0,
+      "rect": [
+        2064,
+        1515,
+        402,
+        425
+      ]
+    },
+    "rice_ripe": {
+      "page": 0,
+      "rect": [
+        3108,
+        1026,
+        465,
+        455
+      ]
+    },
+    "vegetable_patch": {
+      "page": 0,
+      "rect": [
+        2498,
+        1515,
+        443,
+        423
+      ]
+    },
+    "fruit_branch": {
+      "page": 0,
+      "rect": [
+        3605,
+        1026,
+        470,
+        431
+      ]
+    },
+    "well_stone": {
+      "page": 0,
+      "rect": [
+        1040,
+        2514,
+        388,
+        385
+      ]
+    },
+    "water_surface": {
+      "page": 0,
+      "rect": [
+        1053,
+        3336,
+        445,
+        225
+      ]
+    },
+    "gong": {
+      "page": 0,
+      "rect": [
+        580,
+        16,
+        414,
+        517
+      ]
+    },
+    "drum": {
+      "page": 0,
+      "rect": [
+        2611,
+        1026,
+        465,
+        457
+      ]
+    },
+    "banner": {
+      "page": 0,
+      "rect": [
+        16,
+        16,
+        271,
+        577
+      ]
+    },
+    "lion": {
+      "page": 0,
+      "rect": [
+        3401,
+        16,
+        384,
+        467
+      ]
+    },
+    "incense_burner": {
+      "page": 0,
+      "rect": [
+        1460,
+        2514,
+        428,
+        383
+      ]
+    },
+    "rope": {
+      "page": 0,
+      "rect": [
+        16,
+        3336,
+        426,
+        260
+      ]
+    },
+    "cattle": {
+      "page": 0,
+      "rect": [
+        2064,
+        1026,
+        515,
+        457
+      ]
+    },
+    "sheep": {
+      "page": 0,
+      "rect": [
+        3519,
+        1515,
+        470,
+        421
+      ]
+    },
+    "fish": {
+      "page": 0,
+      "rect": [
+        2915,
+        16,
+        454,
+        468
+      ]
+    },
+    "meat": {
+      "page": 0,
+      "rect": [
+        16,
+        2946,
+        509,
+        358
+      ]
+    },
+    "vegetable_basket": {
+      "page": 0,
+      "rect": [
+        2973,
+        1515,
+        514,
+        422
+      ]
+    },
+    "fruit_basket": {
+      "page": 0,
+      "rect": [
+        16,
+        2514,
+        492,
+        400
+      ]
+    },
+    "well_stone_nw": {
+      "page": 0,
+      "rect": [
+        1086,
+        3628,
+        507,
+        154
+      ]
+    },
+    "well_stone_ne": {
+      "page": 0,
+      "rect": [
+        1276,
+        1685,
+        183,
+        322
+      ]
+    },
+    "well_stone_sw": {
+      "page": 0,
+      "rect": [
+        1057,
+        1685,
+        187,
+        322
+      ]
+    },
+    "well_stone_se": {
+      "page": 0,
+      "rect": [
+        550,
+        3628,
+        504,
+        159
+      ]
+    },
+    "kiln_masonry_nw": {
+      "page": 0,
+      "rect": [
+        1530,
+        3336,
+        500,
+        183
+      ]
+    },
+    "kiln_masonry_ne": {
+      "page": 0,
+      "rect": [
+        1720,
+        625,
+        179,
+        343
+      ]
+    },
+    "kiln_masonry_sw": {
+      "page": 0,
+      "rect": [
+        1768,
+        1166,
+        182,
+        338
+      ]
+    },
+    "kiln_masonry_se": {
+      "page": 0,
+      "rect": [
+        16,
+        3628,
+        502,
+        182
+      ]
+    },
+    "millstone": {
+      "page": 0,
+      "rect": [
+        3135,
+        2320,
+        554,
+        395
+      ]
+    },
+    "armillary_ring_vertical": {
+      "page": 0,
+      "rect": [
+        2648,
+        2320,
+        455,
+        449
+      ]
+    },
+    "armillary_ring_horizontal": {
+      "page": 0,
+      "rect": [
+        2064,
+        2840,
+        607,
+        310
+      ]
+    },
+    "tree_trunk": {
+      "page": 0,
+      "rect": [
+        2064,
+        2320,
+        552,
+        488
+      ]
+    }
+  },
+  "note": "Explicitly migrated to one shared texture. Retain these coordinates until another documented layout migration."
+}

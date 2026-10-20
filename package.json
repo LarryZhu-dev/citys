@@ -1,6 +1,6 @@
 {
   "name": "chronicles-of-civilization",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "Ancient city builder with persistent community services",
   "engines": {
@@ -17,7 +17,9 @@
     "test:production": "node tests/production-smoke.cjs",
     "engine:export": "node server/export-godot.cjs",
     "test:godot": "node tests/godot-browser.cjs",
-    "test:input": "node tests/godot-input.cjs"
+    "test:input": "node tests/godot-input.cjs",
+    "test:revision": "node tests/revision-browser.cjs",
+    "test:performance": "node tests/godot-performance.cjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

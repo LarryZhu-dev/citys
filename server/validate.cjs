@@ -53,6 +53,11 @@ function sanitizeState(raw) {
         if (origin[0]+size > width || origin[1]+size > height || x < origin[0] || x >= origin[0]+size || y < origin[1] || y >= origin[1]+size) invalid('建筑占地越界或重叠。');
         b = { type:input.type, id, origin };
         for (const key of ['pop','taxTimer','upTimer','missTicks','damage']) if (input[key] !== undefined) b[key] = number(input[key], `建筑.${key}`);
+        if (input.water !== undefined) b.water=number(input.water,'住宅储水',0,100000);
+        if (input.stock !== undefined) {
+          const stock=object(input.stock,'商铺存货');b.stock={};
+          for(const key of RESOURCES)if(stock[key]!==undefined)b.stock[key]=number(stock[key],`商铺存货.${key}`);
+        }
         if (input.productionTicks !== undefined) b.productionTicks = number(input.productionTicks, '生产阶段', 0, MAX_INVENTORY, true);
         if (input.production !== undefined && input.production !== null) {
           const p = object(input.production, '生产批次');
@@ -101,6 +106,41 @@ function sanitizeState(raw) {
     const clock = object(raw.clock, '城市时钟');
     state.clock = {version:1,lastWallMs:number(clock.lastWallMs, '时钟水位', 0, 1e15),elapsedSeconds:number(clock.elapsedSeconds, '经营时间', 0, 1e12),accumulatorSeconds:number(clock.accumulatorSeconds, '分钟进度', 0, 60)};
     if (raw.lastDeltaSeconds !== undefined) state.lastDeltaSeconds=number(raw.lastDeltaSeconds,'收支周期',1,259200);
+  }
+  if(raw.logistics!==undefined){
+    const input=object(raw.logistics,'运输状态'),depot=object(input.depot,'城镇货栈');
+    const p=position([depot.x,depot.y],width,height,'城镇货栈'),door=position(depot.door,width,height,'货栈停靠点');
+    if(Math.abs(p[0]-door[0])+Math.abs(p[1]-door[1])!==1)invalid('货栈必须邻接停靠道路。');
+    if(!Array.isArray(input.jobs)||input.jobs.length>128)invalid('运输任务数量超出上限。');
+    const seen=new Set();
+    const jobs=input.jobs.map(rawJob=>{
+      const j=object(rawJob,'运输任务'),id=number(j.id,'运输编号',1,MAX_INVENTORY,true);
+      if(seen.has(id))invalid('运输编号重复。');seen.add(id);
+      if(!['delivery','water','restock'].includes(j.kind)||!['loading','travel','unloading','waiting'].includes(j.phase)||!['pickup','deliver','return'].includes(j.leg))invalid('运输任务阶段无效。');
+      if(!Array.isArray(j.route)||!j.route.length||j.route.length>512)invalid('运输路线长度无效。');
+      const route=j.route.map(p=>position(p,width,height,'运输路线'));
+      for(let i=1;i<route.length;i++)if(Math.abs(route[i][0]-route[i-1][0])+Math.abs(route[i][1]-route[i-1][1])!==1)invalid('运输路线必须逐格相邻。');
+      const cargo={},goods=object(j.cargo,'运输货物');
+      for(const key of [...RESOURCES,'water'])if(goods[key]!==undefined)cargo[key]=number(goods[key],`货物.${key}`);
+      if((j.kind==='water'&&Object.keys(cargo).some(k=>k!=='water'))||(j.kind!=='water'&&cargo.water))invalid('货物类型与运输任务不符。');
+      if(j.leg==='return'&&Object.values(cargo).some(n=>n>0))invalid('返程车辆应已完成卸货。');
+      if(typeof j.isLoaded!=='boolean')invalid('载货状态必须是布尔值。');
+      const vehicle=j.vehicle??(j.kind==='water'?'none':cargo.grain?'horse':'handcart');
+      if(!['horse','handcart','none'].includes(vehicle))invalid('运输载具无效。');
+      const edgeSeconds=number(j.edgeSeconds,'路段时长',0.1,60),segment=number(j.segment,'路段编号',0,route.length-1,true);
+      const result={id,kind:j.kind,phase:j.phase,leg:j.leg,isLoaded:j.isLoaded,vehicle,sourceId:number(j.sourceId,'货源建筑',0,MAX_INVENTORY,true),targetId:number(j.targetId,'目的建筑',0,MAX_INVENTORY,true),
+        source:position(j.source,width,height,'货源'),target:position(j.target,width,height,'目的地'),sourceName:text(j.sourceName,'货源名',80),targetName:text(j.targetName,'目的地名',80),
+        route,segment,segmentProgress:number(j.segmentProgress,'路段进度',0,segment===route.length-1?0:edgeSeconds),edgeSeconds,cargo,
+        elapsed:number(j.elapsed,'运输已用时',0,1e12),duration:number(j.duration,'运输预计时长',0,1e12),phaseRemaining:number(j.phaseRemaining,'装卸剩余时长',0,60),waitReason:text(j.waitReason,'等待原因',100)};
+      if(j.phase==='waiting'){
+        if(!['loading','travel','unloading'].includes(j.resumePhase))invalid('运输等待恢复阶段无效。');
+        result.resumePhase=j.resumePhase;
+      }
+      return result;
+    });
+    const nextId=number(input.nextId,'下一运输编号',1,MAX_INVENTORY,true);
+    if(jobs.some(j=>j.id>=nextId))invalid('下一运输编号必须大于所有现存任务。');
+    state.logistics={version:1,nextId,graceSeconds:number(input.graceSeconds??0,'旧城物流宽限',0,900),depot:{x:p[0],y:p[1],door,name:'城镇货栈'},jobs};
   }
   for (const key of ['signpost','start']) if (raw[key]) {
     const pos = Array.isArray(raw[key]) ? raw[key] : [raw[key].x, raw[key].y];

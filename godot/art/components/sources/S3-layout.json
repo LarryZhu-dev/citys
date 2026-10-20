@@ -1,0 +1,23 @@
+{
+  "id": "S3",
+  "source": "S3-original.png",
+  "toolOutput": "exec-c6d13621-5097-41df-bc81-60651f337ac4.png",
+  "prompt": "Create an ORIGINAL premium historical Chinese architecture FITTINGS atlas, exactly SIX isolated small components, strict 3 COLUMNS x 2 ROWS. Landscape 3:2 highest resolution ideally1536x1024 or above. All objects fully inside separate equal cells with broad transparent gutters. TRUE TRANSPARENT background; no ground, shadow plate, background wall, grid, captions, writing, numbers, halo or whole-building silhouettes. Fine hand-painted pre-rendered craft realism, crisp carved grain and joinery, restrained aged wood/vermilion/celadon/antique gold, neutral upper-left lighting, no cartoon plastic, no exaggerated fantasy proportions.\nImportant: the FIRST FIVE are perfectly FRONT-ON ORTHOGRAPHIC isolated flat fittings, no perspective tilt, no top/side walls, no framing architecture beyond each fitting's own slender rim. They will be projected onto game-engine wall faces. Each fitting alone with transparent space around it, no full room/house facade/roof.\nROW1:\n1 door_wood: ONE modest closed DOUBLE wooden DOOR LEAF assembly, rustic brown elm plank panels with a slender wood jamb, aged bronze small ring handles, fine vertical grain, no stairs, no porch, no surrounding wall, no roof. Upright rectangle proportions width:height 0.65:1. No inscriptions.\n2 door_red: ONE refined closed DOUBLE VERMILION DOOR LEAF assembly, fine muted red lacquer, restrained ancient bronze ring handles and tiny rivets, narrow frame, same upright proportion, no wall/stairs/porch/roof. No text or gold characters.\n3 window_lattice: ONE square dark aged wooden LATTICE WINDOW fitting. Delicate geometric interlocking straight lattice bars, slender outer frame, visible transparent holes through the lattice (not filled by black paint), no paper behind it, no wall or sill structure. Crisp craft detail, not an entire bay.\nROW2:\n4 window_paper: ONE square traditional Chinese PAPER WINDOW fitting, a simple fine wood lattice over translucent warm-ivory rice paper, subtle paper fibers, slim frame, no wall, no roof, no curtains. Closed paper should be softly luminous light material in daylight, not an active yellow lamp.\n5 railing: ONE short straight HORIZONTAL wooden RAILING section viewed front-on, 3–4 delicate upright balusters connecting a top rail and bottom rail. Warm reddish elm, tiny restrained carved joints, no stone platform, no posts outside the section, no balcony floor or building. Rectangular proportions 2.2:1. Transparent spaces between the balusters.\n6 lantern: ONE small complete hanging traditional Chinese LANTERN, dimensional 2:1 dimetric view, muted red-orange paper panels between slender carved wood ribs, antique-bronze small hanger, subtle tassel below, unlit neutral daylight material. No text, no emitted glow, no surrounding architecture or wire extending to another object.\nOnly these six beautiful independently usable fittings. Do not combine any door/window/railing with a building or a complete structural wall. Make every piece distinct, complete and usable as a transparent game sprite.",
+  "keys": [
+    "door_wood",
+    "door_red",
+    "window_lattice",
+    "window_paper",
+    "railing",
+    "lantern"
+  ],
+  "tool": "image_gen.imagegen",
+  "generatedOn": "2026-10-20",
+  "layout": {
+    "columns": 3,
+    "rows": 2,
+    "order": "row-major"
+  },
+  "sha256": "c668f3e7e150fe5b30f2dadea7871bd3735d8b5c5d850569229df8b6fbc73678",
+  "originality": "Fresh original generation for this project; no old architecture or third-party game images used as input."
+}

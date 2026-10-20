@@ -25,6 +25,7 @@ window.OnlineUI = (() => {
     if(result===false)throw new Error('城市存档格式不兼容');
     if(result?.tiles)S=result;
     if(typeof selectedTile!=='undefined')selectedTile=null;
+    if(typeof relocatingBuilding!=='undefined')relocatingBuilding=null;
     hover=null;selTool=null;markRoadDirty();renderAll();
   }
   async function request(path,options={}){

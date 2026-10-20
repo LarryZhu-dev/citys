@@ -7,9 +7,12 @@ var _seed := 0
 var _quality := "high"
 var _textures: Dictionary = {}
 var _mat: ShaderMaterial
+var deposits: ResourceDeposit
 
 func _init() -> void:
 	y_sort_enabled = true
+	deposits = preload("res://world/resource_deposit.gd").new()
+	add_child(deposits)
 	var shader := Shader.new()
 	shader.code = "shader_type canvas_item; render_mode unshaded; uniform float night=0.0; void fragment(){vec4 c=COLOR; c.rgb*=mix(vec3(1.),vec3(.48,.65,.83),night); COLOR=c;}"
 	_mat = ShaderMaterial.new()
@@ -40,13 +43,14 @@ func sync_nature(tiles: Array, buildings: Array, seed_value: int) -> void:
 		for yy in range(size):
 			for xx in range(size):
 				occupied[Vector2i(int(b.get("x",0))+xx,int(b.get("y",0))+yy)] = true
+	deposits.sync_deposits(tiles,occupied,seed_value)
 	var keep: Dictionary = {}
 	for y in range(tiles.size()):
 		var row: Array = tiles[y]
 		for x in range(row.size()):
 			var t: Dictionary = row[x]
 			var kind: String = str(t.get("t","grass"))
-			if kind not in ["tree","stone","copper","clay","water"] or occupied.has(Vector2i(x,y)):
+			if kind not in ["tree","water"] or occupied.has(Vector2i(x,y)):
 				continue
 			if kind == "water" and (_hash(x,y,44)<.92 or not _near_land(tiles,x,y)):
 				continue
@@ -69,15 +73,7 @@ func sync_nature(tiles: Array, buildings: Array, seed_value: int) -> void:
 					_sprite(cluster,species,p,98.0+_hash(x,y,3+i)*50.0,_hash(x,y,90+i)>.5)
 			elif kind == "water":
 				_sprite(cluster,"reeds",Vector2(x+.4,y+.55),43+_hash(x,y,8)*16,false)
-			else:
-				# Several different scales/anchors replace the old one-identical-pile-per-cell grid.
-				var count := 2+(int(_hash(x,y,7)*3) if _quality!="low" else 0)
-				for i in range(count):
-					var p := Vector2(x+.5+(_hash(x,y,31+i)-.5)*1.15,y+.5+(_hash(x,y,51+i)-.5)*1.15)
-					if kind == "clay":
-						_clay(cluster,p,x,y,i)
-					else:
-						_sprite(cluster,kind,p,29.0+_hash(x,y,71+i)*52.0,_hash(x,y,91+i)>.5)
+
 	for key: String in _items.keys():
 		if not keep.has(key):
 			_items[key].queue_free()
@@ -106,23 +102,12 @@ func _sprite(parent: Node2D,kind: String,p: Vector2,width: float,flip: bool) -> 
 	sprite.material = _mat
 	parent.add_child(sprite)
 
-func _clay(parent: Node2D,p: Vector2,x: int,y: int,index: int) -> void:
-	var node := Node2D.new()
-	node.position = _iso(p)
-	node.material = _mat
-	parent.add_child(node)
-	var w := 12.0+_hash(x,y,index+120)*18.0
-	var poly := Polygon2D.new()
-	poly.polygon = PackedVector2Array([Vector2(-w,0),Vector2(-w*.6,-w*.34),Vector2(-w*.16,-w*.4),Vector2(w*.24,-w*.6),Vector2(w*.8,-w*.29),Vector2(w,0),Vector2(w*.4,w*.19),Vector2(-w*.54,w*.15)])
-	poly.color = Color(.49,.35,.23).lightened(_hash(x,y,index+130)*.12)
-	poly.use_parent_material = true
-	node.add_child(poly)
-
 func set_night(amount: float) -> void:
 	if absf(amount-_night)<.001:
 		return
 	_night = amount
 	_mat.set_shader_parameter("night",amount)
+	deposits.set_night(amount)
 
 func _near_water(tiles: Array,x: int,y: int) -> bool:
 	for d in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:

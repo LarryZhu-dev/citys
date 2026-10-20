@@ -1,0 +1,38 @@
+{
+  "tool": "image_gen.imagegen",
+  "transparent_background": true,
+  "generated": "2026-10-20",
+  "source_records": [
+    {
+      "source": "workers-original.png",
+      "prompt": "prompt.txt",
+      "sha256": "99865db4de8189aac5c89c60e55e74fc226a1086a5282805305e9b75581ac968",
+      "frames_used": 8
+    },
+    {
+      "source": "walk-original.png",
+      "prompt": "walk-prompt.txt",
+      "sha256": "2b1e624fc23322f965866bbc3f3387e114d29d3f1e79239064d074315e5bb8c6",
+      "frames_used": 16
+    },
+    {
+      "source": "timber-original.png",
+      "prompt": "timber-prompt.txt",
+      "sha256": "ed810af2f63c6d4af768af45793de4d7d73f6874be14f90506ea21517df5295b",
+      "frames_used": 16
+    },
+    {
+      "source": "brick-original.png",
+      "prompt": "brick-prompt.txt",
+      "sha256": "0f84af6c142e61317a997b3d23323c40fc268a288e3ae305c32422d5bbbcc33a",
+      "frames_used": 16
+    }
+  ],
+  "mechanical_tool": "build-atlas.py",
+  "atlas_size": [
+    3072,
+    2688
+  ],
+  "frames": 56,
+  "art_editing": "No painting, flipping, warping, leg rotation or synthetic poses. Connected-component cutout, transparent gutter crop, alpha<=8 fringe cleanup, footpoint registration, lossless packing only."
+}

@@ -2,6 +2,11 @@
 /* Deterministic city simulation. Rendering and network services are optional consumers. */
 let _roadNet = null, _roadDirty = true, _buildingCache = null;
 let _connectivityCache = new Map(), _serviceCache = null, _quietSimulation = false;
+let _buildingIdCache = null, _roadRevision = 0, _logisticsRouteChecks = new Map();
+// Construction crews are a view of paid, existing projects, never economic jobs.
+// Finished-site records only live while this exact city is displayed.
+let _constructionVisualState = null, _constructionObserved = new Map(), _constructionExits = new Map();
+const CONSTRUCTION_CREW_CYCLE_SECONDS = 36, CONSTRUCTION_CREW_EXIT_SECONDS = 12;
 const inB = (x,y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && x < MAP_W && y >= 0 && y < MAP_H;
 const tileAt = (x,y) => S && inB(x,y) ? S.tiles[y][x] : null;
 const isResidence = b => b && (b.type === "house" || b.type === "villa");
@@ -12,11 +17,12 @@ function emitLog(message, kind){ if (typeof log === "function") log(message, kin
 function refreshUI(){ if (typeof renderAll === "function") renderAll(); }
 function invalidateWorld(){
   _buildingCache = null;
+  _buildingIdCache = null; _roadRevision++;
   _roadDirty = true;
   _connectivityCache.clear(); _serviceCache=null;
   if (typeof window !== "undefined" && typeof window.invalidateRenderer === "function") window.invalidateRenderer();
 }
-function markRoadDirty(){ _roadDirty = true; _buildingCache = null; _connectivityCache.clear(); _serviceCache=null; }
+function markRoadDirty(){ _roadDirty = true; _buildingCache = null; _buildingIdCache=null; _roadRevision++; _connectivityCache.clear(); _serviceCache=null; }
 function hashSeed(value){
   const str = String(value ?? "empire");
   let h = 2166136261;
@@ -166,6 +172,7 @@ function newGame(options = {}){
   a.pop = b.pop = 6;
   put(45,15,"farmland"); put(48,22,"lumber");
   put(44,13,"treeDeco"); put(53,13,"treeDeco");
+  S.logistics={version:1,nextId:1,depot:{x:46,y:13,door:[46,14],name:'城镇货栈'},jobs:[]};_logisticsRouteChecks.clear();
   updateCaps(); allocateWorkers(buildings());
   for(const o of buildings()) if(BUILD[o.b.type].prod) startProduction(o);
   emitLog("欢迎来到" + S.cityName + "。驿道连接远方，先在住宅旁修建一口水井。","good");
@@ -346,6 +353,238 @@ function updateCaps(){
   S.caps={food:Math.round((500+active("granary")*400+base)*mult),mat:Math.round((600+active("warehouse")*500+base)*mult)};
 }
 function resourceCapacity(kind){ return GOODS[kind]?.cat==="food" ? S.caps.food : S.caps.mat; }
+function buildingById(id){
+  if(!_buildingIdCache)_buildingIdCache=new Map(buildings().map(o=>[o.b.id,o]));
+  return _buildingIdCache.get(id)||null;
+}
+function findTownDepot(){
+  const start=S.start||{x:1,y:1},choices=[];
+  for(const o of buildings())if(o.b.type==='road')for(const[dx,dy]of DIRS){
+    const x=o.x+dx,y=o.y+dy,t=tileAt(x,y);
+    if(t&&!t.b&&t.t!=='water')choices.push({x,y,door:[o.x,o.y],distance:Math.abs(x-start.x)+Math.abs(y-start.y)});
+  }
+  choices.sort((a,b)=>a.distance-b.distance||a.y-b.y||a.x-b.x);
+  const p=choices[0]||{x:start.x,y:start.y,door:[start.x,start.y]};
+  return {x:p.x,y:p.y,door:p.door,name:'城镇货栈'};
+}
+function ensureLogistics(){
+  if(!S.logistics)S.logistics={version:1,nextId:1,depot:findTownDepot(),jobs:[]};
+  return S.logistics;
+}
+function roadAccess(id){
+  if(id===0){const p=ensureLogistics().depot.door;return tileAt(...p)?.b?.type==='road'?[p.slice()]:[];}
+  const o=buildingById(id);if(!o)return [];
+  const result=[],seen=new Set();
+  for(const[x,y]of footprint(o.x,o.y,BUILD[o.b.type].size))for(const[dx,dy]of DIRS){
+    const nx=x+dx,ny=y+dy,key=ny*MAP_W+nx;
+    if(tileAt(nx,ny)?.b?.type==='road'&&!seen.has(key)){seen.add(key);result.push([nx,ny]);}
+  }
+  return result;
+}
+function logisticsPath(starts,goals){
+  if(!starts.length||!goals.length)return null;
+  const targets=new Set(goals.map(([x,y])=>y*MAP_W+x)),parents=new Map(),queue=[];
+  for(const p of starts)if(tileAt(...p)?.b?.type==='road'){const k=p[1]*MAP_W+p[0];if(!parents.has(k)){parents.set(k,-1);queue.push(k);}}
+  for(let i=0;i<queue.length;i++){
+    const key=queue[i],x=key%MAP_W,y=Math.floor(key/MAP_W);
+    if(targets.has(key)){
+      const route=[];for(let k=key;k!==-1;k=parents.get(k))route.push([k%MAP_W,Math.floor(k/MAP_W)]);
+      return route.length<=LOGISTICS_MAX_ROUTE?route.reverse():null;
+    }
+    for(const[dx,dy]of DIRS){const nx=x+dx,ny=y+dy,k=ny*MAP_W+nx;if(inB(nx,ny)&&!parents.has(k)&&tileAt(nx,ny)?.b?.type==='road'){parents.set(k,key);queue.push(k);}}
+  }
+  return null;
+}
+function endpointPosition(id){const o=buildingById(id);return id===0?ensureLogistics().depot.door.slice():o?[o.x,o.y]:null;}
+function endpointName(id){return id===0?'城镇货栈':BUILD[buildingById(id)?.b.type]?.name||'已拆除建筑';}
+function stockProvider(kind,originId){
+  const type=GOODS[kind]?.cat==='food'?'granary':'warehouse',starts=roadAccess(originId),candidates=[];
+  for(const o of buildings())if(o.b.type===type&&operational(o)){
+    const route=logisticsPath(starts,roadAccess(o.b.id));if(route)candidates.push({id:o.b.id,route});
+  }
+  candidates.sort((a,b)=>a.route.length-b.route.length||a.id-b.id);
+  if(candidates.length)return candidates[0];
+  return {id:0,route:logisticsPath(starts,roadAccess(0))};
+}
+function goodsInTransit(kind){return (S.logistics?.jobs||[]).reduce((n,j)=>n+(j.cargo[kind]||0),0);}
+function logisticsPosition(j){
+  const a=j.route[j.segment]||j.source,b=j.route[j.segment+1]||a,f=Math.min(1,(j.segmentProgress||0)/j.edgeSeconds);
+  return [a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];
+}
+function logisticsEta(j){
+  if(j.phase==='waiting')return null;
+  let seconds=Math.max(0,j.route.length-1-j.segment)*j.edgeSeconds-j.segmentProgress;
+  if(j.leg==='pickup')seconds+=(j.phase==='loading'?j.phaseRemaining:LOGISTICS_LOAD_SECONDS)+Math.max(0,j.route.length-1)*j.edgeSeconds;
+  else if(j.phase==='loading')seconds+=j.phaseRemaining;
+  return Math.max(0,seconds)+(j.leg==='return'?0:j.phase==='unloading'?j.phaseRemaining:LOGISTICS_UNLOAD_SECONDS);
+}
+function newLogisticsJob(kind,sourceId,targetId,cargo,route){
+  const l=ensureLogistics();if(l.jobs.length>=LOGISTICS_MAX_JOBS)return null;
+  const delivery=kind==='delivery',startId=delivery?sourceId:targetId;
+  const fallback=roadAccess(startId)[0]||endpointPosition(startId);if(!fallback)return null;
+  const j={id:l.nextId++,kind,sourceId,targetId,source:endpointPosition(sourceId),target:endpointPosition(targetId),
+    sourceName:endpointName(sourceId),targetName:endpointName(targetId),route:route||[fallback],segment:0,segmentProgress:0,
+    edgeSeconds:LOGISTICS_EDGE_SECONDS,phase:delivery?'loading':'travel',leg:delivery?'deliver':'pickup',isLoaded:false,
+    vehicle:kind==='water'?'none':cargo.grain?'horse':'handcart',cargo:{...cargo},elapsed:0,duration:0,phaseRemaining:delivery?LOGISTICS_LOAD_SECONDS:0,waitReason:''};
+  j.duration=logisticsEta(j)||0;l.jobs.push(j);return j;
+}
+function pauseLogistics(j,reason,resumePhase){
+  if(j.phase!=='waiting')j.resumePhase=resumePhase||j.phase;
+  j.phase='waiting';j.waitReason=reason;
+}
+function rerouteLogistics(j){
+  const goal=j.leg==='pickup'||j.leg==='return'?j.sourceId:j.targetId,goals=roadAccess(goal),current=j.route[j.segment];
+  if(!current)return false;
+  const key=_roadRevision+':'+goal+':'+JSON.stringify(goals);
+  const cached=_logisticsRouteChecks.get(j.id);if(cached?.key===key)return cached.ok;
+  const route=logisticsPath([current],goals);_logisticsRouteChecks.set(j.id,{key,ok:!!route});
+  if(!route)return false;
+  j.route=route;j.segment=0;j.segmentProgress=0;return true;
+}
+function logisticsEndpointActive(id){const o=buildingById(id);return id===0?roadAccess(0).length>0:!!o&&(isResidence(o.b)?isComplete(o.b)&&connectedToMain(o.x,o.y,BUILD[o.b.type].size):operational(o));}
+function advanceLogistics(seconds){
+  const l=ensureLogistics(),completed=new Set();
+  for(const j of l.jobs){
+    const source=buildingById(j.sourceId),candidate=buildingById(j.targetId);
+    const target=candidate&&((j.kind!=='restock'||BUILD[candidate.b.type].shop||BUILD[candidate.b.type].shopAll)&&(j.kind!=='water'||isResidence(candidate.b)))?candidate:null;
+    if(j.leg==='return'&&!source){completed.add(j.id);continue;}
+    if(j.targetId!==0&&!target){
+      if(j.kind==='water'){completed.add(j.id);continue;}
+      if(!j.isLoaded&&j.kind==='restock'){
+        for(const[k,n]of Object.entries(j.cargo))S.goods[k]=(S.goods[k]||0)+n;
+        completed.add(j.id);continue;
+      }
+      j.targetId=0;j.target=l.depot.door.slice();j.targetName=l.depot.name;j.kind='delivery';j.phase='travel';j.phaseRemaining=0;_logisticsRouteChecks.delete(j.id);
+    }
+    if(j.sourceId!==0&&!source&&!j.isLoaded){
+      if(j.kind==='water'){completed.add(j.id);continue;}
+      // Goods already completed or reserved still belong to this shipment.
+      // The carrier at the old source can evacuate them without recreating stock.
+      j.isLoaded=true;j.leg='deliver';j.phase='travel';j.phaseRemaining=0;
+    }
+    if(j.sourceId&&source)j.source=[source.x,source.y];
+    if(j.targetId&&target)j.target=[target.x,target.y];
+    let remaining=seconds,guard=0;
+    while(remaining>1e-8&&guard++<LOGISTICS_MAX_ROUTE+8&&!completed.has(j.id)){
+      if(j.phase==='waiting'){j.phase=j.resumePhase||'travel';delete j.resumePhase;j.waitReason='';}
+      if(j.phase==='loading'){
+        if(j.sourceId&&source&&!operational(source)){pauseLogistics(j,'货源停工，等待道路和工人');break;}
+        const location=j.route[j.segment];
+        if(!roadAccess(j.sourceId).some(p=>p[0]===location[0]&&p[1]===location[1])){j.leg='pickup';j.phase='travel';_logisticsRouteChecks.delete(j.id);continue;}
+        const spent=Math.min(remaining,j.phaseRemaining);remaining-=spent;j.phaseRemaining-=spent;j.elapsed+=spent;
+        if(j.phaseRemaining>1e-8)break;
+        j.isLoaded=true;j.leg='deliver';j.phase='travel';_logisticsRouteChecks.delete(j.id);
+        if(!rerouteLogistics(j))pauseLogistics(j,'道路中断，货物原地等待','travel');
+      }else if(j.phase==='travel'){
+        if(j.segmentProgress===0&&!rerouteLogistics(j)){pauseLogistics(j,'道路中断，货物原地等待');break;}
+        const a=j.route[j.segment],b=j.route[j.segment+1];
+        if(!b){
+          if(j.leg==='return'){completed.add(j.id);continue;}
+          if(j.leg==='pickup'){j.phase='loading';j.phaseRemaining=LOGISTICS_LOAD_SECONDS;}
+          else{j.phase='unloading';j.phaseRemaining=LOGISTICS_UNLOAD_SECONDS;}
+          continue;
+        }
+        if(tileAt(...a)?.b?.type!=='road'||tileAt(...b)?.b?.type!=='road'){pauseLogistics(j,'前方道路拆除，停在原路段');break;}
+        const spent=Math.min(remaining,j.edgeSeconds-j.segmentProgress);remaining-=spent;j.segmentProgress+=spent;j.elapsed+=spent;
+        if(j.segmentProgress+1e-8>=j.edgeSeconds){j.segment++;j.segmentProgress=0;}
+      }else if(j.phase==='unloading'){
+        const location=j.route[j.segment];
+        if(!roadAccess(j.targetId).some(p=>p[0]===location[0]&&p[1]===location[1])){j.phase='travel';_logisticsRouteChecks.delete(j.id);continue;}
+        if(!logisticsEndpointActive(j.targetId)){pauseLogistics(j,'目的地停工，等待卸货');break;}
+        if(j.kind==='delivery'&&Object.entries(j.cargo).some(([k,n])=>resourceCapacity(k)-(S.goods[k]||0)+1e-9<n)){pauseLogistics(j,'仓储已满，保留货物等待卸货');break;}
+        const spent=Math.min(remaining,j.phaseRemaining);remaining-=spent;j.phaseRemaining-=spent;j.elapsed+=spent;
+        if(j.phaseRemaining>1e-8)break;
+        const dest=buildingById(j.targetId)?.b;
+        if(j.kind==='water'){if(dest)dest.water=(dest.water||0)+(j.cargo.water||0);}
+        else if(j.kind==='restock'){if(dest){dest.stock??={};for(const[k,n]of Object.entries(j.cargo))dest.stock[k]=(dest.stock[k]||0)+n;}}
+        else for(const[k,n]of Object.entries(j.cargo))S.goods[k]=(S.goods[k]||0)+n;
+        if(j.kind==='delivery'&&source){j.cargo={};j.isLoaded=false;j.leg='return';j.phase='travel';_logisticsRouteChecks.delete(j.id);if(!rerouteLogistics(j))pauseLogistics(j,'返程道路中断，车辆原地等待','travel');}
+        else completed.add(j.id);
+      }else break;
+    }
+    const eta=logisticsEta(j);if(eta!==null)j.duration=j.elapsed+eta;
+  }
+  if(completed.size){l.jobs=l.jobs.filter(j=>!completed.has(j.id));for(const id of completed)_logisticsRouteChecks.delete(id);}
+}
+function servingShop(o,kind,requireStock=true){
+  const candidates=_serviceCache?.shops||buildings().filter(q=>(BUILD[q.b.type].shop||BUILD[q.b.type].shopAll)&&operational(q));
+  return candidates.find(q=>{const d=BUILD[q.b.type];return(d.shop===kind||d.shopAll)&&distanceToBuilding(o.x,o.y,q)<=d.radius&&(d.shopAll||shopPairOk(q))&&(!requireStock||(q.b.stock?.[kind]||0)>1e-9);})||null;
+}
+function scheduleLogistics(bl){
+  const l=ensureLogistics(),homes=bl.filter(o=>isResidence(o.b)&&isComplete(o.b)&&o.b.pop>0);
+  const occupied=new Set(l.jobs.map(j=>j.kind+':'+j.targetId));
+  homes.sort((a,b)=>(a.b.water||0)/a.b.pop-(b.b.water||0)/b.b.pop||a.b.id-b.b.id);
+  for(const o of homes){
+    if(l.jobs.length>=LOGISTICS_MAX_JOBS)break;
+    if(occupied.has('water:'+o.b.id)||(o.b.water||0)>=o.b.pop*.05)continue;
+    const well=coveredBy(o.x,o.y,'water');if(!well)continue;
+    const route=logisticsPath(roadAccess(o.b.id),roadAccess(well.b.id));if(!route)continue;
+    const amount=Math.max(.2,o.b.pop*.2)-(o.b.water||0);
+    if(amount>0)newLogisticsJob('water',well.b.id,o.b.id,{water:amount},route);
+  }
+  for(const o of bl){
+    const d=BUILD[o.b.type];if(!(d.shop||d.shopAll)||!operational(o)||!shopPairOk(o)||occupied.has('restock:'+o.b.id))continue;
+    if(l.jobs.length>=LOGISTICS_MAX_JOBS)break;
+    const kinds=d.shop?[d.shop]:['grain','veg','fruit','fish','meat'],cargo={};
+    for(const kind of kinds){
+      const demand=homes.reduce((n,h)=>{
+        const needs=new Set([...residenceLevel(h.b).needs,...(residenceLevels(h.b)[h.b.lvl]?.needs||[])]);
+        return distanceToBuilding(h.x,h.y,o)<=d.radius&&needs.has(kind)?n+h.b.pop*(kind==='grain'?.035:.006):n;
+      },0);
+      if(demand<=0||(o.b.stock?.[kind]||0)>=Math.max(1,demand*4))continue;
+      const amount=Math.min(Math.max(2,demand*15)-(o.b.stock?.[kind]||0),S.goods[kind]||0);
+      if(amount>1e-8)cargo[kind]=amount;
+    }
+    const kind=Object.keys(cargo)[0];if(!kind)continue;
+    const provider=stockProvider(kind,o.b.id);if(!provider.route)continue;
+    const job=newLogisticsJob('restock',provider.id,o.b.id,cargo,provider.route);
+    if(job)for(const[k,n]of Object.entries(cargo))S.goods[k]=Math.max(0,S.goods[k]-n);
+  }
+}
+function consumeGoods(o,kind,amount){
+  if(amount<=0)return;
+  const shop=servingShop(o,kind);let remaining=amount;
+  if(shop){const take=Math.min(remaining,shop.b.stock[kind]);shop.b.stock[kind]-=take;remaining-=take;}
+  // Basic rations keep a new settlement alive before shops are unlocked.
+  if(kind==='grain'||!['veg','fruit','fish','meat'].includes(kind)||(S.logistics?.graceSeconds||0)>0)S.goods[kind]=Math.max(0,(S.goods[kind]||0)-remaining);
+}
+function hydrateLogistics(raw){
+  const num=(v,f=0,max=1e9)=>Number.isFinite(Number(v))?Math.min(max,Math.max(0,Number(v))):f;
+  const point=p=>Array.isArray(p)&&p.length===2&&inB(p[0],p[1]);
+  const savedDepot=raw?.depot,validDepot=savedDepot&&inB(savedDepot.x,savedDepot.y)&&point(savedDepot.door)&&Math.abs(savedDepot.x-savedDepot.door[0])+Math.abs(savedDepot.y-savedDepot.door[1])===1&&!tileAt(savedDepot.x,savedDepot.y)?.b;
+  S.logistics={version:1,nextId:Math.max(1,Math.floor(num(raw?.nextId,1))),graceSeconds:raw?.version===1?num(raw.graceSeconds,0,900):300,
+    depot:validDepot?{x:savedDepot.x,y:savedDepot.y,door:savedDepot.door.slice(),name:'城镇货栈'}:findTownDepot(),jobs:[]};
+  const seen=new Set();
+  for(const input of (Array.isArray(raw?.jobs)?raw.jobs:[]).slice(0,LOGISTICS_MAX_JOBS)){
+    if(!input||typeof input!=='object'||Array.isArray(input))continue;
+    if(!Number.isInteger(input.id)||input.id<1||seen.has(input.id)||!['delivery','water','restock'].includes(input.kind)||!['loading','travel','unloading','waiting'].includes(input.phase)||!['pickup','deliver','return'].includes(input.leg))continue;
+    if(!point(input.source)||!point(input.target)||!Array.isArray(input.route)||!input.route.length||input.route.length>LOGISTICS_MAX_ROUTE||input.route.some((p,i)=>!point(p)||(i&&Math.abs(p[0]-input.route[i-1][0])+Math.abs(p[1]-input.route[i-1][1])!==1)))continue;
+    const cargo=Object.fromEntries([...Object.keys(GOODS),'water'].filter(k=>num(input.cargo?.[k])>0).map(k=>[k,num(input.cargo[k])]));
+    const edgeSeconds=LOGISTICS_EDGE_SECONDS,segment=Math.min(input.route.length-1,Math.floor(num(input.segment))),segmentProgress=segment<input.route.length-1?num(input.segmentProgress,0,edgeSeconds):0;
+    const j={id:input.id,kind:input.kind,sourceId:Math.floor(num(input.sourceId)),targetId:Math.floor(num(input.targetId)),source:input.source.slice(),target:input.target.slice(),
+      sourceName:endpointName(Math.floor(num(input.sourceId))),targetName:endpointName(Math.floor(num(input.targetId))),route:input.route.map(p=>p.slice()),segment,segmentProgress,
+      edgeSeconds,phase:input.phase,leg:input.leg,isLoaded:!!input.isLoaded,vehicle:['horse','handcart','none'].includes(input.vehicle)?input.vehicle:input.kind==='water'?'none':cargo.grain?'horse':'handcart',cargo,elapsed:num(input.elapsed,0,1e12),duration:num(input.duration,0,1e12),phaseRemaining:num(input.phaseRemaining,0,LOGISTICS_LOAD_SECONDS),waitReason:String(input.waitReason||'').slice(0,100)};
+    if(input.phase==='waiting')j.resumePhase=['loading','travel','unloading'].includes(input.resumePhase)?input.resumePhase:'travel';
+    seen.add(j.id);S.logistics.nextId=Math.max(S.logistics.nextId,j.id+1);S.logistics.jobs.push(j);
+  }
+}
+function logisticsSnapshot(){
+  const l=ensureLogistics();return {version:1,nextId:l.nextId,graceSeconds:l.graceSeconds||0,depot:{...l.depot,door:l.depot.door.slice()},jobs:l.jobs.map(j=>({...j,source:j.source.slice(),target:j.target.slice(),route:j.route.map(p=>p.slice()),cargo:{...j.cargo},position:logisticsPosition(j),moving:j.phase==='travel',eta:logisticsEta(j)}))};
+}
+function buildingLogistics(x,y){
+  const b=tileAt(x,y)?.b;if(!b)return {state:'无建筑',incoming:[],outgoing:[],stock:{},water:0};
+  const jobs=ensureLogistics().jobs,result={state:'无待运货物',waitReason:'',incoming:[],outgoing:[],stock:{...(b.stock||{})},water:b.water||0};
+  for(const j of jobs){
+    if(j.sourceId!==b.id&&j.targetId!==b.id)continue;
+    result.state=j.phase==='waiting'?'运输等待':j.phase==='loading'?'装货中':j.phase==='unloading'?'卸货中':'运输中';
+    if(j.waitReason)result.waitReason=j.waitReason;
+    for(const[resource,quantity]of Object.entries(j.cargo)){
+      if(j.targetId===b.id)result.incoming.push({resource,quantity,fromName:j.sourceName,fromId:j.sourceId,eta:logisticsEta(j)});
+      if(j.sourceId===b.id)result.outgoing.push({resource,quantity,toName:j.targetName,toId:j.targetId,eta:logisticsEta(j)});
+    }
+  }
+  return result;
+}
 function hasActiveLandmark(){ return buildings().some(o=>o.b.type===getCivilization().landmark && operational(o)); }
 function productionMultiplier(o){
   const d=BUILD[o.b.type],mods=getCivilization().modifiers; let mult=1;
@@ -360,6 +599,98 @@ function productionMultiplier(o){
   }
   return mult;
 }
+function constructionVisualContext(){
+  if(_constructionVisualState===S)return;
+  _constructionVisualState=S;_constructionObserved.clear();_constructionExits.clear();
+}
+function constructionSiteId(b){
+  const c=b.construction;
+  return `construction:${b.id}:${c.fromLevel||0}:${c.toLevel||1}:${c.total}`;
+}
+function constructionStage(progress){return progress<.28?'foundation':progress<.75?'structure':progress<1?'finishing':'complete';}
+function constructionRoutePosition(route,progress){
+  const lengths=route.slice(1).map((p,i)=>Math.hypot(p[0]-route[i][0],p[1]-route[i][1]));
+  let distance=lengths.reduce((a,b)=>a+b,0)*Math.max(0,Math.min(1,progress));
+  for(let i=0;i<lengths.length;i++){
+    if(distance<=lengths[i]||i===lengths.length-1){
+      const f=lengths[i]?Math.min(1,distance/lengths[i]):1,a=route[i],b=route[i+1];
+      return {position:[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f],routePosition:i+f};
+    }
+    distance-=lengths[i];
+  }
+  return {position:route[0].slice(),routePosition:0};
+}
+function constructionWorker(site,index){
+  const delay=index*3,local=Math.max(0,site.elapsed-delay),cycleIndex=Math.floor(local/CONSTRUCTION_CREW_CYCLE_SECONDS);
+  const cycleTime=local%CONSTRUCTION_CREW_CYCLE_SECONDS,targetIndex=cycleIndex*site.workerCount+index;
+  const target=site.installationPoints[targetIndex%site.installationPoints.length],material=site.materialPoint,entry=site.entry;
+  const outbound=[material.slice(),entry.slice(),target.slice()],inbound=outbound.slice().reverse();
+  let phase,phaseProgress,route;
+  if(cycleTime<4){phase='loading';phaseProgress=cycleTime/4;route=[material.slice()];}
+  else if(cycleTime<14){phase='carrying';phaseProgress=(cycleTime-4)/10;route=outbound;}
+  else if(cycleTime<26){phase='installing';phaseProgress=(cycleTime-14)/12;route=[target.slice()];}
+  else{phase='returning';phaseProgress=(cycleTime-26)/10;route=inbound;}
+  const cycleStart=delay+cycleIndex*CONSTRUCTION_CREW_CYCLE_SECONDS,materialStage=constructionStage(cycleStart/site.total);
+  return {id:site.id+':worker:'+index,index,phase,phaseProgress,cycleIndex,targetIndex,
+    carriedMaterial:materialStage==='foundation'?'brick':materialStage==='structure'?'timber':'tile',
+    isLoaded:phase==='carrying'||phase==='installing',elevation:0,active:site.active&&site.elapsed>=delay,
+    elapsed:local,cycleSeconds:CONSTRUCTION_CREW_CYCLE_SECONDS,route,...constructionRoutePosition(route,phaseProgress)};
+}
+function constructionSite(o,options={}){
+  const {b,x,y}=o,c=b.construction,d=BUILD[b.type],size=d.size,id=constructionSiteId(b);
+  const total=Math.max(.001,c.total),elapsed=Math.max(0,Math.min(total,total-c.remaining)),progress=elapsed/total;
+  const net=roadNetwork(),access=roadAccess(b.id).sort((a,b)=>Number(!!net[b[1]][b[0]])-Number(!!net[a[1]][a[0]])||a[1]-b[1]||a[0]-b[0]);
+  const road=access[0]||null,previous=_constructionObserved.get(id);
+  const linked=d.cat==='decor'||connectedToMain(x,y,size),paused=!!options.suspended;
+  // A removed approach freezes the existing crew at its last layout until a real
+  // approach returns. An unseen isolated project has no arriving workers.
+  const materialPoint=road?.slice()||previous?.materialPoint.slice()||[x+(size-1)/2,y+size-1];
+  const inside=road?[Math.max(x,Math.min(x+size-1,road[0])),Math.max(y,Math.min(y+size-1,road[1]))]:null;
+  const entry=road?[(road[0]+inside[0])/2,(road[1]+inside[1])/2]:previous?.entry.slice()||materialPoint.slice();
+  const margin=size===1?.18:.15,span=Math.max(.2,size-1-margin*2);
+  const installationPoints=[[x+margin,y+margin],[x+margin+span,y+margin],[x+margin,y+margin+span],[x+margin+span,y+margin+span]];
+  const workerCount=road||previous?.workerCount>0||d.cat==='decor'?Math.min(4,d.cat==='decor'?1:size+1):0;
+  const active=!paused&&linked&&workerCount>0,blockedReason=paused?'已暂停':!linked?'道路未连接主路':!workerCount?'等待施工道路':'';
+  const site={id,buildingId:b.id,type:b.type,origin:[x,y],size,total,elapsed,progress,stage:constructionStage(progress),
+    fromLevel:c.fromLevel||0,toLevel:c.toLevel||1,roadAccess:road?.slice()||null,entry,materialPoint,installationPoints,
+    layoutKey:[x,y,...entry,...materialPoint].join(','),supplyMode:road?'roadside':d.cat==='decor'?'on_site':'waiting',
+    workerCount,active,paused,blockedReason,finished:false,exitElapsed:0,exitDuration:CONSTRUCTION_CREW_EXIT_SECONDS,
+    cycleSeconds:CONSTRUCTION_CREW_CYCLE_SECONDS};
+  site.workers=Array.from({length:workerCount},(_,i)=>constructionWorker(site,i));
+  return site;
+}
+function retainConstructionExit(o,completedAt){
+  constructionVisualContext();
+  const id=constructionSiteId(o.b);
+  // Catch-up and never-viewed projects must not spawn a retrospective workforce.
+  if(_quietSimulation||!_constructionObserved.has(id))return;
+  const site=constructionSite(o);
+  _constructionExits.set(id,{site,completedAt});
+  if(_constructionExits.size>128)_constructionExits.delete(_constructionExits.keys().next().value);
+}
+function constructionSitesSnapshot(options={}){
+  if(!S)return [];
+  constructionVisualContext();
+  const now=S.clock?.elapsedSeconds||0,sites=[],live=new Set();
+  for(const o of buildings()){
+    if(!o.b.construction)continue;
+    const site=constructionSite(o,options);live.add(site.id);_constructionObserved.set(site.id,site);sites.push(site);
+  }
+  for(const[id,record]of _constructionExits){
+    const exitElapsed=Math.max(0,now-record.completedAt),base=record.site;
+    // Demolishing the completed building or changing cities cannot revive a crew.
+    if(exitElapsed>=CONSTRUCTION_CREW_EXIT_SECONDS||!buildingById(base.buildingId)){_constructionExits.delete(id);continue;}
+    const paused=!!options.suspended,active=!paused,phaseProgress=exitElapsed/CONSTRUCTION_CREW_EXIT_SECONDS;
+    const site={...base,finished:true,stage:'complete',progress:1,active,paused,blockedReason:paused?'已暂停':'',exitElapsed};
+    site.workers=base.workers.map(w=>{
+      const route=[w.position.slice(),base.entry.slice(),base.materialPoint.slice()];
+      return {...w,phase:'leaving',phaseProgress,isLoaded:false,active,route,...constructionRoutePosition(route,phaseProgress)};
+    });
+    sites.push(site);
+  }
+  for(const id of _constructionObserved.keys())if(!live.has(id))_constructionObserved.delete(id);
+  return sites;
+}
 function advanceConstruction(bl,seconds){
   let changed=false;
   for (const o of bl) {
@@ -368,8 +699,10 @@ function advanceConstruction(bl,seconds){
     if (!b.construction) continue;
     b.staffed=false;
     if (d.cat!=="decor" && !connectedToMain(o.x,o.y,d.size)) { b.idle=true; continue; }
-    b.idle=false; b.construction.remaining=Math.max(0,b.construction.remaining-seconds);
+    const remainingBefore=b.construction.remaining;
+    b.idle=false; b.construction.remaining=Math.max(0,remainingBefore-seconds);
     if (b.construction.remaining>0) continue;
+    retainConstructionExit(o,(S.clock?.elapsedSeconds||0)+remainingBefore);
     if (b.construction.toLevel) {
       b.lvl=b.construction.toLevel; b.missTicks=0;
       emitToast(d.name+"升至 "+b.lvl+" 级","good");
@@ -391,7 +724,7 @@ function startProduction(o){
   if(!d.prod||b.production)return false;
   if(!operational(o)){b.idle=true;b.idleReason='需要道路和工人，且建筑应完工';return false;}
   const duration=d.cycleSeconds,multiplier=productionMultiplier(o),scale=duration/60;
-  if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9<n*scale*multiplier)){b.idle=true;b.idleReason='仓储不足一批产量';return false;}
+  if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)-goodsInTransit(kind)+1e-9<n*scale*multiplier)){b.idle=true;b.idleReason='仓储不足一批产量（包含在途货物）';return false;}
   if(d.input&&Object.entries(d.input).some(([kind,n])=>(S.goods[kind]||0)+1e-9<n*scale)){b.idle=true;b.idleReason='原料不足一批用量';return false;}
   if(d.input)for(const[kind,n]of Object.entries(d.input))S.goods[kind]=Math.max(0,S.goods[kind]-n*scale);
   b.production={elapsed:0,duration,multiplier};b.idle=false;delete b.idleReason;return true;
@@ -403,11 +736,13 @@ function advanceProduction(bl){
     if(!operational(o)){b.idle=true;b.idleReason='道路、工人或建筑状态中断';continue;}
     const p=b.production,scale=p.duration/60;
     // Preserve a ready batch while storage is full; neither inputs nor finished goods vanish.
-    if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9<n*scale*p.multiplier)){b.idle=true;b.idleReason='仓储不足，批次保留';continue;}
+    if(Object.entries(d.prod).some(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)-goodsInTransit(kind)+1e-9<n*scale*p.multiplier)){b.idle=true;b.idleReason='仓储不足，批次保留';continue;}
     b.idle=false;delete b.idleReason;
     p.elapsed=Math.min(p.duration,p.elapsed+ECONOMY_STEP_SECONDS);
     if(p.elapsed+1e-9<p.duration)continue;
-    for(const[kind,n]of Object.entries(d.prod))S.goods[kind]=(S.goods[kind]||0)+n*scale*p.multiplier;
+    const cargo=Object.fromEntries(Object.entries(d.prod).map(([kind,n])=>[kind,n*scale*p.multiplier]));
+    const provider=stockProvider(Object.keys(cargo)[0],b.id);
+    if(!newLogisticsJob('delivery',b.id,provider.id,cargo,provider.route)){b.idle=true;b.idleReason='运输队列已满，保留整批产物';continue;}
     b.productionTicks=(b.productionTicks||0)+1;delete b.production;
     startProduction(o);
   }
@@ -416,8 +751,7 @@ function economyMinute(){
   S.tick++;
   const bl=buildings();
   S.pop=bl.reduce((sum,o)=>sum+(isResidence(o.b)?o.b.pop||0:0),0);
-  allocateWorkers(bl);updateCaps();advanceProduction(bl);
-  const consumption=Object.fromEntries(Object.keys(GOODS).map(k=>[k,0]));
+  allocateWorkers(bl);updateCaps();advanceProduction(bl);scheduleLogistics(bl);
   const residences=bl.filter(o=>isResidence(o.b));
   for (const o of residences) {
     const h=o.b;
@@ -426,11 +760,7 @@ function economyMinute(){
     let cur=residenceLevel(h);
     if (!h.construction) {
       if (met.canUpgrade && (h.pop||0)>=cur.pop*0.9) {
-        h.upTimer=(h.upTimer||0)+ECONOMY_STEP_SECONDS;
-        if (h.upTimer>=UPGRADE_DELAY) {
-          const total=constructionDuration(h.type,h.lvl);
-          h.construction={remaining:total,total,fromLevel:h.lvl,toLevel:h.lvl+1}; h.upTimer=0; h.missTicks=0;
-        }
+        h.upTimer=Math.min(UPGRADE_DELAY,(h.upTimer||0)+ECONOMY_STEP_SECONDS);
       } else h.upTimer=0;
       if (!met.currentOk && h.lvl>1) {
         h.missTicks=(h.missTicks||0)+ECONOMY_STEP_SECONDS;
@@ -452,12 +782,13 @@ function economyMinute(){
       }
     }
     // Occupants of an upgrading home remain in town and still eat.
-    consumption.grain+=(h.pop||0)*0.035;
+    consumeGoods(o,'grain',(h.pop||0)*0.035);
+    h.water=Math.max(0,(h.water||0)-(h.pop||0)*.01);
     for (const kind of ["veg","fruit","fish","meat","pottery","wine","cloth"]) {
-      if (cur.needs.includes(kind) && met.map[kind]) consumption[kind]+=(h.pop||0)*(GOODS[kind].cat==="food"?0.006:0.002);
+      if (cur.needs.includes(kind) && met.map[kind]) consumeGoods(o,kind,(h.pop||0)*(GOODS[kind].cat==="food"?0.006:0.002));
     }
   }
-  for (const kind in consumption) S.goods[kind]=Math.max(0,(S.goods[kind]||0)-consumption[kind]);
+  if(S.logistics?.graceSeconds)S.logistics.graceSeconds=Math.max(0,S.logistics.graceSeconds-ECONOMY_STEP_SECONDS);
   for (const o of bl) if (o.b.type==="harbor" && operational(o)) S.gold+=1.5*civilizationBonus("trade");
   S.pop=residences.reduce((sum,o)=>sum+(o.b.pop||0),0);
   // A population decrease can release workers immediately, avoiding a negative labour pool.
@@ -479,7 +810,9 @@ function residenceEnvironment(o){
 }
 function evaluateNeeds(o){
   const h=o.b,levels=residenceLevels(h),lvlData=residenceLevel(h),environment=residenceEnvironment(o),map={...environment.map};
-  for(const kind of ["grain","veg","fruit","fish","meat"])map[kind]=(S.goods[kind]||0)>0&&environment.shopCoverage[kind];
+  const grace=(S.logistics?.graceSeconds||0)>0;
+  map.water=!!environment.map.water&&((h.water||0)>1e-9||grace);
+  for(const kind of ["grain","veg","fruit","fish","meat"])map[kind]=environment.shopCoverage[kind]&&(!!servingShop(o,kind)||(grace&&(S.goods[kind]||0)>0));
   map.woodMat=(S.goods.wood||0)>=5; map.stoneMat=(S.goods.stone||0)>=5; map.clayMat=(S.goods.clay||0)>=5;
   for (const kind of ["pottery","wine","cloth"]) map[kind]=(S.goods[kind]||0)>=1;
   const missing=lvlData.needs.filter(n=>!map[n]);
@@ -487,6 +820,24 @@ function evaluateNeeds(o){
   const {beauty,clean}=environment;
   const canUpgrade=!!next && !h.construction && nextMissing.length===0 && beauty>=0 && clean;
   return {map,missing,currentOk:missing.length===0,next,nextMissing,canUpgrade,ok:canUpgrade,beauty,clean};
+}
+function upgradeStatus(x,y){
+  const b=tileAt(x,y)?.b;
+  const empty={eligible:false,reason:'请选择住宅',cost:{},duration:0,nextLevel:0,stableRemaining:0,needs:[]};
+  if(!isResidence(b))return empty;
+  const o=buildingById(b.id),met=evaluateNeeds(o),next=residenceLevels(b)[b.lvl],cur=residenceLevel(b);
+  const cost={...((b.type==='villa'?VILLA_UPGRADE_COSTS:HOUSE_UPGRADE_COSTS)[b.lvl]||{})};
+  const result={...empty,cost,duration:next?constructionDuration(b.type,b.lvl):0,nextLevel:next?b.lvl+1:0,
+    stableRemaining:Math.max(0,UPGRADE_DELAY-(b.upTimer||0)),needs:(next?.needs||[]).map(id=>({id,name:NEED_INFO[id]?.name||id,met:!!met.map[id]}))};
+  result.reason=!next?'已达最高等级':b.construction?'工程进行中':!met.canUpgrade?'请先满足下一等级需求及环境条件':(b.pop||0)<cur.pop*.9?'入住人数需达到容量的90%':result.stableRemaining>0?'需求与入住人数仍需保持稳定':Object.entries(cost).some(([k,n])=>(S.goods[k]||0)<n)?'升级材料不足':'';
+  result.eligible=!result.reason;return result;
+}
+function requestUpgrade(x,y){
+  const status=upgradeStatus(x,y);if(!status.eligible)return {ok:false,why:status.reason,...status};
+  const b=tileAt(x,y).b;
+  for(const[k,n]of Object.entries(status.cost))S.goods[k]-=n;
+  b.construction={remaining:status.duration,total:status.duration,fromLevel:b.lvl,toLevel:b.lvl+1};b.upTimer=0;b.missTicks=0;
+  _serviceCache=null;refreshUI();return {ok:true,why:'升级工程已开始',...status};
 }
 function updatePrestige(){
   const bl=buildings(),res=bl.filter(o=>isResidence(o.b)&&isComplete(o.b));
@@ -513,6 +864,11 @@ function hazards(bl){
 }
 function destroyBuilding(x,y){
   const b=tileAt(x,y)?.b; if (!b) return false;
+  const cargo={...(b.stock||{})},d=BUILD[b.type];
+  if(b.production&&d.input)for(const[k,n]of Object.entries(d.input))cargo[k]=(cargo[k]||0)+n*b.production.duration/60;
+  if(Object.values(cargo).some(n=>n>0)){
+    if(!newLogisticsJob('delivery',b.id,0,cargo,logisticsPath(roadAccess(b.id),roadAccess(0)))){emitToast('运输队列已满，请待货物送达后再拆除','bad');return false;}
+  }
   const [ox,oy]=b.origin||[x,y],fp=footprint(ox,oy,BUILD[b.type].size);
   if (fp) for (const [, ,t] of fp) if (t.b?.id===b.id) t.b=null;
   invalidateWorld();
@@ -544,6 +900,8 @@ function currentUnlocked(){
 }
 function hasResource(fp,kind){ return fp.some(([, ,t])=>t.t===kind); }
 function canBuildAt(type,x,y,options = {}){
+  const depot=S?.logistics?.depot,size=BUILD[type]?.size;
+  if(depot&&size&&x<=depot.x&&y<=depot.y&&x+size>depot.x&&y+size>depot.y)return {ok:false,why:'城镇货栈是基础仓储，请保留此地标'};
   const d=BUILD[type]; if (!d) return {ok:false,why:"未知建筑"};
   if (d.civilization && d.civilization!==S.civilization) return {ok:false,why:"此建筑属于另一文明"};
   const fp=footprint(x,y,d.size);
@@ -576,12 +934,13 @@ function demolish(x,y){
   const b=tileAt(x,y)?.b; if (!b) return false;
   if (b.type==="road" && b.main) { emitToast("驿道不可拆除","bad"); return false; }
   const d=BUILD[b.type];
+  if(!destroyBuilding(x,y))return false;
   for (const [kind,n] of Object.entries(d.cost||{})) {
     // Never truncate existing overflow from a chapter reward.
     const room=Math.max(0,resourceCapacity(kind)-(S.goods[kind]||0));
     S.goods[kind]=(S.goods[kind]||0)+Math.min(room,Math.floor(n*0.5));
   }
-  destroyBuilding(x,y); emitLog("拆除了"+d.name+"，回收一半建材。"); refreshUI(); return true;
+  emitLog("拆除了"+d.name+"，回收一半建材；存货与预付原料由运输队送回货栈。"); refreshUI(); return true;
 }
 /* Moving an existing building is a deliberate, affordable correction to a city plan. */
 function canMoveBuilding(fromX,fromY,toX,toY){
@@ -661,7 +1020,7 @@ function step(seconds,options={}){
       let remaining=seconds;
       while(remaining>1e-8){
         const part=Math.min(remaining,ECONOMY_STEP_SECONDS-S.clock.accumulatorSeconds);
-        advanceConstruction(buildings(),part);S.clock.elapsedSeconds+=part;S.clock.accumulatorSeconds+=part;remaining-=part;
+        advanceLogistics(part);advanceConstruction(buildings(),part);S.clock.elapsedSeconds+=part;S.clock.accumulatorSeconds+=part;remaining-=part;
         if(S.clock.accumulatorSeconds+1e-8>=ECONOMY_STEP_SECONDS){S.clock.accumulatorSeconds=0;economyMinute();}
       }
     }
@@ -695,7 +1054,7 @@ function simulate(){return advanceClock(Date.now());}
 function productionProgress(b){
   if(!b.production)return {elapsed:0,duration:BUILD[b.type]?.cycleSeconds||0,progress:0};
   const p=b.production,d=BUILD[b.type],o={x:b.origin?.[0],y:b.origin?.[1],b};
-  const active=!b.idle&&Number.isInteger(o.x)&&operational(o)&&Object.entries(d.prod).every(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)+1e-9>=n*(p.duration/60)*p.multiplier);
+  const active=!b.idle&&Number.isInteger(o.x)&&operational(o)&&Object.entries(d.prod).every(([kind,n])=>resourceCapacity(kind)-(S.goods[kind]||0)-goodsInTransit(kind)+1e-9>=n*(p.duration/60)*p.multiplier);
   const extra=active?(S.clock?.accumulatorSeconds||0):0,elapsed=Math.min(p.duration,p.elapsed+extra);
   return {elapsed,duration:p.duration,progress:elapsed/p.duration};
 }
@@ -707,16 +1066,18 @@ function serializeState(){
   const tiles=S.tiles.map(row=>row.map(t=>{
     let b=null;
     if (t.b) {
-      if (!memo.has(t.b.id)) { const {met,...rest}=t.b; memo.set(t.b.id,{...rest,...(rest.construction?{construction:{...rest.construction}}:{}),...(rest.production?{production:{...rest.production}}:{})}); }
+      if (!memo.has(t.b.id)) { const {met,...rest}=t.b; memo.set(t.b.id,{...rest,...(rest.stock?{stock:{...rest.stock}}:{}),...(rest.construction?{construction:{...rest.construction}}:{}),...(rest.production?{production:{...rest.production}}:{})}); }
       b=memo.get(t.b.id);
     }
     return {t:t.t,b,variant:t.variant||0};
   }));
-  return {...S,clock:{...S.clock},goods:{...S.goods},caps:{...S.caps},stats:{...S.stats},lastDelta:{...S.lastDelta},
+  return {...S,logistics:logisticsSnapshot(),clock:{...S.clock},goods:{...S.goods},caps:{...S.caps},stats:{...S.stats},lastDelta:{...S.lastDelta},
     taskDone:S.taskDone.map(row=>row.slice()),chapterCompleted:S.chapterCompleted.slice(),start:{...S.start},signpost:{...S.signpost},
     ...(S.offlineSummary?{offlineSummary:{...S.offlineSummary}}:{}),version:SAVE_VERSION,uid,tiles,log:(S.log||[]).slice(-80)};
 }
 function hydrateState(data,options={}){
+  const previous={state:S,width:MAP_W,height:MAP_H,uid,pendingSave};
+  try{
   if (!data || !Array.isArray(data.tiles) || data.tiles.length<8 || data.tiles.length>96) return false;
   const now=Number.isFinite(Number(options.nowMs))?Number(options.nowMs):Date.now();
   const modernClock=data.clock?.version===1&&Number.isFinite(data.clock.lastWallMs);
@@ -728,7 +1089,8 @@ function hydrateState(data,options={}){
   const civilization=Object.hasOwn(CIVILIZATIONS,data.civilization)?data.civilization:"china";
   const seed=String(data.seed??"legacy-city").slice(0,64);
   const tiles=generateTerrain(seed,civilization,width,height),byId=new Map(),candidates=[];
-  let nextUid=0;
+  // Retired identities remain retired even when their footprint has been removed.
+  let nextUid=Math.floor(numeric(data.uid,0,1e9));
   for (let y=0;y<oldH;y++) for (let x=0;x<oldW;x++) {
     const source=data.tiles[y][x]||{};
     tiles[y][x]={t:TERRAIN[source.t]?source.t:"grass",b:null,variant:Math.floor(numeric(source.variant,0,3))};
@@ -746,7 +1108,9 @@ function hydrateState(data,options={}){
       b.lvl=Math.floor(numeric(raw.lvl,1,residenceLevels(b).length))||1;
       b.pop=numeric(raw.pop,0,residenceLevel(b).pop); b.taxTimer=numeric(Number(raw.taxTimer)*timerScale,0,TAX_INTERVAL);
       b.upTimer=numeric(Number(raw.upTimer)*timerScale,0,UPGRADE_DELAY); b.missTicks=numeric(Number(raw.missTicks)*timerScale,0,NEED_GRACE_SECONDS);
+      b.water=numeric(raw.water,0,100000);
     }
+    if(BUILD[b.type].shop||BUILD[b.type].shopAll)b.stock=Object.fromEntries(Object.keys(GOODS).filter(k=>Number(raw.stock?.[k])>0).map(k=>[k,numeric(raw.stock[k])]));
     if (raw.damage) b.damage=numeric(Number(raw.damage)*timerScale,0,3600);
     if (raw.productionTicks) b.productionTicks=Math.floor(numeric(raw.productionTicks,0,1e9));
     if(modernClock&&raw.production&&BUILD[b.type].prod){
@@ -788,9 +1152,17 @@ function hydrateState(data,options={}){
   };
   MAP_W=width; MAP_H=height; S=state; uid=nextUid;
   invalidateWorld();
+  _logisticsRouteChecks.clear();hydrateLogistics(data.logistics);
+  for(const job of S.logistics.jobs)uid=Math.max(uid,job.sourceId,job.targetId);
   S.pop=buildings().reduce((sum,o)=>sum+(isResidence(o.b)?o.b.pop||0:0),0);
   allocateWorkers(buildings()); updateCaps(); pendingSave=S.tick;
   if(modernClock&&options.applyOffline!==false)advanceClock(now,{offline:true});
   return true;
+  }catch{
+    S=previous.state;MAP_W=previous.width;MAP_H=previous.height;uid=previous.uid;pendingSave=previous.pendingSave;
+    _roadDirty=true;_roadNet=null;_buildingCache=null;_buildingIdCache=null;_serviceCache=null;_roadRevision++;
+    _connectivityCache.clear();_logisticsRouteChecks.clear();
+    return false;
+  }
 }
 const normalizeState=hydrateState;

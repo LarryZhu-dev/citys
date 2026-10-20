@@ -27,16 +27,17 @@ npm start
 
 | 路径 | 用途 |
 | --- | --- |
-| `js/`、`assets/`、`index.html`、CSS | 浏览器游戏与美术资源 |
+| `js/`、`index.html`、CSS | 浏览器经济、桥接与在线界面 |
+| `godot/`、`engine-web/` | 引擎源码、构件原画及已导出的游戏资源包 |
 | `server/` | API、校验、持久化与本地 HTTP 服务 |
 | `api/index.js` | Vercel Node 函数入口 |
 | `public/` | `npm run build` 生成的静态发布文件 |
 | `.env`、`work/` | 本地配置和开发数据；已排除出 Git |
 | `tests/online.test.cjs` | 真实 HTTP 集成测试 |
 
-`public/` 发布 HTML/CSS、六个运行时 JS、Godot Web 引擎/资源包和七张在线表单共用美术。`engine-web/game.wasm.gz` 与 `game.pck.gz` 由已审核 Godot 源码导出；构建校验 SHA-256 后以原扩展名输出压缩数据，`vercel.json` 为它们显式设置 `Content-Encoding: gzip` 与 MIME。Godot 导出无需在 Vercel 重跑。不要删除这两个编码响应头，否则浏览器不能加载引擎。CSP 允许 `wasm-unsafe-eval`，未开放普通 JavaScript `unsafe-eval`。
+`public/` 发布 HTML/CSS、六个运行时 JS、Godot Web 引擎/资源包和七张在线表单共用美术。`engine-web/game.wasm.gz` 与 `game.pck.gz` 由已审核 Godot 源码导出；构建同时校验产物 SHA-256 与 Godot 源码/运行美术摘要。改了脚本或构件但未重新导出时构建直接失败，防止发布旧资源包。通过校验后以原扩展名输出压缩数据，`vercel.json` 为它们显式设置 `Content-Encoding: gzip` 与 MIME。Godot 导出无需在 Vercel 重跑。不要删除这两个编码响应头，否则浏览器不能加载引擎。CSP 允许 `wasm-unsafe-eval`，未开放普通 JavaScript `unsafe-eval`。
 
-原始图集、旧 Canvas、旧精灵、生成脚本和测试文件不发布为静态网页；账号数据和 `.env` 不进入构建。本地服务使用相同压缩响应和静态文件白名单。
+原始生图、生成脚本和测试文件不发布为静态网页；旧 Canvas 与旧建筑素材已从源码删除。账号数据和 `.env` 不进入构建。本地服务使用相同压缩响应和静态文件白名单。
 
 ## 2. 环境变量
 

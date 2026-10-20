@@ -9,6 +9,7 @@ const TILE_W := 128.0
 const TILE_H := 64.0
 const NatureScript = preload("res://world/nature.gd")
 const CitizensScript = preload("res://world/citizens.gd")
+const ConstructionWorkersScript = preload("res://world/construction_workers.gd")
 
 class SelectionOverlay extends Node2D:
 	var cell := Vector2i(-1,-1)
@@ -30,6 +31,7 @@ var object_root: Node2D
 var buildings: Node2D
 var nature: CityNature
 var citizens: CityCitizens
+var construction_workers: CityConstructionWorkers
 var _terrain: Polygon2D
 var _terrain_material: ShaderMaterial
 var _road_mesh: MeshInstance2D
@@ -42,6 +44,13 @@ var _map_size := Vector2i(64,64)
 var _occupied: Dictionary = {}
 var _build_signature := ""
 var _road_signature := ""
+var _road_style_signature := ""
+var _road_info: Dictionary = {}
+var _road_tiers := {"dirt":0,"gravel":0,"slab":0}
+var _road_rebuilds := 0
+var _depot: Node2D
+var _depot_signature := ""
+var _depot_cell := Vector2i(-1,-1)
 var _night := 0.0
 var _clock := 0.0
 var _paused := false
@@ -90,6 +99,8 @@ func _ready() -> void:
 		object_root.add_child(buildings)
 	citizens = CitizensScript.new()
 	object_root.add_child(citizens)
+	construction_workers = ConstructionWorkersScript.new()
+	object_root.add_child(construction_workers)
 	_overlay = SelectionOverlay.new()
 	_overlay.z_index = 100
 	add_child(_overlay)
@@ -136,6 +147,7 @@ func sync_state(city: Dictionary,full: bool = false) -> void:
 	_all_buildings = city.get("buildings",[])
 	var signature := ""
 	var roads := ""
+	var residences := ""
 	_occupied.clear()
 	for b: Dictionary in _all_buildings:
 		var x: int = int(b.get("x",0))
@@ -145,19 +157,26 @@ func sync_state(city: Dictionary,full: bool = false) -> void:
 		signature += "%s/%d/%d/%s;" % [str(b.get("id","")),x,y,kind]
 		if kind=="road":
 			roads += "%d,%d;" % [x,y]
+		elif kind in ["house","villa"]:
+			residences += "%s/%d/%d/%d/%d/%s;" % [kind,x,y,size,_completed_level(b),str(b.get("beauty",0))]
 		for yy in range(size):
 			for xx in range(size):
 				_occupied[Vector2i(x+xx,y+yy)] = b
 	if full or roads!=_road_signature:
 		_update_terrain()
-		_update_roads()
 		_road_signature = roads
+	var road_style: String = roads+"|"+residences
+	if road_style!=_road_style_signature:
+		_road_style_signature = road_style
+		_update_roads()
 	if full or signature!=_build_signature:
 		nature.sync_nature(_tiles,_all_buildings,int(city.get("seedHash",42)))
 		_build_signature = signature
 	if buildings and buildings.has_method("sync_buildings"):
 		buildings.sync_buildings(_all_buildings,city)
-	citizens.sync_city(_all_buildings)
+	citizens.sync_city(_all_buildings,city)
+	construction_workers.sync_city(city,buildings)
+	_sync_depot()
 	_update_coverage()
 	if not _started:
 		_started = true
@@ -228,31 +247,89 @@ func _update_terrain() -> void:
 		_road_material.set_shader_parameter("noise_map",noise_texture)
 	_terrain_material.set_shader_parameter("night",_night)
 
+static func _completed_level(b: Dictionary) -> int:
+	var construction: Variant = b.get("construction",null)
+	if construction is Dictionary and float(construction.get("remaining",0))>0:
+		return int(construction.get("fromLevel",0))
+	return int(b.get("lvl",1))
+
+func road_info(x: int,y: int) -> Dictionary:
+	return _road_info.get(Vector2i(x,y),{}).duplicate()
+
+func _update_road_tiers() -> void:
+	_road_info.clear()
+	_road_tiers = {"dirt":0,"gravel":0,"slab":0}
+	for b: Dictionary in _all_buildings:
+		if str(b.get("type",""))=="road":
+			_road_info[Vector2i(int(b.x),int(b.y))] = {"tier":0,"name":"土路","reason":"附近住宅与美化尚未达到铺装条件"}
+	for b: Dictionary in _all_buildings:
+		var kind: String = str(b.get("type",""))
+		if kind not in ["house","villa"]:continue
+		var level := _completed_level(b)
+		if level<=0:continue
+		var beauty: float = float(b.get("beauty",0))
+		var advanced: bool = level >= (7 if kind=="house" else 4)
+		var developed: bool = level >= (4 if kind=="house" else 2)
+		var tier := 0
+		var reason := ""
+		if beauty>=6:
+			tier=2
+			reason="附近美化达到 6"
+		elif advanced and beauty>=2:
+			tier=2
+			reason="附近%s达到 %d 级且美化达到 2" % ["住宅" if kind=="house" else "别墅",level]
+		elif beauty>=2 or developed:
+			tier=1
+			reason="附近美化达到 2" if beauty>=2 else "附近%s达到 %d 级" % ["住宅" if kind=="house" else "别墅",level]
+		if tier==0:continue
+		var size: int = int(b.get("size",1))
+		for y in range(int(b.y)-2,int(b.y)+size+2):
+			for x in range(int(b.x)-2,int(b.x)+size+2):
+				var cell:=Vector2i(x,y)
+				if _road_info.has(cell) and tier>int(_road_info[cell].tier):
+					_road_info[cell]={"tier":tier,"name":"石子路" if tier==1 else "石板路","reason":reason}
+	for info:Dictionary in _road_info.values():
+		_road_tiers[["dirt","gravel","slab"][int(info.tier)]]+=1
+
+func _road_vertex_tier(p: Vector2,cell: Vector2i) -> float:
+	var own:float=float(_road_info[cell].tier)
+	# Only blend in the last quarter tile; shared boundary vertices get equal values.
+	var total:=own
+	var weight:=1.
+	for d:Vector2i in [Vector2i.LEFT,Vector2i.RIGHT,Vector2i.UP,Vector2i.DOWN]:
+		var neighbor:=cell+d
+		if not _road_info.has(neighbor):continue
+		var distance:float=absf(p.x-float(cell.x+(1 if d.x>0 else 0))) if d.x!=0 else absf(p.y-float(cell.y+(1 if d.y>0 else 0)))
+		var influence:float=1.-smoothstep(0.,.24,distance)
+		total+=float(_road_info[neighbor].tier)*influence
+		weight+=influence
+	return total/weight*.5
+
 func _update_roads() -> void:
+	_update_road_tiers()
+	_road_rebuilds+=1
 	var vertices := PackedVector2Array()
 	var uv := PackedVector2Array()
+	var colors := PackedColorArray()
 	var indices := PackedInt32Array()
-	for b: Dictionary in _all_buildings:
-		if str(b.get("type",""))!="road":
-			continue
-		var x: int = int(b.get("x",0))
-		var y: int = int(b.get("y",0))
-		var horizontal: bool = _occupied.get(Vector2i(x-1,y),{}).get("type","")=="road" or _occupied.get(Vector2i(x+1,y),{}).get("type","")=="road"
-		var vertical: bool = _occupied.get(Vector2i(x,y-1),{}).get("type","")=="road" or _occupied.get(Vector2i(x,y+1),{}).get("type","")=="road"
-		var quads: Array[Rect2] = []
-		if horizontal:
-			quads.append(Rect2(x,y+.23,1,.54))
-		if vertical:
-			quads.append(Rect2(x+.23,y,.54,1))
-		if quads.is_empty():
-			quads.append(Rect2(x+.23,y+.23,.54,.54))
-		for rect: Rect2 in quads:
-			var first := vertices.size()
-			for p: Vector2 in [rect.position,rect.position+Vector2(rect.size.x,0),rect.end,rect.position+Vector2(0,rect.size.y)]:
-				vertices.append(iso(p.x,p.y))
-				uv.append(p)
-			for index in [0,1,2,0,2,3]:
-				indices.append(first+index)
+	for cell:Vector2i in _road_info:
+		var x:=cell.x
+		var y:=cell.y
+		var horizontal: bool = _road_info.has(cell+Vector2i.LEFT) or _road_info.has(cell+Vector2i.RIGHT)
+		var vertical: bool = _road_info.has(cell+Vector2i.UP) or _road_info.has(cell+Vector2i.DOWN)
+		# Non-overlapping .25 subdivisions preserve solid material centers and short joins.
+		var xs:Array=[0.,.23,.5,.77,1.] if horizontal else [.23,.5,.77]
+		var ys:Array=[0.,.23,.5,.77,1.] if vertical else [.23,.5,.77]
+		for iy in range(ys.size()-1):
+			for ix in range(xs.size()-1):
+				var midpoint:=Vector2((xs[ix]+xs[ix+1])*.5,(ys[iy]+ys[iy+1])*.5)
+				if not ((horizontal and midpoint.y>=.23 and midpoint.y<=.77) or (vertical and midpoint.x>=.23 and midpoint.x<=.77) or (not horizontal and not vertical)):continue
+				var first:=vertices.size()
+				for p:Vector2 in [Vector2(x+xs[ix],y+ys[iy]),Vector2(x+xs[ix+1],y+ys[iy]),Vector2(x+xs[ix+1],y+ys[iy+1]),Vector2(x+xs[ix],y+ys[iy+1])]:
+					vertices.append(iso(p.x,p.y))
+					uv.append(p)
+					colors.append(Color(_road_vertex_tier(p,cell),1,1,1))
+				for index in [0,1,2,0,2,3]:indices.append(first+index)
 	if vertices.is_empty():
 		_road_mesh.mesh = null
 		return
@@ -260,12 +337,44 @@ func _update_roads() -> void:
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_COLOR] = colors
 	arrays[Mesh.ARRAY_INDEX] = indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
 	_road_mesh.mesh = mesh
 	_road_material.set_shader_parameter("map_size",Vector2(_map_size))
 	_road_material.set_shader_parameter("night",_night)
+
+func _sync_depot() -> void:
+	var data:Dictionary=_city.get("logistics",{}).get("depot",{})
+	var signature:=JSON.stringify(data)
+	if signature==_depot_signature:return
+	_depot_signature=signature
+	_depot_cell=Vector2i(-1,-1)
+	if is_instance_valid(_depot):
+		_depot.queue_free()
+		_depot=null
+	if data.is_empty() or not buildings or not buildings.has_method("create_preview"):return
+	_depot_cell=Vector2i(int(data.get("x",-1)),int(data.get("y",-1)))
+	if not _valid(_depot_cell) or _occupied.has(_depot_cell):return
+	_depot=Node2D.new()
+	_depot.position=iso(_depot_cell.x+.5,_depot_cell.y+.5)
+	object_root.add_child(_depot)
+	var preview:Node2D=buildings.create_preview("warehouse",1)
+	preview.scale=Vector2.ONE*.38
+	preview.position=-iso(1.,1.)*.38
+	preview.set_night(_night)
+	_depot.add_child(preview)
+	var sign_label:=Label.new()
+	sign_label.text="城镇货栈"
+	sign_label.add_theme_font_override("font",load("res://art/fonts/chinese.otf"))
+	sign_label.add_theme_font_size_override("font_size",12)
+	sign_label.add_theme_color_override("font_color",Color("f3dba1"))
+	sign_label.add_theme_color_override("font_shadow_color",Color("28251d"))
+	sign_label.add_theme_constant_override("shadow_offset_x",1)
+	sign_label.add_theme_constant_override("shadow_offset_y",1)
+	sign_label.position=Vector2(-24,10)
+	_depot.add_child(sign_label)
 
 func _update_coverage() -> void:
 	var mode: String = str(_city.get("settings",{}).get("overlay","none"))
@@ -320,6 +429,10 @@ func set_night(amount: float) -> void:
 	_road_material.set_shader_parameter("night",_night)
 	nature.set_night(_night)
 	citizens.set_night(_night)
+	construction_workers.set_night(_night)
+	if is_instance_valid(_depot):
+		for child in _depot.get_children():
+			if child.has_method("set_night"):child.set_night(_night)
 	if buildings and buildings.has_method("set_night"):
 		buildings.set_night(_night)
 
@@ -328,6 +441,8 @@ func set_paused(value: bool) -> void:
 	set_process(not value)
 	if citizens:
 		citizens.set_paused(value)
+	if construction_workers:
+		construction_workers.set_paused(value)
 	# Shader clock is explicit: paused scenes do not have a hidden TIME animation.
 	OS.low_processor_usage_mode = value
 
@@ -398,6 +513,7 @@ func _process(delta: float) -> void:
 	if buildings and buildings.has_method("set_animation"):
 		buildings.set_animation(_clock)
 	citizens.animate(minf(delta,.1))
+	construction_workers.animate(minf(delta,.1))
 
 func _valid(p: Vector2i) -> bool:
 	return p.x>=0 and p.y>=0 and p.x<_map_size.x and p.y<_map_size.y
@@ -426,6 +542,7 @@ func _refresh_preview(p: Vector2i) -> void:
 					terrain = str(_tiles[q.y][q.x].get("t","grass"))
 				near_water = near_water or terrain=="water"
 				if inside:
+					if q==_depot_cell:_overlay.permitted=false
 					has_resource = has_resource or terrain==resource
 					var occupied: Dictionary = _occupied.get(q,{})
 					var moving: Variant = _city.get("moving",{})
@@ -488,7 +605,7 @@ func _paint_road(p: Vector2i) -> void:
 			continue
 		_stroke_sent[cell] = true
 		# Existing roads join the stroke; occupied buildings remain obstacles.
-		if _occupied.has(cell):
+		if _occupied.has(cell) or cell==_depot_cell:
 			continue
 		points.append({"x":cell.x,"y":cell.y})
 	_stroke_last = p
@@ -598,4 +715,4 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func diagnostics() -> Dictionary:
-	return {"tiles":_map_size.x*_map_size.y,"buildings":_all_buildings.size(),"nature_clusters":nature._items.size() if nature else 0,"citizens":citizens._actors.size() if citizens else 0,"camera_zoom":camera.zoom.x if camera else 0.0,"css_zoom":camera.zoom.x/_css_scale if camera else 0.0,"camera_position":[camera.position.x,camera.position.y] if camera else [0,0],"viewport_size":[get_viewport_rect().size.x,get_viewport_rect().size.y],"css_scale":_css_scale,"terrain_backend":"GPU world-coordinate shader","quality":_quality,"paused":_paused,"selected":[_selected.x,_selected.y]}
+	return {"tiles":_map_size.x*_map_size.y,"buildings":_all_buildings.size(),"nature_clusters":nature._items.size() if nature else 0,"citizens":citizens._actors.size() if citizens else 0,"camera_zoom":camera.zoom.x if camera else 0.0,"css_zoom":camera.zoom.x/_css_scale if camera else 0.0,"camera_position":[camera.position.x,camera.position.y] if camera else [0,0],"viewport_size":[get_viewport_rect().size.x,get_viewport_rect().size.y],"css_scale":_css_scale,"selected_road":road_info(_selected.x,_selected.y),"logistics":citizens.diagnostics() if citizens and citizens.has_method("diagnostics") else {},"construction":construction_workers.diagnostics() if construction_workers else {},"road_tiers":_road_tiers.duplicate(),"road_rebuilds":_road_rebuilds,"deposits":nature.deposits.diagnostics() if nature else {},"depot":[_depot_cell.x,_depot_cell.y],"terrain_backend":"GPU world-coordinate shader","quality":_quality,"paused":_paused,"selected":[_selected.x,_selected.y]}

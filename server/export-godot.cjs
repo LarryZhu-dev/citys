@@ -1,6 +1,7 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),zlib=require('node:zlib'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..'),project=path.join(root,'godot'),output=path.join(root,'engine-web');
+const {sourceDigest}=require('./godot-source.cjs');
 fs.mkdirSync(output,{recursive:true});
 function configureTextures(directory){
  let changed=false;
@@ -32,5 +33,5 @@ for(const file of ['game.wasm','game.pck']){
  fs.writeFileSync(path.join(output,file+'.gz'),gz);
  files.push({file,rawBytes:raw.length,gzipBytes:gz.length,sha256:crypto.createHash('sha256').update(raw).digest('hex')});
 }
-fs.writeFileSync(path.join(output,'manifest.json'),JSON.stringify({engine:'Godot 4.6.3',renderer:'Compatibility',threads:false,files},null,2)+'\n');
+fs.writeFileSync(path.join(output,'manifest.json'),JSON.stringify({engine:'Godot 4.6.3',renderer:'Compatibility',threads:false,sourceSha256:sourceDigest(project),files},null,2)+'\n');
 console.log('Exported Godot Web:',files.map(f=>`${f.file} ${(f.gzipBytes/1048576).toFixed(1)} MiB transferred`).join(', '));

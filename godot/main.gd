@@ -36,6 +36,9 @@ func _process(delta: float) -> void:
 		elapsed = 0.0
 		_sync(false)
 		var metrics := {"fps": Engine.get_frames_per_second(), "nodes": Performance.get_monitor(Performance.OBJECT_NODE_COUNT), "engine": Engine.get_version_info().string, "renderer": "Godot Compatibility WebGL2"}
+		metrics["draw_calls"] = Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+		metrics["render_objects"] = Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)
+		metrics["render_primitives"] = Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
 		if world.has_method("diagnostics"):
 			metrics["world"] = world.diagnostics()
 		if hud.has_method("diagnostics"):
@@ -53,6 +56,9 @@ func _sync(full: bool) -> void:
 		full = true
 	terrain_revision = revision
 	world.sync_state(city, full)
+	var selected: Dictionary = city.get("selection", {})
+	if str(selected.get("type", "")) == "road" and world.has_method("road_info"):
+		selected["road"] = world.road_info(int(selected.get("x", 0)), int(selected.get("y", 0)))
 	world.select_tool(str(city.get("tool", "")))
 	world.set_paused(float(city.get("speed", 1)) == 0.0 or bool(city.get("onlineOpen", false)) or bool(city.get("settings", {}).get("reducedMotion", false)))
 	var mode: String = str(city.get("nightMode", "auto"))

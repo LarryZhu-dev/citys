@@ -12,6 +12,7 @@ function fresh(g,mode='campaign'){g.run(`newGame({civilization:'china',seed:'clo
 function factoryCity(g){
  fresh(g,'sandbox');g.run(`S.tiles=Array.from({length:64},()=>Array.from({length:64},()=>({t:'grass',b:null})));invalidateWorld();
  for(let x=0;x<20;x++)setRoad(x,10,x===0);var home=put(1,9,'house');home.pop=6;S.pop=6;
+ S.logistics={version:1,nextId:1,depot:{x:0,y:9,door:[0,10],name:'城镇货栈'},jobs:[]};
  var factory=put(4,11,'kiln');S.goods.clay=30;S.goods.brick=0;allocateWorkers(buildings());updateCaps();`);
 }
 function snapshot(g){return JSON.parse(g.run('JSON.stringify(serializeState())'));}
@@ -44,7 +45,9 @@ test('agriculture requires a thirty-minute batch, with consumption using the sam
  g.run('step(1799)');assert.equal(g.run('tileAt(45,15).b.productionTicks||0'),0);
  assert.ok(g.run('productionProgress(tileAt(45,15).b).progress')>.99);
  g.run('step(1)');assert.equal(g.run('tileAt(45,15).b.productionTicks'),1);
- assert.ok(Math.abs(g.run('S.goods.grain')-(160+yieldAmount-12*.035*30))<1e-8);
+ assert.ok(Math.abs(g.run('S.goods.grain+goodsInTransit("grain")')-(160+yieldAmount-12*.035*30))<1e-8);
+ assert.equal(g.run('S.logistics.jobs.some(j=>j.kind==="delivery"&&j.cargo.grain>0)'),true);
+ g.run('step(60)');assert.ok(Math.abs(g.run('S.goods.grain')-(160+yieldAmount-12*.035*31))<1e-8);
 });
 
 test('reserved industrial inputs survive pauses without duplicate output or input charges',()=>{
@@ -54,7 +57,7 @@ test('reserved industrial inputs survive pauses without duplicate output or inpu
  g.run('step(120);var progress=factory.production.elapsed;destroyBuilding(3,10);step(1800)');
  assert.equal(g.run('factory.production.elapsed'),g.run('progress'));
  assert.equal(g.run('S.goods.brick'),0);
- g.run('setRoad(3,10);step(8*60)');
+ g.run('setRoad(3,10);step(9*60)');
  assert.ok(Math.abs(g.run('S.goods.brick')-34.5)<1e-8);
  assert.equal(g.run('S.goods.clay'),0);
  assert.equal(g.run('factory.productionTicks'),1);
@@ -68,6 +71,7 @@ test('losing workers or filling storage freezes a retained production batch',()=
  assert.equal(g.run('factory.production.elapsed'),0);
  g.run('S.goods.brick=0;step(600)');
  assert.equal(g.run('factory.productionTicks'),1);
+ assert.equal(g.run('S.goods.brick'),0);g.run('step(60)');
  assert.ok(Math.abs(g.run('S.goods.brick')-34.5)<1e-8);
 });
 
@@ -145,7 +149,7 @@ test('service environment caches follow completion, labour, damage, relocation a
  const g=game();factoryCity(g);g.run("doBuild('well',6,9);var houseObject=buildings().find(o=>o.b.type==='house')");
  assert.equal(g.run('evaluateNeeds(houseObject).map.water'),false);
  g.run("step(constructionDuration('well')+60)");assert.equal(g.run('evaluateNeeds(houseObject).map.water'),false); // outside four-tile radius
- g.run("moveBuilding(6,9,3,9)");assert.equal(g.run('evaluateNeeds(houseObject).map.water'),true);
+ g.run("moveBuilding(6,9,3,9);step(120)");assert.equal(g.run('evaluateNeeds(houseObject).map.water'),true);
  g.run('home.pop=1;S.pop=1;allocateWorkers(buildings())');assert.equal(g.run('evaluateNeeds(houseObject).map.water'),false);
  g.run('home.pop=6;S.pop=6;allocateWorkers(buildings())');assert.equal(g.run('evaluateNeeds(houseObject).map.water'),true);
  g.run('tileAt(3,9).b.damage=60;allocateWorkers(buildings())');assert.equal(g.run('evaluateNeeds(houseObject).map.water'),false);

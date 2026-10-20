@@ -1,0 +1,677 @@
+{
+  "schema": 1,
+  "padding": 16,
+  "page_sizes": {
+    "0": [
+      2048,
+      2048
+    ],
+    "1": [
+      2048,
+      2048
+    ],
+    "2": [
+      2048,
+      2048
+    ],
+    "3": [
+      2048,
+      256
+    ],
+    "4": [
+      2048,
+      1024
+    ]
+  },
+  "placements": {
+    "stone_block": {
+      "page": 0,
+      "rect": [
+        16,
+        1685,
+        529,
+        338
+      ]
+    },
+    "stone_step": {
+      "page": 2,
+      "rect": [
+        474,
+        1288,
+        547,
+        259
+      ]
+    },
+    "post_wood": {
+      "page": 0,
+      "rect": [
+        1852,
+        16,
+        78,
+        492
+      ]
+    },
+    "post_red": {
+      "page": 0,
+      "rect": [
+        1740,
+        16,
+        80,
+        508
+      ]
+    },
+    "beam_wood": {
+      "page": 3,
+      "rect": [
+        16,
+        147,
+        587,
+        92
+      ]
+    },
+    "beam_painted": {
+      "page": 3,
+      "rect": [
+        982,
+        16,
+        582,
+        93
+      ]
+    },
+    "wall_earth": {
+      "page": 0,
+      "rect": [
+        908,
+        1166,
+        398,
+        485
+      ]
+    },
+    "wall_plaster": {
+      "page": 0,
+      "rect": [
+        16,
+        1166,
+        390,
+        487
+      ]
+    },
+    "wall_timber": {
+      "page": 0,
+      "rect": [
+        1286,
+        625,
+        402,
+        487
+      ]
+    },
+    "wall_brick": {
+      "page": 0,
+      "rect": [
+        1338,
+        1166,
+        398,
+        480
+      ]
+    },
+    "brace_wood": {
+      "page": 1,
+      "rect": [
+        378,
+        16,
+        457,
+        472
+      ]
+    },
+    "dougong": {
+      "page": 2,
+      "rect": [
+        1477,
+        16,
+        423,
+        407
+      ]
+    },
+    "door_wood": {
+      "page": 0,
+      "rect": [
+        1378,
+        16,
+        330,
+        512
+      ]
+    },
+    "door_red": {
+      "page": 0,
+      "rect": [
+        1026,
+        16,
+        320,
+        513
+      ]
+    },
+    "window_lattice": {
+      "page": 2,
+      "rect": [
+        16,
+        16,
+        433,
+        418
+      ]
+    },
+    "window_paper": {
+      "page": 2,
+      "rect": [
+        1026,
+        16,
+        419,
+        413
+      ]
+    },
+    "railing": {
+      "page": 2,
+      "rect": [
+        1028,
+        898,
+        638,
+        274
+      ]
+    },
+    "lantern": {
+      "page": 0,
+      "rect": [
+        319,
+        16,
+        229,
+        519
+      ]
+    },
+    "tiles_gray": {
+      "page": 2,
+      "rect": [
+        1016,
+        1794,
+        466,
+        123
+      ]
+    },
+    "tiles_green": {
+      "page": 2,
+      "rect": [
+        520,
+        1794,
+        464,
+        124
+      ]
+    },
+    "tiles_glazed": {
+      "page": 2,
+      "rect": [
+        1514,
+        1794,
+        465,
+        123
+      ]
+    },
+    "thatch_course": {
+      "page": 2,
+      "rect": [
+        16,
+        1794,
+        472,
+        133
+      ]
+    },
+    "eave_gray": {
+      "page": 3,
+      "rect": [
+        16,
+        16,
+        451,
+        99
+      ]
+    },
+    "eave_gold": {
+      "page": 3,
+      "rect": [
+        499,
+        16,
+        451,
+        98
+      ]
+    },
+    "ridge_gray": {
+      "page": 3,
+      "rect": [
+        635,
+        147,
+        493,
+        80
+      ]
+    },
+    "ridge_gold": {
+      "page": 3,
+      "rect": [
+        1160,
+        147,
+        488,
+        80
+      ]
+    },
+    "ridge_beast": {
+      "page": 1,
+      "rect": [
+        1769,
+        16,
+        248,
+        282
+      ]
+    },
+    "rafter": {
+      "page": 2,
+      "rect": [
+        16,
+        1959,
+        521,
+        69
+      ]
+    },
+    "fabric_canvas": {
+      "page": 2,
+      "rect": [
+        557,
+        898,
+        439,
+        295
+      ]
+    },
+    "fabric_awning": {
+      "page": 0,
+      "rect": [
+        1491,
+        1685,
+        456,
+        296
+      ]
+    },
+    "sack": {
+      "page": 0,
+      "rect": [
+        813,
+        625,
+        441,
+        498
+      ]
+    },
+    "crate": {
+      "page": 1,
+      "rect": [
+        16,
+        528,
+        482,
+        466
+      ]
+    },
+    "barrel": {
+      "page": 0,
+      "rect": [
+        427,
+        625,
+        354,
+        502
+      ]
+    },
+    "timber_stack": {
+      "page": 2,
+      "rect": [
+        481,
+        16,
+        513,
+        416
+      ]
+    },
+    "bucket": {
+      "page": 1,
+      "rect": [
+        16,
+        16,
+        330,
+        480
+      ]
+    },
+    "wheel": {
+      "page": 0,
+      "rect": [
+        438,
+        1166,
+        438,
+        485
+      ]
+    },
+    "kiln_masonry": {
+      "page": 1,
+      "rect": [
+        1570,
+        528,
+        424,
+        441
+      ]
+    },
+    "furnace_mouth": {
+      "page": 2,
+      "rect": [
+        540,
+        466,
+        468,
+        393
+      ]
+    },
+    "chimney_course": {
+      "page": 0,
+      "rect": [
+        577,
+        1685,
+        448,
+        331
+      ]
+    },
+    "pottery_vessel": {
+      "page": 1,
+      "rect": [
+        530,
+        528,
+        449,
+        463
+      ]
+    },
+    "loom_frame": {
+      "page": 0,
+      "rect": [
+        16,
+        625,
+        379,
+        509
+      ]
+    },
+    "workbench": {
+      "page": 1,
+      "rect": [
+        1011,
+        528,
+        527,
+        458
+      ]
+    },
+    "rice_seedling": {
+      "page": 1,
+      "rect": [
+        16,
+        1515,
+        402,
+        425
+      ]
+    },
+    "rice_ripe": {
+      "page": 1,
+      "rect": [
+        1060,
+        1026,
+        465,
+        455
+      ]
+    },
+    "vegetable_patch": {
+      "page": 1,
+      "rect": [
+        450,
+        1515,
+        443,
+        423
+      ]
+    },
+    "fruit_branch": {
+      "page": 1,
+      "rect": [
+        1557,
+        1026,
+        470,
+        431
+      ]
+    },
+    "well_stone": {
+      "page": 2,
+      "rect": [
+        1040,
+        466,
+        388,
+        385
+      ]
+    },
+    "water_surface": {
+      "page": 2,
+      "rect": [
+        1053,
+        1288,
+        445,
+        225
+      ]
+    },
+    "gong": {
+      "page": 0,
+      "rect": [
+        580,
+        16,
+        414,
+        517
+      ]
+    },
+    "drum": {
+      "page": 1,
+      "rect": [
+        563,
+        1026,
+        465,
+        457
+      ]
+    },
+    "banner": {
+      "page": 0,
+      "rect": [
+        16,
+        16,
+        271,
+        577
+      ]
+    },
+    "lion": {
+      "page": 1,
+      "rect": [
+        1353,
+        16,
+        384,
+        467
+      ]
+    },
+    "incense_burner": {
+      "page": 2,
+      "rect": [
+        1460,
+        466,
+        428,
+        383
+      ]
+    },
+    "rope": {
+      "page": 2,
+      "rect": [
+        16,
+        1288,
+        426,
+        260
+      ]
+    },
+    "cattle": {
+      "page": 1,
+      "rect": [
+        16,
+        1026,
+        515,
+        457
+      ]
+    },
+    "sheep": {
+      "page": 1,
+      "rect": [
+        1471,
+        1515,
+        470,
+        421
+      ]
+    },
+    "fish": {
+      "page": 1,
+      "rect": [
+        867,
+        16,
+        454,
+        468
+      ]
+    },
+    "meat": {
+      "page": 2,
+      "rect": [
+        16,
+        898,
+        509,
+        358
+      ]
+    },
+    "vegetable_basket": {
+      "page": 1,
+      "rect": [
+        925,
+        1515,
+        514,
+        422
+      ]
+    },
+    "fruit_basket": {
+      "page": 2,
+      "rect": [
+        16,
+        466,
+        492,
+        400
+      ]
+    },
+    "well_stone_nw": {
+      "page": 2,
+      "rect": [
+        1086,
+        1580,
+        507,
+        154
+      ]
+    },
+    "well_stone_ne": {
+      "page": 0,
+      "rect": [
+        1276,
+        1685,
+        183,
+        322
+      ]
+    },
+    "well_stone_sw": {
+      "page": 0,
+      "rect": [
+        1057,
+        1685,
+        187,
+        322
+      ]
+    },
+    "well_stone_se": {
+      "page": 2,
+      "rect": [
+        550,
+        1580,
+        504,
+        159
+      ]
+    },
+    "kiln_masonry_nw": {
+      "page": 2,
+      "rect": [
+        1530,
+        1288,
+        500,
+        183
+      ]
+    },
+    "kiln_masonry_ne": {
+      "page": 0,
+      "rect": [
+        1720,
+        625,
+        179,
+        343
+      ]
+    },
+    "kiln_masonry_sw": {
+      "page": 0,
+      "rect": [
+        1768,
+        1166,
+        182,
+        338
+      ]
+    },
+    "kiln_masonry_se": {
+      "page": 2,
+      "rect": [
+        16,
+        1580,
+        502,
+        182
+      ]
+    },
+    "millstone": {
+      "page": 4,
+      "rect": [
+        1087,
+        16,
+        554,
+        395
+      ]
+    },
+    "armillary_ring_vertical": {
+      "page": 4,
+      "rect": [
+        600,
+        16,
+        455,
+        449
+      ]
+    },
+    "armillary_ring_horizontal": {
+      "page": 4,
+      "rect": [
+        16,
+        536,
+        607,
+        310
+      ]
+    },
+    "tree_trunk": {
+      "page": 4,
+      "rect": [
+        16,
+        16,
+        552,
+        488
+      ]
+    }
+  },
+  "note": "Stable production placements; append new source groups on new pages, never repack established keys."
+}

@@ -574,7 +574,10 @@ func sync_state(value: Dictionary) -> void:
 	if selection_key != last_selection_key:
 		last_selection_key = selection_key
 		if not selection_key.is_empty() and not has_tool:
-			show_panel("detail")
+			if active_panel != "detail":
+				show_panel("detail")
+			else:
+				confirmation_open = false
 		elif active_panel == "detail":
 			_close_panel()
 	if not initial_decision_done and city.has("hasSave"):
@@ -1004,11 +1007,16 @@ func _inventory_panel() -> void:
 func _tasks_panel() -> void:
 	panel_body.add_child(_text(str(city.get("chapterName", city.get("chapterTitle", "第 %d 章 · 城市征程" % (int(city.get("chapter", 0)) + 1)))), 16))
 	var tasks: Array = city.get("tasks", []) as Array
+	var has_upgrade_task: bool = false
 	for item: Variant in tasks:
 		if item is Dictionary:
 			var task: Dictionary = item as Dictionary
 			var done: bool = bool(task.get("done", task.get("complete", false)))
-			panel_body.add_child(_text(("已达成  " if done else "待完成  ") + str(task.get("text", task.get("name", ""))), 14, Color("536b37") if done else INK))
+			var task_text: String = str(task.get("text", task.get("name", "")))
+			has_upgrade_task = has_upgrade_task or (not done and task_text.contains("升级"))
+			panel_body.add_child(_text(("已达成  " if done else "待完成  ") + task_text, 14, Color("536b37") if done else INK))
+	if has_upgrade_task:
+		panel_body.add_child(_text("住宅满足需求并稳定入住后，打开建筑详情，点“升级”投入材料并开始施工。", 13, MUTED))
 	if tasks.is_empty():
 		panel_body.add_child(_text("自由营造，或在文明征程中逐章发展城市。"))
 
@@ -1073,36 +1081,56 @@ func _detail_panel() -> void:
 	if selected.is_empty():
 		panel_body.add_child(_text("轻触一座建筑，查看需求与运作情况。"))
 		return
-	panel_title.text = str(selected.get("name", _definition(str(selected.get("type", ""))).get("name", "建筑档案")))
+	var building_type: String = str(selected.get("type", ""))
+	var road: Dictionary = selected.get("road", {}) as Dictionary if selected.get("road") is Dictionary else {}
+	panel_title.text = str(road.get("name", selected.get("name", _definition(building_type).get("name", "建筑档案"))))
 	if str(selected.get("type", "")).is_empty():
 		panel_body.add_child(_text("选择营造图录中的建筑，在满足地形与道路要求的地块落成。", 13, MUTED))
 		return
 	panel_body.add_child(_text(str(selected.get("desc", "")), 12, MUTED))
 	var level: int = int(selected.get("lvl", 1))
 	var summary: String = "等级 %d" % level
+	if not str(selected.get("levelName", "")).is_empty():
+		summary = str(selected.levelName) + " · %d 级" % level
+	if building_type == "depot":
+		summary = "基础仓储与运输停靠点"
+	if building_type == "road":
+		var road_names: Array = ["土路", "石子路", "石板路"]
+		summary = str(road.get("name", road_names[clampi(int(road.get("tier", 0)), 0, 2)]))
+		if not str(road.get("reason", "")).is_empty():
+			summary += " · " + str(road.reason)
 	if selected.has("pop"):
 		summary += " · 居民 " + _number(float(selected.pop)) + (" / " + _number(float(selected.capacity)) if selected.has("capacity") else "")
 	if int(selected.get("workers", 0)) > 0:
 		var workers_needed: int = int(selected.get("workersNeeded", selected.get("workers", 0)))
 		summary += " · 劳工 %d / %d" % [workers_needed if bool(selected.get("staffed", false)) else 0, workers_needed]
 	panel_body.add_child(_text(summary))
+	if selected.has("capacityFood") or selected.has("capacityMaterial"):
+		panel_body.add_child(_text("基础容量 · 食物 " + _number(float(selected.get("capacityFood", 0))) + " · 物料 " + _number(float(selected.get("capacityMaterial", 0))), 13, MUTED))
 	if float(selected.get("damage", 0)) > 0:
 		panel_body.add_child(_text("受损修复中 · 剩余 " + _duration(float(selected.damage)), 13, Color("a44f3f")))
 	if selected.has("connected") and not bool(selected.connected):
 		panel_body.add_child(_text("未接入主路：施工与运营将暂停。", 13, Color("a44f3f")))
 	var construction: Variant = selected.get("construction")
-	if construction is Dictionary and not (construction as Dictionary).is_empty():
+	var is_constructing: bool = construction is Dictionary and not (construction as Dictionary).is_empty()
+	if is_constructing:
 		var progress: Dictionary = construction as Dictionary
-		panel_body.add_child(_text("升级施工" if progress.has("toLevel") else "正在营造", 14))
+		var construction_title: String = "正在营造"
+		if progress.has("toLevel"):
+			construction_title = "升级施工 · %d 级 → %d 级" % [int(progress.get("fromLevel", level)), int(progress.toLevel)]
+		panel_body.add_child(_text(construction_title, 14))
 		var bar := ProgressBar.new()
 		bar.max_value = maxf(1.0, float(progress.get("total", 1)))
 		bar.value = bar.max_value - float(progress.get("remaining", 0))
 		bar.custom_minimum_size.y = 18
 		panel_body.add_child(bar)
 		panel_body.add_child(_text("剩余 " + _duration(float(progress.get("remaining", 0))), 12, MUTED))
-	var needs: Array = selected.get("needs", []) as Array
+	var upgrade: Dictionary = selected.get("upgrade", {}) as Dictionary if selected.get("upgrade") is Dictionary else {}
+	if not upgrade.is_empty() and not is_constructing and not bool(selected.get("immutable", false)):
+		_upgrade_details(selected, upgrade)
+	var needs: Array = upgrade.get("needs", selected.get("needs", [])) as Array if int(upgrade.get("nextLevel", 0)) > 0 else selected.get("needs", []) as Array
 	if not needs.is_empty():
-		panel_body.add_child(_text("下一级需求" if int(selected.get("nextLevel", 0)) > 0 else "维持居住的需求", 13, MUTED))
+		panel_body.add_child(_text("下一级需求" if int(upgrade.get("nextLevel", selected.get("nextLevel", 0))) > 0 else "维持居住的需求", 13, MUTED))
 	for item: Variant in needs:
 		if item is Dictionary:
 			var need: Dictionary = item as Dictionary
@@ -1112,10 +1140,11 @@ func _detail_panel() -> void:
 		panel_body.add_child(_text("污染阻止升级：迁开污染工业，或用花园改善居住环境。", 13, Color("a44f3f")))
 	if selected.has("beauty") and float(selected.beauty) < 0:
 		panel_body.add_child(_text("美化不足：增建园林，平衡工业影响。", 13, Color("a44f3f")))
-	if selected.has("upgradeRemaining") and float(selected.upgradeRemaining) > 0:
-		panel_body.add_child(_text("稳定居住后升级，剩余 " + _duration(float(selected.upgradeRemaining)), 13, MUTED))
-	if not str(selected.get("reason", "")).is_empty():
+	if upgrade.is_empty() and not str(selected.get("reason", "")).is_empty():
 		panel_body.add_child(_text(str(selected.reason), 13, MUTED))
+	var logistics: Dictionary = selected.get("logistics", {}) as Dictionary if selected.get("logistics") is Dictionary else {}
+	if not logistics.is_empty():
+		_logistics_details(logistics)
 	var production: Variant = selected.get("production")
 	if production is Dictionary:
 		var cycle: Dictionary = production as Dictionary
@@ -1128,12 +1157,71 @@ func _detail_panel() -> void:
 			panel_body.add_child(_text(("产出基准 / 分钟  " if key == "prod" else "原料基准 / 分钟  ") + _cost_text(amount as Dictionary), 13))
 	var buttons: HBoxContainer = _row()
 	buttons.add_child(_button("center", "定位", func() -> void: _emit("center", {"x": selected.get("x"), "y": selected.get("y")})))
-	if not bool(city.get("visiting", false)):
+	if not bool(city.get("visiting", false)) and not bool(selected.get("immutable", false)):
 		if str(selected.get("type", "")) != "road":
 			buttons.add_child(_button("move", "迁移", func() -> void: _emit("move", {"x": selected.get("x"), "y": selected.get("y")}); _close_panel()))
 		buttons.add_child(_button("demolish", "拆除", func() -> void: _confirm_demolition(selected)))
-		if bool(selected.get("canUpgrade", false)):
-			panel_body.add_child(_button("upgrade", "升级建筑", func() -> void: _emit("upgrade", {"x": selected.get("x"), "y": selected.get("y")})))
+
+func _upgrade_details(selected: Dictionary, upgrade: Dictionary) -> void:
+	var next_level: int = int(upgrade.get("nextLevel", 0))
+	var reason: String = str(upgrade.get("reason", ""))
+	if next_level <= 0:
+		panel_body.add_child(_text(reason if not reason.is_empty() else "已达到当前最高等级。", 13, MUTED))
+		return
+	var eligible: bool = bool(upgrade.get("eligible", false))
+	panel_body.add_child(_text("条件就绪 · 可升级至 %d 级" % next_level if eligible else "升级至 %d 级 · 条件尚未齐备" % next_level, 14, Color("536b37") if eligible else INK))
+	if not reason.is_empty():
+		panel_body.add_child(_text(reason, 13, MUTED if eligible else Color("a44f3f")))
+	var stable_remaining: float = float(upgrade.get("stableRemaining", 0))
+	if stable_remaining > 0:
+		panel_body.add_child(_text("稳定居住还需 " + _duration(stable_remaining) + "；入住与需求须持续满足。", 13, MUTED))
+	var cost: Dictionary = upgrade.get("cost", {}) as Dictionary
+	var duration: float = float(upgrade.get("duration", 0))
+	panel_body.add_child(_text("升级材料  " + (_cost_text(cost) if not cost.is_empty() else "无需材料") + " · 工期 " + _duration(duration), 13))
+	if not bool(city.get("visiting", false)):
+		var button: Button = _button("upgrade", "升级至 %d 级" % next_level, func() -> void:
+			if eligible:
+				_emit("upgrade", {"x": selected.get("x"), "y": selected.get("y")})
+		)
+		button.name = "UpgradeButton"
+		button.disabled = not eligible
+		button.tooltip_text = "投入材料并开始施工；现有居民保留。" if eligible else reason
+		panel_body.add_child(button)
+	else:
+		panel_body.add_child(_text("参观城市仅可查看升级条件。", 12, MUTED))
+
+func _logistics_details(logistics: Dictionary) -> void:
+	var incoming: Array = logistics.get("incoming", []) as Array
+	var outgoing: Array = logistics.get("outgoing", []) as Array
+	var wait_reason: String = str(logistics.get("waitReason", ""))
+	var state_names: Dictionary = {"idle": "暂无运输", "waiting": "等待运输", "blocked": "运输暂停", "active": "运输进行中", "working": "运输进行中", "stocked": "补给充足", "dispatching": "等待发货", "incoming": "补给在途", "outgoing": "成品运出", "ready": "补给充足", "pending": "等待派送"}
+	var raw_state: String = str(logistics.get("state", ""))
+	var state_name: String = str(state_names.get(raw_state, raw_state))
+	panel_body.add_child(_text("物流" + (" · " + state_name if not state_name.is_empty() else ""), 14))
+	if not wait_reason.is_empty():
+		panel_body.add_child(_text(wait_reason, 13, Color("a44f3f")))
+	var stock: Dictionary = logistics.get("stock", {}) as Dictionary
+	if not stock.is_empty():
+		panel_body.add_child(_text("本地存货  " + _cost_text(stock), 13))
+	if logistics.has("water") and float(logistics.water) > 0:
+		panel_body.add_child(_text("本地储水  " + _number(float(logistics.water)), 13))
+	for direction: String in ["incoming", "outgoing"]:
+		var transfers: Array = incoming if direction == "incoming" else outgoing
+		for item: Variant in transfers:
+			if not item is Dictionary:
+				continue
+			var transfer: Dictionary = item as Dictionary
+			var good: String = str(transfer.get("resource", ""))
+			var good_name: String = "清水" if good == "water" else _good_name(good)
+			var location: String = str(transfer.get("fromName" if direction == "incoming" else "toName", ""))
+			var line: String = ("收货 · " if direction == "incoming" else "发货 · ") + good_name + " " + _number(float(transfer.get("quantity", 0)))
+			if not location.is_empty():
+				line += (" · 来自 " if direction == "incoming" else " · 运往 ") + location
+			if transfer.get("eta") != null:
+				line += " · 约 " + _duration(float(transfer.eta))
+			else:
+				line += " · 道路中断，等待恢复"
+			panel_body.add_child(_text(line, 13, MUTED))
 
 func _confirm_demolition(selected: Dictionary) -> void:
 	confirmation_open = true
@@ -1163,7 +1251,16 @@ func _overview_panel() -> void:
 	panel_body.add_child(_text("城市依靠道路连接生产、居民与公共服务。查看城志，逐步完善街区。", 12, MUTED))
 
 func _help_panel() -> void:
-	for entry: Array in [["连接街区", "建筑必须接入主路，才能获得劳工并运营。住宅需持续满足饮水、食物与公共服务，才会升级。"], ["营造与规划", "点营造选建筑，轻触地块建造；按住道路拖铺。拖动地图不会放下建筑。建筑详情可迁移或拆除。"], ["经营供给", "两座同种商铺隔路相对才提供配送；中央集市无需配对。工坊持续消耗原料，仓储显示实际净变化。"], ["看清城市", "双指或鼠标滚轮缩放。覆盖层检查道路、供水与污染；工业远离住宅，花园缓解污染。"], ["保存与世界", "本地自动保存与三个手动档案独立。世界港口提供账号、云存档、公开参观、排行榜与玩家交易。参观只读。"], ["时间与离线", "文明征程遵循真实工期。离线时城市继续推进；自由营造可在城务中加速。"], ["键盘", "空格 暂停 · B 营造 · I 仓储 · N 昼夜 · H 归城 · Esc 取消 · Ctrl+S 保存"]]:
+	for entry: Array in [
+		["连接街区", "建筑必须接入主路，才能获得劳工并运营。道路有土路、石子路和石板路三种外观，详情会说明当前道路的评判依据。"],
+		["住宅升级", "住宅持续满足饮水、食物与公共服务，并达到稳定入住要求后，详情会显示“可升级”。点升级按钮投入列出的材料，施工完成后升至下一级；施工中原有居民保留。"],
+		["营造与规划", "点营造选建筑，轻触地块建造；按住道路拖铺。拖动地图不会放下建筑。建筑详情可迁移或拆除。"],
+		["经营供给", "两座同种商铺隔路相对才提供配送；中央集市无需配对。工坊消耗原料，成品运抵货栈后才进入可交易库存。建筑详情可查看存货、收发货来源与预计抵达时间；缺路会暂停运输。"],
+		["看清城市", "双指或鼠标滚轮缩放。覆盖层检查道路、供水与污染；工业远离住宅，花园缓解污染。"],
+		["保存与世界", "本地自动保存与三个手动档案独立。世界港口提供账号、云存档、公开参观、排行榜与玩家交易。参观只读。"],
+		["时间与离线", "文明征程遵循真实工期。离线时城市继续推进；自由营造可在城务中加速。"],
+		["键盘", "空格 暂停 · B 营造 · I 仓储 · N 昼夜 · H 归城 · Esc 取消 · Ctrl+S 保存"]
+	]:
 		panel_body.add_child(_text(str(entry[0]), 15))
 		panel_body.add_child(_text(str(entry[1]), 13, MUTED))
 
