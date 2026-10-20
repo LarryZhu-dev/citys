@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "art_version": 4,
+  "review_type": "implementation_agent_technical_assembly_review",
+  "reviewer": "root implementation agent",
+  "reviewed_scopes": [
+    "component assembly",
+    "proportion",
+    "transparent edges",
+    "depth and occlusion",
+    "dedicated window emission mask",
+    "whole-component construction stages"
+  ],
+  "catalog_recipe_coverage": 56,
+  "evidence": [
+    {
+      "path": "work/art-v4/visual-review/catalog-day.png",
+      "sha256": "3ba26c31b3eee8540baf53dc4b0ae94e93db7a64efdec7cf4612b88fa7caafed"
+    },
+    {
+      "path": "work/art-v4/visual-review/catalog-day-2.png",
+      "sha256": "caa9f9bdd833945bd86c21dee17f850f99cee62de1510463fcc464cd0db166c1"
+    },
+    {
+      "path": "work/art-v4/visual-review/catalog-day-3.png",
+      "sha256": "d46697a8df34dbed6f5dd2c1ae981bbf3ae7b1fd7b37a971fd8716e768864c79"
+    },
+    {
+      "path": "work/art-v4/visual-review/catalog-night.png",
+      "sha256": "5970cc18a6fd8e3504f9d1081a3e15d177710f7117047e1517781608e71c398b"
+    },
+    {
+      "path": "work/art-v4/visual-review/construction.png",
+      "sha256": "92e6957181fd018873a49e12288a13bc667cc1b68f12799d8d1bb11f003a6d5e"
+    }
+  ],
+  "findings": [
+    "Final daylight pages were visually inspected across the 56 recipe variants.",
+    "Dedicated window emission mask was inspected in the final Godot night catalog.",
+    "Construction visualization was inspected for whole-component appearance.",
+    "E quarter-ring assembly has no large well or kiln gaps.",
+    "Stone face projection seams and protruding thatch courses were corrected before final acceptance."
+  ],
+  "accepted": true,
+  "acceptance_applies_to": "Only active v4 component selections and their technical in-game assembly. Rejected unused source selections are not accepted.",
+  "user_aesthetic_acceptance": false,
+  "original_game_parity_or_superiority_claim": false,
+  "prompt_capture_note": "Sheet A retains an honestly labelled specification summary; sheets B–E retain verbatim prompts."
+}

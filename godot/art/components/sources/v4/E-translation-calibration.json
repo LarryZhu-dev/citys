@@ -1,0 +1,285 @@
+{
+  "method": "Explicit source polygons and native 1:1 translation only; no generated pixels, rescaling, rotation or warping. Provisional source endpoints manually observed.",
+  "parts": [
+    {
+      "key": "well_stone_nw",
+      "source_polygon": [
+        [
+          180,
+          180
+        ],
+        [
+          600,
+          180
+        ],
+        [
+          600,
+          391
+        ],
+        [
+          180,
+          391
+        ]
+      ],
+      "translation": [
+        0,
+        31
+      ]
+    },
+    {
+      "key": "well_stone_ne",
+      "source_polygon": [
+        [
+          592,
+          307
+        ],
+        [
+          748,
+          307
+        ],
+        [
+          748,
+          662
+        ],
+        [
+          661,
+          662
+        ],
+        [
+          598,
+          614
+        ],
+        [
+          592,
+          590
+        ]
+      ],
+      "translation": [
+        -57,
+        -33
+      ]
+    },
+    {
+      "key": "well_stone_sw",
+      "source_polygon": [
+        [
+          30,
+          303
+        ],
+        [
+          187,
+          303
+        ],
+        [
+          187,
+          594
+        ],
+        [
+          174,
+          615
+        ],
+        [
+          119,
+          658
+        ],
+        [
+          30,
+          658
+        ]
+      ],
+      "translation": [
+        58,
+        -31
+      ]
+    },
+    {
+      "key": "well_stone_se",
+      "source_polygon": [
+        [
+          164,
+          616
+        ],
+        [
+          227,
+          569
+        ],
+        [
+          549,
+          569
+        ],
+        [
+          605,
+          613
+        ],
+        [
+          605,
+          790
+        ],
+        [
+          164,
+          790
+        ]
+      ],
+      "translation": [
+        3,
+        -83
+      ]
+    },
+    {
+      "key": "kiln_masonry_nw",
+      "source_polygon": [
+        [
+          933,
+          180
+        ],
+        [
+          1360,
+          180
+        ],
+        [
+          1360,
+          397
+        ],
+        [
+          933,
+          397
+        ]
+      ],
+      "translation": [
+        0,
+        31
+      ]
+    },
+    {
+      "key": "kiln_masonry_ne",
+      "source_polygon": [
+        [
+          1350,
+          305
+        ],
+        [
+          1509,
+          305
+        ],
+        [
+          1509,
+          678
+        ],
+        [
+          1418,
+          678
+        ],
+        [
+          1357,
+          615
+        ],
+        [
+          1350,
+          590
+        ]
+      ],
+      "translation": [
+        -64,
+        -31
+      ]
+    },
+    {
+      "key": "kiln_masonry_sw",
+      "source_polygon": [
+        [
+          794,
+          307
+        ],
+        [
+          945,
+          307
+        ],
+        [
+          945,
+          593
+        ],
+        [
+          939,
+          615
+        ],
+        [
+          886,
+          678
+        ],
+        [
+          794,
+          678
+        ]
+      ],
+      "translation": [
+        55,
+        -31
+      ]
+    },
+    {
+      "key": "kiln_masonry_se",
+      "source_polygon": [
+        [
+          931,
+          616
+        ],
+        [
+          988,
+          569
+        ],
+        [
+          1308,
+          569
+        ],
+        [
+          1366,
+          615
+        ],
+        [
+          1366,
+          795
+        ],
+        [
+          931,
+          795
+        ]
+      ],
+      "translation": [
+        -4,
+        -81
+      ]
+    }
+  ],
+  "assembly_preview_accepted": true,
+  "final_ingame_accepted": true,
+  "reference_projection": "circle",
+  "reference_width": 584,
+  "measured_course": {
+    "well": {
+      "reference_size": [
+        584,
+        380
+      ],
+      "front_wall_pixels": 104,
+      "height_over_diameter": 0.25184625083356493,
+      "assembled_ground_center": [
+        390,
+        508
+      ]
+    },
+    "kiln": {
+      "reference_size": [
+        584,
+        392
+      ],
+      "front_wall_pixels": 112,
+      "height_over_diameter": 0.2712190393592237,
+      "assembled_ground_center": [
+        1148,
+        516
+      ]
+    },
+    "method": "Physical elevation units follow renderer: native wall pixels × sqrt(2) / common native circular diameter. Measured front course height is greater than some rear course heights by several pixels; use a small stacking overlap, never independent stretch."
+  },
+  "technical_review": "godot/art/components/sources/v4/technical-assembly-review.json"
+}

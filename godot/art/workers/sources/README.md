@@ -1,9 +1,15 @@
-# Construction worker artwork
+# New articulated actors
 
-All four original transparent sheets were generated with `image_gen.imagegen` on 2026-10-20. `prompt.txt` is the initial character/hammer sheet; `walk-prompt.txt`, `timber-prompt.txt`, and `brick-prompt.txt` are reference-based four-direction, four-frame gait sheets. Exact source hashes are in `generation-record.json`.
+All rejected worker/citizen source paintings and the individual old artisan
+sprites were removed. The canonical new body parts, horses, carts, independent
+wheels and mechanical assembly tools are retained in [v4](v4/README.md).
 
-Run `python3 godot/art/workers/sources/build-atlas.py` from the repository root. Requires Pillow, NumPy and SciPy. The script separates connected cutouts, crops transparent gutters, clears alpha <= 8 mask speckles, registers foot pivots, and packs original pixels losslessly. No programmatically drawn bodies, synthesized poses, mirrors or geometric limb animation are used. Original pictures remain unchanged.
+The original game screenshot informs the material and rendering direction.
+People and carts are not visibly resolved in it, so these are newly generated
+original actors, not crops from the original game.
 
-The atlas contains 56 poses: 4 directions × 4 frames × 3 actions (walking, carrying timber, carrying masonry), plus 4 directions × 2 hammer frames. Walking frames advance by actual path distance; paused and disconnected crews keep their last pose. Scaffold rails/rungs/landing use the separate newly generated architectural wood components.
+Run `python godot/art/workers/sources/build-atlas.py` from the repository root
+to rebuild both shared atlases. This rebuild uses only the new retained source
+images and validates all 384 articulated human frames before packing.
 
-The runtime only uses the packed atlas and metadata. `.gdignore` excludes sources and tooling from game imports and exports.
+This whole source directory is excluded from Godot imports by `.gdignore`.

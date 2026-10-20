@@ -1,5 +1,6 @@
 extends Node2D
 class_name CityConstructionWorkers
+const Motion = preload("res://world/actor_animation.gd")
 
 ## Rendering only: every crew and clock comes from constructionSites. No jobs,
 ## resources, construction progress or economic effects are created here.
@@ -31,6 +32,12 @@ class Worker extends Node2D:
 	var loaded := false
 	var material_kind := "brick"
 	var arrived := true
+	var action := ""
+	var frame_changes := 0
+	var climbing := false
+	var operation := "install"
+	var retargeting := false
+	var retarget_seconds := 0.0
 
 const ATLAS_DATA := "res://art/workers/workers-atlas.json"
 const COMPONENT_DATA := "res://art/components/manifest.json"
@@ -43,6 +50,9 @@ var _glow_texture: GradientTexture2D
 var _glow_material: CanvasItemMaterial
 var _atlas: Texture2D
 var _sprites: Dictionary = {}
+var _animations: Dictionary = {}
+var _directions := 4
+var _reduced_motion := false
 var _components: Dictionary = {}
 var _component_textures: Dictionary = {}
 var _city_identity := ""
@@ -53,7 +63,7 @@ var _night := 0.0
 var _site_count := 0
 var _buildings: Node2D
 
-func _init() -> void:
+func _init(load_art: bool=true) -> void:
 	y_sort_enabled = true
 	var gradient := Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0,.25,1.0])
@@ -68,13 +78,15 @@ func _init() -> void:
 	_glow_material = CanvasItemMaterial.new()
 	_glow_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	_glow_material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
-	if FileAccess.file_exists(ATLAS_DATA):
+	if load_art and FileAccess.file_exists(ATLAS_DATA):
 		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(ATLAS_DATA))
 		if data is Dictionary:
 			_sprites = data.get("sprites",{})
+			_animations = data.get("animations",{})
+			_directions = Motion.direction_count(data)
 			var path: String = str(data.get("atlas",""))
 			if ResourceLoader.exists(path):_atlas = load(path) as Texture2D
-	if FileAccess.file_exists(COMPONENT_DATA):
+	if load_art and FileAccess.file_exists(COMPONENT_DATA):
 		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(COMPONENT_DATA))
 		if data is Dictionary:_components = data.get("parts",{})
 
@@ -256,6 +268,7 @@ func _lock_target(actor: Worker,site: Dictionary,job: Dictionary) -> void:
 	elif "wood" in asset or "beam" in asset or "rafter" in asset or "post" in asset:actor.material_kind = "timber"
 	elif "stone" in asset or "brick" in asset or "earth" in asset:actor.material_kind = "brick"
 	actor.cycle = int(job.get("cycleIndex",0))
+	actor.operation = str(actor.target.get("operation","install"))
 	_workstage(actor,job)
 
 func _target_point(actor: Worker) -> Vector3:
@@ -341,7 +354,21 @@ func _begin_phase(actor: Worker,site: Dictionary,job: Dictionary,is_new: bool) -
 	actor.authority_progress = progress
 	actor.snapshot_age = 0.0
 	actor.arrived = actor.distance>=actor.route_length-.003
-	actor.loaded = phase=="carrying"
+	actor.loaded = phase=="returning" if actor.operation=="remove" else phase=="carrying"
+
+func _target_valid(actor: Worker) -> bool:
+	var id: String = str(actor.target.get("action_id",""))
+	if id.is_empty() or not _buildings or not _buildings.has_method("construction_target_valid"):
+		return true
+	return bool(_buildings.construction_target_valid(actor.site.get("buildingId"),id))
+
+func _return_after_target(actor: Worker,site: Dictionary,job: Dictionary) -> void:
+	var return_job := job.duplicate()
+	return_job.phase = "returning"
+	return_job.phaseProgress = 0.0
+	_begin_phase(actor,site,return_job,false)
+	actor.retargeting = true
+	actor.retarget_seconds = 0.0
 
 func sync_city(city: Dictionary,buildings: Node2D) -> void:
 	_buildings = buildings
@@ -352,6 +379,7 @@ func sync_city(city: Dictionary,buildings: Node2D) -> void:
 		_city_identity = identity
 	_last_city_time = city_time
 	_speed = maxf(0.0,float(city.get("speed",1)))
+	_reduced_motion = bool(city.get("settings",{}).get("reducedMotion",false))
 	var sites: Array = city.get("constructionSites",[])
 	_site_count = sites.size()
 	var wanted: Dictionary = {}
@@ -381,6 +409,16 @@ func sync_city(city: Dictionary,buildings: Node2D) -> void:
 				_actors[id] = actor
 			var cycle: int = int(job.get("cycleIndex",0))
 			var cycle_changed := cycle!=actor.cycle and str(job.get("phase",""))!="leaving"
+			if not is_new and not actor.retargeting and not bool(site.get("finished",false)) and str(job.get("phase",""))!="leaving" and not _target_valid(actor):
+				_return_after_target(actor,site,job)
+			if actor.retargeting and str(job.get("phase",""))!="leaving":
+				if not actor.arrived or not cycle_changed:
+					actor.job=job
+					actor.site=site
+					continue
+				actor.retargeting=false
+			elif str(job.get("phase",""))=="leaving":
+				actor.retargeting=false
 			if is_new or cycle_changed:_lock_target(actor,site,job)
 			if is_new or cycle_changed or str(job.get("phase",""))!=actor.phase or str(site.get("layoutKey",""))!=actor.layout:
 				_begin_phase(actor,site,job,is_new)
@@ -414,14 +452,17 @@ func _tint() -> Color:
 
 func _display(actor: Worker) -> void:
 	var action := "walk"
-	if actor.phase=="installing" and actor.arrived:
-		action = "hammer_up" if int(actor.clock*3.5)%2==0 else "hammer_down"
+	if actor.climbing:
+		action = "climb"
+	elif actor.phase=="installing" and actor.arrived:
+		action = "hammer"
+	elif actor.phase=="loading" and actor.arrived:
+		action = "load"
 	elif actor.loaded:action = "timber" if actor.material_kind=="timber" else "brick"
-	# Walk cycles are selected by actual travelled distance, never a free-running
-	# clock. A stopped or blocked actor keeps its last gait frame.
-	var gait := posmod(int(floor(actor.travelled/.085)),4)
-	var key: String = "%s/%d/%d"%[action,actor.facing,gait] if action in ["walk","timber","brick"] else "%s/%d"%[action,actor.facing]
-	if not _sprites.has(key):key = "%s/%d"%[action,actor.facing]
+	actor.action=action
+	var moving := action in ["walk","timber","brick","climb"]
+	var selected := Motion.sample(_animations,action,actor.facing,actor.travelled,actor.clock if not moving else 0.0,moving)
+	var key: String = str(selected.key)
 	if key!=actor.frame and _sprites.has(key):
 		var data: Dictionary = _sprites[key]
 		var rect: Array = data.rect
@@ -430,6 +471,7 @@ func _display(actor: Worker) -> void:
 		actor.sprite_scale = float(data.get("world_scale",.085))
 		actor.sprite.scale = Vector2.ONE*actor.sprite_scale
 		actor.frame = key
+		actor.frame_changes+=1
 	var ground_screen := _iso(Vector2(actor.point.x,actor.point.y))
 	actor.position = ground_screen
 	var target_asset: String = str(actor.target.get("asset",""))
@@ -440,38 +482,45 @@ func _display(actor: Worker) -> void:
 		actor.position.y = float(actor.target.sort_y)+.02
 	elif actor.point.z>.08 and actor.ladder!=Vector3.ZERO and Vector2(actor.point.x,actor.point.y).distance_to(Vector2(actor.ladder.x,actor.ladder.y))<.06:
 		actor.position.y = maxf(ground_screen.y,_front_depth(actor.site)+.02)
-	var bob := sin(actor.stride*2.0)*.38 if actor.walking else 0.0
+	var bob := sin(actor.stride*2.0)*.38 if actor.walking and not _reduced_motion else 0.0
 	actor.sprite.position = -actor.pivot*actor.sprite_scale+Vector2(0,-actor.point.z*64.0+bob+ground_screen.y-actor.position.y)
 	actor.sprite.modulate = _worker_tint(actor)
-	actor.visible = _atlas!=null
+	actor.visible = _atlas!=null and not actor.frame.is_empty()
 
 func animate(delta: float) -> void:
 	if _paused or _speed<=0:return
+	var dt := clampf(delta,0.0,1.0)
 	for lamp: Dictionary in _lamps.values():
-		if bool(lamp.active):
-			lamp.clock += minf(delta,.1)*_speed
-			_light_display(lamp)
+		if bool(lamp.active) and not _reduced_motion:
+			lamp.clock += dt*minf(_speed,4.0)
+			# Preserve phase across sunset, while invisible daylight lights
+			# avoid trigonometry and canvas property writes for every worker.
+			if _night>.005:
+				_light_display(lamp)
 	for actor: Worker in _actors.values():
 		if not bool(actor.job.get("active",false)):continue
-		var dt := minf(delta,.1)
 		actor.snapshot_age += dt
-		actor.clock += dt*_speed
+		actor.clock += dt*minf(_speed,4.0)
 		var before := actor.point
-		# At most 1.1 seconds of interpolation past an authoritative snapshot.
+		# At most 1.5 seconds of interpolation past an authoritative snapshot.
 		# No phase transition is invented; waiting at the endpoint is intentional.
-		var forecast := minf(actor.snapshot_age,1.1)*_speed/actor.duration
+		var forecast := minf(actor.snapshot_age,1.5)*_speed/actor.duration
 		var fraction := clampf((actor.authority_progress+forecast-actor.start_progress)/maxf(.001,1.0-actor.start_progress),0,1)
+		if actor.retargeting:
+			actor.retarget_seconds+=dt*_speed
+			fraction=clampf(actor.retarget_seconds/actor.duration,0,1)
 		var allowed := actor.route_length*fraction
 		var travel_speed := actor.route_length/maxf(.4,actor.duration*(1.0-actor.start_progress))*1.5
 		actor.distance = move_toward(actor.distance,maxf(actor.distance,allowed),travel_speed*dt*_speed)
 		actor.point = _at(actor.route,actor.distance)
 		var movement := actor.point-before
 		actor.walking = movement.length()>.00001
+		actor.climbing = absf(movement.z)>.00001 and absf(movement.x)+absf(movement.y)<.0001
 		actor.arrived = actor.distance>=actor.route_length-.003
 		actor.travelled += movement.length()
 		actor.stride += movement.length()*28.0
 		if absf(movement.x)+absf(movement.y)>.00001:
-			actor.facing = (3 if movement.x>0 else 0) if absf(movement.x)>absf(movement.y) else (2 if movement.y>0 else 1)
+			actor.facing = Motion.facing_from_motion(Vector2(movement.x,movement.y),_directions,actor.facing)
 		elif actor.phase=="installing":actor.facing = 1
 		_display(actor)
 
@@ -492,5 +541,5 @@ func diagnostics() -> Dictionary:
 	for actor: Worker in _actors.values():
 		if bool(actor.job.get("active",false)) and not _paused and _speed>0:active+=1
 		if actor.point.z>.08:elevated+=1
-		workers.append({"id":str(actor.job.get("id","")),"buildingId":actor.site.get("buildingId"),"phase":actor.phase,"position":[actor.point.x,actor.point.y,actor.point.z],"groundDepth":actor.position.y,"frame":actor.frame,"leaf":str(actor.target.get("leaf_id","")),"asset":str(actor.target.get("asset","")),"targetElevation":float(actor.target.get("worker_elevation",0)),"distanceWalked":actor.travelled,"arrived":actor.arrived,"active":bool(actor.job.get("active",false)),"cycle":actor.cycle})
-	return {"sites":_site_count,"workers":_actors.size(),"active":active,"elevated":elevated,"scaffolds":_scaffolds.size(),"workPlatforms":_workstages.size(),"lamps":_lamps.size(),"litLamps":_lamps.size() if _night>.005 else 0,"atlasReady":_atlas!=null,"atlasFrames":_sprites.size(),"sharedWorkerTextures":1 if _atlas!=null else 0,"paused":_paused,"actors":workers}
+		workers.append({"id":str(actor.job.get("id","")),"buildingId":actor.site.get("buildingId"),"phase":actor.phase,"position":[actor.point.x,actor.point.y,actor.point.z],"groundDepth":actor.position.y,"frame":actor.frame,"frameChanges":actor.frame_changes,"action":actor.action,"operation":actor.operation,"retargeting":actor.retargeting,"leaf":str(actor.target.get("leaf_id","")),"asset":str(actor.target.get("asset","")),"targetElevation":float(actor.target.get("worker_elevation",0)),"distanceWalked":actor.travelled,"arrived":actor.arrived,"active":bool(actor.job.get("active",false)),"cycle":actor.cycle})
+	return {"sites":_site_count,"workers":_actors.size(),"active":active,"elevated":elevated,"scaffolds":_scaffolds.size(),"workPlatforms":_workstages.size(),"lamps":_lamps.size(),"litLamps":_lamps.size() if _night>.005 else 0,"atlasReady":_atlas!=null,"atlasFrames":_sprites.size(),"animations":_animations.size(),"legacyArtFixture":_animations.is_empty(),"sharedWorkerTextures":1 if _atlas!=null else 0,"paused":_paused,"actors":workers}

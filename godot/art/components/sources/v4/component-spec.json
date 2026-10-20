@@ -1,0 +1,3338 @@
+{
+  "art_version": 4,
+  "tool": "image_gen",
+  "required_keys": [
+    "stone_block",
+    "stone_step",
+    "post_wood",
+    "post_red",
+    "beam_wood",
+    "beam_painted",
+    "wall_earth",
+    "wall_plaster",
+    "wall_timber",
+    "wall_brick",
+    "brace_wood",
+    "dougong",
+    "door_wood",
+    "door_red",
+    "window_lattice",
+    "window_paper",
+    "railing",
+    "lantern",
+    "window_shop",
+    "door_round",
+    "wall_red_plaster",
+    "wall_white_brick_base",
+    "railing_stone",
+    "beam_carved",
+    "tiles_gray",
+    "tiles_green",
+    "tiles_glazed",
+    "tiles_blue",
+    "thatch_course",
+    "rafter",
+    "eave_gray",
+    "eave_gold",
+    "eave_green",
+    "eave_corner_gray",
+    "eave_corner_gold",
+    "eave_corner_green",
+    "ridge_gray",
+    "ridge_gold",
+    "ridge_hip_gray",
+    "ridge_hip_gold",
+    "ridge_hip_green",
+    "ridge_beast",
+    "fabric_canvas",
+    "fabric_awning",
+    "finial",
+    "gable_panel",
+    "gable_trim",
+    "ridge_green",
+    "sack",
+    "crate",
+    "barrel",
+    "timber_stack",
+    "bucket",
+    "wheel",
+    "furnace_mouth",
+    "chimney_course",
+    "pottery_vessel",
+    "loom_frame",
+    "workbench",
+    "millstone",
+    "well_stone_nw",
+    "well_stone_ne",
+    "well_stone_sw",
+    "well_stone_se",
+    "kiln_masonry_nw",
+    "kiln_masonry_ne",
+    "kiln_masonry_sw",
+    "kiln_masonry_se",
+    "rope",
+    "water_surface",
+    "armillary_ring_vertical",
+    "armillary_ring_horizontal",
+    "rice_seedling",
+    "rice_ripe",
+    "vegetable_patch",
+    "fruit_branch",
+    "tree_trunk",
+    "willow_branch",
+    "gong",
+    "drum",
+    "banner",
+    "lion",
+    "incense_burner",
+    "pine_branch",
+    "cattle",
+    "sheep",
+    "fish",
+    "meat",
+    "vegetable_basket",
+    "fruit_basket",
+    "bloom_branch",
+    "reed_patch",
+    "shrub_branch",
+    "market_canopy_edge",
+    "hanging_sign",
+    "water_bucket_rack"
+  ],
+  "reference_evidence": [
+    "User-supplied Sim Empire Chinese-city screenshot uploaded in this conversation; visual reference for palette, density and architectural detail only. All production pixels are freshly generated component art."
+  ],
+  "sheets": [
+    {
+      "id": "A",
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "tool_output": "/workspace/generated_images/exec-f6e12183-abbe-472e-8a91-234396ec6014.png",
+      "prompt": "Generation specification summary, not a verbatim prompt: 24 independent detailed Chinese architectural components inspired by the supplied Sim Empire screenshot; 6 columns by 4 rows with an intended 18% transparent margin per cell. No complete buildings or complete roofs. Frontal flat wall, beam, door, window and railing surfaces for exact 2D face projection; separate isometric stone blocks, stair block, columns, dougong and lantern. Ordered rows: stone_block stone_step post_wood post_red beam_wood beam_painted / wall_earth wall_plaster wall_timber wall_brick brace_wood dougong / door_wood door_red window_lattice window_paper railing lantern / window_shop door_round wall_red_plaster wall_white_brick_base railing_stone beam_carved. True transparent background requested. High resolution painted stone joints, wood grain, carved trim and restrained red/cream/bronze palette.",
+      "prompt_capture": "specification_summary",
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "grid": {
+        "columns": 6,
+        "rows": 4
+      },
+      "review_notes": "Source art visually reviewed. Real alpha median 253/255 in visible silhouettes. Several silhouettes cross nominal cell boundaries; authored source rectangles replace grid assumptions. Final technical assembly review accepted; this is not user aesthetic acceptance.",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "stone_block",
+          "stone_step",
+          "post_wood",
+          "post_red",
+          "beam_wood",
+          "beam_painted",
+          "wall_earth",
+          "wall_plaster",
+          "wall_timber",
+          "wall_brick",
+          "brace_wood",
+          "dougong",
+          "door_wood",
+          "door_red",
+          "window_lattice",
+          "window_paper",
+          "railing",
+          "lantern",
+          "window_shop",
+          "door_round",
+          "wall_red_plaster",
+          "wall_white_brick_base",
+          "railing_stone",
+          "beam_carved"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "B",
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "tool_output": "/workspace/generated_images/exec-8ffc5c0d-3570-420a-997b-52278278d4ad.png",
+      "prompt": "Create a production sprite asset sheet for a richly detailed Chinese isometric city building game. Use the uploaded Sim Empire city screenshot as the architectural style reference and the preceding newly generated component sheet for matching painted materials. This is SHEET B: only SMALL INDEPENDENT ROOF CONSTRUCTION PIECES. Never draw an entire roof, building, house, tower or architectural assembly. Traditional fine tiled surfaces with closely spaced directional tile ribs, thin light edges, dark warm undersides, restrained realistic classic strategy-game painted rendering. NO chunky cartoon, NO low-poly, NO thick black contour, NO noisy photograph texture. Cold blue-gray roof tiles, jade green glazed tiles, ochre golden tiles, red-brown timber. Fine details must survive at small scale.\n\nTRUE transparent RGBA background, no background color, no checkerboard, no ground plane, no external drop shadow, no text or labels. Landscape 3:2 sheet, exactly 6 equal columns and 4 equal rows, ONE separate centered sprite per cell, generous 18 percent clear margin in each cell, objects never cross cell boundaries. High native resolution.\n\nIMPORTANT surface assets are drawn as flat frontal orthographic rectangular material panels/strips, NOT pre-isometric diamonds. The engine will project these independent image pieces onto the correctly oriented 2D building planes. Tile panels have their rib/groove lines VERTICAL on the sheet, each small course shows 5-7 individual narrow traditional tiles, only 2 short overlapping courses. Each panel is only a small reusable fraction of a roof. Eaves and ridges are horizontal strips. Corner eaves are flat side-profile strips curling upward at their RIGHT tip, not whole roof corners. Only the ridge beast and gold finial are separate dimetric 2:1 view small solid decorative objects.\n\nExactly row-major:\nROW 1: [1] small gray tile course panel [2] small jade green glazed tile course panel [3] small ochre golden glazed tile course panel [4] small indigo-blue tile course panel [5] bound dry straw thatch course rectangular piece with visible stalk ends [6] one narrow dark wood roof rafter, horizontal.\nROW 2: [1] short straight gray roof eave strip with detailed round tile ends and dark fascia [2] short straight gold glazed eave strip [3] short straight jade green eave strip [4] isolated gray curved corner eave strip side profile curling upward at right end, only a tiny short eave piece [5] matching gold curved corner eave strip [6] matching jade green curved corner eave strip.\nROW 3: [1] short gray main roof ridge cap strip [2] short golden main roof ridge cap strip [3] short gray hip-ridge rib strip, isolated horizontal orientation ready to be projected [4] short gold hip-ridge rib strip [5] short jade hip-ridge rib strip [6] ONE small golden ceramic traditional ridge beast ornament, dimetric 2:1, no roof beneath.\nROW 4: [1] a small clean beige canvas fabric rectangular panel with subtle seams, NOT a whole tent [2] a small muted indigo/ivory striped awning fabric rectangular panel, NOT an assembled stall [3] ONE detailed golden tiered lotus-spire finial ornament, dimetric 2:1, no roof beneath [4] small warm white plaster triangular gable infill panel with dark red trim, flat frontal [5] narrow ornamental carved dark wood triangular gable edge trim with transparent open center, flat frontal [6] short jade green main roof ridge cap strip.\n\nKeep all 24 cells present in this exact order. All construction pieces are complete within their individual cell; nothing touches neighboring pieces. Emphasize tile rhythm, thickness and architectural craft consistent with the reference city, rather than painterly blur.\n",
+      "prompt_capture": "verbatim",
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "grid": {
+        "columns": 6,
+        "rows": 4
+      },
+      "review_notes": "Small independent roof details only, never full roofs. Pure tile course sampling excludes the drawn lower framing. Hip ridges retain native isometric silhouettes. Final technical assembly review accepted; this is not user aesthetic acceptance.",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "tiles_gray",
+          "tiles_green",
+          "tiles_glazed",
+          "tiles_blue",
+          "thatch_course",
+          "rafter",
+          "eave_gray",
+          "eave_gold",
+          "eave_green",
+          "eave_corner_gray",
+          "eave_corner_gold",
+          "eave_corner_green",
+          "ridge_gray",
+          "ridge_gold",
+          "ridge_hip_gray",
+          "ridge_hip_gold",
+          "ridge_hip_green",
+          "ridge_beast",
+          "fabric_canvas",
+          "fabric_awning",
+          "finial",
+          "gable_panel",
+          "gable_trim",
+          "ridge_green"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "C",
+      "source": "godot/art/components/sources/v4/C-original.png",
+      "sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "tool_output": "/workspace/generated_images/exec-b8f70bc6-3449-447f-b2bb-d605ad8fbd80.png",
+      "prompt": "Create a production sprite sheet C of 24 INDEPENDENT SMALL PROPS and STRUCTURAL PIECES for a richly detailed Chinese isometric citybuilder. Match the supplied fresh architectural component sheet's crisp painted ivory stone, deep red-brown timber, warm fine highlights and cool deep shadows. Classic detailed strategy game art, exquisite joinery and material readability, not chunky cartoon, not low-poly, not blurred. Each asset is a standalone reusable piece; NO complete buildings, complete kilns, complete wells, scenery, ground tile or whole industrial station.\n\nTRUE transparent RGBA background, no colored background, no checkerboard, no external cast shadow. Exactly 6 equal columns x 4 equal rows, landscape3:2, one centered sprite each cell, 18 percent empty margins. Dimetric2:1 view shared by physical props, camera from southeast looking northwest, vertical lines vertical and ground axes slopes ±1/2. Maintain consistent upper-left warm light. No text, no dividers, no labels.\nOnly specified rope/water/vertical-ring pieces are flat frontal 2D surfaces.\n\nROW1: [1] one tied cream burlap rice sack [2] one small timber shipping crate [3] one upright wooden barrel with iron bands [4] one small bundle of four stacked sawn timbers, NOT a shed [5] one wooden water bucket with curved handle [6] one separate wooden spoked cart wheel seen completely side-on circular, transparent gaps between spokes, no axle/cart.\nROW2: [1] one isolated arched dark furnace mouth with red fired-brick surround, only the thin arch and dark opening, NOT a kiln [2] one short stackable gray brick chimney course, only one short hollow square block [3] one ochre glazed pottery storage vessel [4] one independent simple wooden loom side frame with horizontal spindle, NO worker or roof [5] one low joinery workbench, tabletop and legs only [6] one circular mill grinding stone with central aperture, NO base building.\nROW3: [1] ONLY northwest quarter segment of a low pale limestone circular well curb [2] ONLY northeast quarter segment of same well curb [3] ONLY southwest quarter segment of same well curb [4] ONLY southeast quarter segment of same well curb [5] ONLY northwest quarter segment of a low round reddish masonry kiln wall course [6] ONLY northeast quarter segment of same kiln wall course.\nROW4: [1] ONLY southwest quarter segment of same low kiln masonry wall course [2] ONLY southeast quarter segment of same low kiln masonry wall course [3] one short straight horizontal tan rope, FLAT FRONTAL strip, no coils [4] one small square of clear deep teal water with fine gentle ripples, FLAT TOP orthographic seamless rectangular surface, no basin [5] one thin brass armillary circular meridian ring with transparent center, FLAT FRONTAL circular ring, no stand or other rings [6] one thin brass horizontal armillary ring, DIMETRIC2:1 ellipse with open transparent center, no stand or other rings.\n\nCRITICAL quarter masonry segments in rows3–4 are disconnected quarter arcs, each only 90 degrees of the circumference, never a complete circle or whole well/kiln. Each individual arc must be fully visible without other quadrants, self contained in its own cell; repeated masonry courses can assemble the full structure procedurally. North quarter arcs show the rear inner face, south arcs show the outer front face, all share the same scale/camera. These are real independent construction ingredients. No scene or presentation background.\n",
+      "prompt_capture": "verbatim",
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "grid": {
+        "columns": 6,
+        "rows": 4
+      },
+      "review_notes": "Only independent equipment from C remains active. All eight rejected C quarter-ring selections were replaced by E, with no fallback to older art.",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "sack",
+          "crate",
+          "barrel",
+          "timber_stack",
+          "bucket",
+          "wheel",
+          "furnace_mouth",
+          "chimney_course",
+          "pottery_vessel",
+          "loom_frame",
+          "workbench",
+          "millstone",
+          "rope",
+          "water_surface",
+          "armillary_ring_vertical",
+          "armillary_ring_horizontal"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "D",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "tool_output": "/workspace/generated_images/exec-d5ecaa11-7fdd-40c7-936b-3eb63d3bcd0e.png",
+      "prompt": "Create SHEET D: 24 independent props and foliage components for a finely detailed Chinese historical isometric citybuilder. Match the provided architectural component sheet's classic painted strategy game aesthetic: precise edges, layered natural material shading, warm highlights and cool deep shadows, realistic small-scale proportions, no chunky cartoon, no thick black contour, no photographic noise. Each sprite is complete and independent, no buildings, no whole scenic garden, no ground tile. Original designs.\n\nTrue transparent RGBA background with no painted background, checkerboard, external cast shadow or floor. Exactly 6 equal columns and 4 equal rows, landscape3:2, ONE centered asset per cell, clear18percent margin, never intersect neighboring cells. Dimetric2:1 view for all props, camera from southeast looking northwest, ground slopes±1/2; banner and signs may face camera. All detail must stay crisp and useful at game zoom.\n\nROW1: [1] small young green rice seedling clump with thin separate leaves, no soil [2] small ripe rice clump of hanging golden grain heads and stems, no soil [3] one small cluster of leafy cabbages with visible individual leaves, no soil [4] one leafy fruit-tree bough with several small red fruits, NO trunk [5] one bare branched brown tree trunk with root flare and two short cut branch attachments, NO leafy canopy [6] one independent drooping willow bough with long graceful fine green fronds, NO trunk.\nROW2: [1] one round bronze gong hanging from its small red wooden support crossbar, NO pavilion [2] one red lacquer ceremonial barrel drum on a tiny plain foot, visible hide and rim studs [3] one narrow dark red hanging silk banner rectangular cloth only, fine gold trim, NO writing or pole [4] one small carved pale stone guardian lion statue with individual mane curls, on only a thin plinth [5] one bronze incense bowl with three small legs and two handles, no smoke [6] one independent layered evergreen pine bough with dark needle clusters, NO trunk.\nROW3: [1] one small brown ox, dimetric left/front facing, legs visible, no harness/cart [2] one small cream sheep dimetric same view, legs visible [3] three silver-blue fish on one shallow wicker tray [4] two red meat cuts on one short wooden chopping board [5] one wicker basket of varied green vegetables [6] one wicker basket of small red/yellow fruit.\nROW4: [1] one independent flowering cherry bough with light pink blossom clusters and dark branch, NO trunk [2] one small shoreline reed clump with fine green blades and brown seed heads, NO water or soil [3] one low leafy shrub cluster, warm dark green leaves, NO ground [4] one short separate indigo/ivory striped awning valance edge, horizontal cloth strip only, no roof/stall [5] one small hanging wooden shop sign plaque with simple carved rice-sheaf emblem, no text or pole [6] one small low rack holding TWO wooden water buckets, fine rope and handle details, no well/building.\n\nEach plant is a bough/clump that can be assembled with separate trunk components and varied procedural growth stages; don't accidentally draw a whole tree instead of a branch. All24sprites in exact order, no extras.\n",
+      "prompt_capture": "verbatim",
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "grid": {
+        "columns": 6,
+        "rows": 4
+      },
+      "review_notes": "Source visually reviewed. Tall reeds, gong frame and branches use explicit selections across nominal cell boundaries. Final technical assembly review accepted; this is not user aesthetic acceptance.",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "rice_seedling",
+          "rice_ripe",
+          "vegetable_patch",
+          "fruit_branch",
+          "tree_trunk",
+          "willow_branch",
+          "gong",
+          "drum",
+          "banner",
+          "lion",
+          "incense_burner",
+          "pine_branch",
+          "cattle",
+          "sheep",
+          "fish",
+          "meat",
+          "vegetable_basket",
+          "fruit_basket",
+          "bloom_branch",
+          "reed_patch",
+          "shrub_branch",
+          "market_canopy_edge",
+          "hanging_sign",
+          "water_bucket_rack"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "E",
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "tool_output": "/workspace/generated_images/exec-623eab88-3803-442a-9d58-ab0d9771f7f4.png",
+      "prompt": "Create a precision-matched 2D game construction kit: EIGHT separate 90-degree curved masonry segments. Reference the provided image only for detailed painted limestone/brick material, not the mismatching arc shapes. The four pale stone arcs MUST mathematically fit one circular low well curb, and the four red brick arcs MUST fit one circular low kiln course. No complete building, no roof, no complete well, no kiln structure. Only these eight individual construction segments.\n\nTRUE transparent background, no ground or shadows outside pieces, no checkerboard. Landscape 3:2 composition. TWO exploded assemblies side-by-side: PALE LIMESTONE four segments on LEFT HALF, RED BRICK four segments on RIGHT HALF. Each assembly is one circular ring split along its projected world X and Y axes into four equal90degree arcs, then each of the FOUR pieces is translated radially outward by a small equal distance so there are clear transparent gaps and no overlaps. Do NOT rotate or resize individual pieces after splitting. All four are pieces of precisely the SAME ring. Back quadrant above, right quadrant at right, left quadrant at left, front quadrant below. An exploded assembly layout, not 8 unrelated independently designed arches.\n\nShared dimetric2:1 projection: the original circle projects to an ellipse exactly twice as wide as deep, vertical masonry faces remain vertical, upper-left lighting. All four arcs per material share identical inner/outer radius, wall thickness, top elevation, and bottom elevation. The limestone curb height equals .11 of full ring diameter; red brick course height equals .18 of full ring diameter. Curve horizontal radius and thickness never change between quadrants. End faces are straight radial planes, repeated ring seams exactly mate when translated back. Both circular groups are equal diameter.\n\nRich classic Chinese strategy-game painted quality, clear fine stone joints and subtle carved top edging on ivory limestone; individual warm red kiln bricks with dark mortar lines. Crisp warm upper edge highlights and cool shaded faces. Natural tiny chips are fine but the mating endpoints must remain exact straight geometry. Each quarter is ONE continuous90degree arc, NOT a half ring, U-shape or180degree arc. Back pieces show inner side, front pieces outer side. No text or labels. Clear margin between the two assemblies and at image edges.\n",
+      "prompt_capture": "verbatim",
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "assembly_preview": {
+        "accepted": true,
+        "method": "Native 1:1 source pixels, explicit extraction polygons, translation only",
+        "evidence": "godot/art/components/sources/v4/E-translation-review.png",
+        "calibration": "godot/art/components/sources/v4/E-translation-calibration.json",
+        "final_ingame_accepted": true
+      },
+      "review_notes": "Shared-radius quarter rings close in a reviewed native-pixel translation preview. No image rotation, resampling, geometric warping or painted seam repair. Actual camera slope and wall heights are measured from source pixels.",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "well_stone_nw",
+          "well_stone_ne",
+          "well_stone_sw",
+          "well_stone_se",
+          "kiln_masonry_nw",
+          "kiln_masonry_ne",
+          "kiln_masonry_sw",
+          "kiln_masonry_se"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    }
+  ],
+  "parts": [
+    {
+      "key": "stone_block",
+      "sheet": "A",
+      "source_rect": [
+        18,
+        99,
+        253,
+        152
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        145,
+        194
+      ],
+      "family": "stone",
+      "variant": "block",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        243,
+        142
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "planes_source": {
+        "top": [
+          [
+            102,
+            107
+          ],
+          [
+            261,
+            145
+          ],
+          [
+            192,
+            195
+          ],
+          [
+            27,
+            154
+          ]
+        ],
+        "side_x": [
+          [
+            261,
+            145
+          ],
+          [
+            192,
+            195
+          ],
+          [
+            192,
+            242
+          ],
+          [
+            261,
+            194
+          ]
+        ],
+        "side_y": [
+          [
+            192,
+            195
+          ],
+          [
+            27,
+            154
+          ],
+          [
+            27,
+            199
+          ],
+          [
+            192,
+            242
+          ]
+        ]
+      },
+      "source_plane_order": {
+        "top": "back,right,front,left",
+        "side_x": "right,front,bottom_front,bottom_right",
+        "side_y": "front,left,bottom_left,bottom_front"
+      },
+      "calibration": "Manually measured three painted faces from new A source after inspecting construction contact sheet. Independent source corners project to exact physical component extents; no legacy calibration or new painted pixels."
+    },
+    {
+      "key": "stone_step",
+      "sheet": "A",
+      "source_rect": [
+        302,
+        148,
+        229,
+        118
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        416,
+        219
+      ],
+      "family": "stone",
+      "variant": "step",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        219,
+        108
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "post_wood",
+      "sheet": "A",
+      "source_rect": [
+        610,
+        15,
+        72,
+        253
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        646,
+        253
+      ],
+      "family": "post",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        62,
+        243
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "post_red",
+      "sheet": "A",
+      "source_rect": [
+        848,
+        14,
+        75,
+        260
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        885,
+        259
+      ],
+      "family": "post",
+      "variant": "red",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        65,
+        250
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "beam_wood",
+      "sheet": "A",
+      "source_rect": [
+        1003,
+        137,
+        266,
+        73
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1136.0,
+        203
+      ],
+      "family": "beam",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1010,
+        144,
+        1261,
+        201
+      ]
+    },
+    {
+      "key": "beam_painted",
+      "sheet": "A",
+      "source_rect": [
+        1276,
+        137,
+        252,
+        72
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1402.0,
+        202
+      ],
+      "family": "beam",
+      "variant": "painted",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1283,
+        144,
+        1521,
+        201
+      ]
+    },
+    {
+      "key": "wall_earth",
+      "sheet": "A",
+      "source_rect": [
+        31,
+        299,
+        228,
+        192
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        145.0,
+        484
+      ],
+      "family": "wall",
+      "variant": "earth",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        38,
+        306,
+        251,
+        483
+      ]
+    },
+    {
+      "key": "wall_plaster",
+      "sheet": "A",
+      "source_rect": [
+        285,
+        297,
+        227,
+        193
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        398.5,
+        483
+      ],
+      "family": "wall",
+      "variant": "plaster",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        293,
+        305,
+        504,
+        482
+      ]
+    },
+    {
+      "key": "wall_timber",
+      "sheet": "A",
+      "source_rect": [
+        537,
+        290,
+        217,
+        201
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        645.5,
+        484
+      ],
+      "family": "wall",
+      "variant": "timber",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        544,
+        298,
+        746,
+        482
+      ]
+    },
+    {
+      "key": "wall_brick",
+      "sheet": "A",
+      "source_rect": [
+        778,
+        290,
+        223,
+        201
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        889.5,
+        484
+      ],
+      "family": "wall",
+      "variant": "brick",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        786,
+        298,
+        993,
+        483
+      ]
+    },
+    {
+      "key": "brace_wood",
+      "sheet": "A",
+      "source_rect": [
+        1054,
+        305,
+        216,
+        179
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1162.0,
+        477
+      ],
+      "family": "brace",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1061,
+        313,
+        1261,
+        476
+      ]
+    },
+    {
+      "key": "dougong",
+      "sheet": "A",
+      "source_rect": [
+        1305,
+        285,
+        207,
+        209
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1408,
+        465
+      ],
+      "family": "dougong",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        197,
+        199
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "door_wood",
+      "sheet": "A",
+      "source_rect": [
+        44,
+        508,
+        190,
+        231
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        139.0,
+        732
+      ],
+      "family": "door",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        52,
+        515,
+        225,
+        730
+      ]
+    },
+    {
+      "key": "door_red",
+      "sheet": "A",
+      "source_rect": [
+        298,
+        508,
+        201,
+        231
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        398.5,
+        732
+      ],
+      "family": "door",
+      "variant": "red",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        306,
+        515,
+        490,
+        730
+      ]
+    },
+    {
+      "key": "window_lattice",
+      "sheet": "A",
+      "source_rect": [
+        547,
+        512,
+        191,
+        216
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        642.5,
+        721
+      ],
+      "family": "window",
+      "variant": "lattice",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        555,
+        521,
+        729,
+        719
+      ],
+      "emission_rect_source": [
+        570,
+        535,
+        146,
+        169
+      ],
+      "emission_mode": "dark_inset",
+      "emission_mask": "res://art/components/emission-lattice.png"
+    },
+    {
+      "key": "window_paper",
+      "sheet": "A",
+      "source_rect": [
+        794,
+        513,
+        188,
+        215
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        888.0,
+        721
+      ],
+      "family": "window",
+      "variant": "paper",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        802,
+        522,
+        973,
+        720
+      ],
+      "emission_rect_source": [
+        816,
+        535,
+        143,
+        169
+      ],
+      "emission_mode": "aperture_inside_frame"
+    },
+    {
+      "key": "railing",
+      "sheet": "A",
+      "source_rect": [
+        1023,
+        556,
+        285,
+        157
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1165.5,
+        706
+      ],
+      "family": "railing",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1031,
+        565,
+        1300,
+        705
+      ]
+    },
+    {
+      "key": "lantern",
+      "sheet": "A",
+      "source_rect": [
+        1359,
+        510,
+        131,
+        259
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1425,
+        701
+      ],
+      "family": "lantern",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        121,
+        249
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "emission_rect_source": [
+        1382,
+        567,
+        82,
+        100
+      ],
+      "emission_mode": "warm_lantern_core"
+    },
+    {
+      "key": "window_shop",
+      "sheet": "A",
+      "source_rect": [
+        20,
+        767,
+        239,
+        210
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        139.5,
+        970
+      ],
+      "family": "window",
+      "variant": "shop",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        29,
+        776,
+        250,
+        966
+      ]
+    },
+    {
+      "key": "door_round",
+      "sheet": "A",
+      "source_rect": [
+        289,
+        756,
+        230,
+        223
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        404.0,
+        972
+      ],
+      "family": "door",
+      "variant": "round",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        298,
+        765,
+        511,
+        971
+      ]
+    },
+    {
+      "key": "wall_red_plaster",
+      "sheet": "A",
+      "source_rect": [
+        547,
+        766,
+        210,
+        203
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        652.0,
+        962
+      ],
+      "family": "wall",
+      "variant": "red_plaster",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        555,
+        774,
+        749,
+        961
+      ]
+    },
+    {
+      "key": "wall_white_brick_base",
+      "sheet": "A",
+      "source_rect": [
+        784,
+        766,
+        202,
+        213
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        885.0,
+        972
+      ],
+      "family": "wall",
+      "variant": "white_brick_base",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        792,
+        774,
+        977,
+        971
+      ]
+    },
+    {
+      "key": "railing_stone",
+      "sheet": "A",
+      "source_rect": [
+        999,
+        811,
+        251,
+        161
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1124.5,
+        965
+      ],
+      "family": "railing",
+      "variant": "stone",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1007,
+        820,
+        1241,
+        964
+      ]
+    },
+    {
+      "key": "beam_carved",
+      "sheet": "A",
+      "source_rect": [
+        1248,
+        843,
+        287,
+        85
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1391.5,
+        921
+      ],
+      "family": "beam",
+      "variant": "carved",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1257,
+        850,
+        1527,
+        920
+      ]
+    },
+    {
+      "key": "tiles_gray",
+      "sheet": "B",
+      "source_rect": [
+        15,
+        74,
+        237,
+        180
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        133.5,
+        247
+      ],
+      "family": "tiles",
+      "variant": "gray",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        32,
+        83,
+        237,
+        148
+      ],
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face."
+    },
+    {
+      "key": "tiles_green",
+      "sheet": "B",
+      "source_rect": [
+        274,
+        74,
+        236,
+        178
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        392.0,
+        245
+      ],
+      "family": "tiles",
+      "variant": "green",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        291,
+        83,
+        495,
+        148
+      ],
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face."
+    },
+    {
+      "key": "tiles_glazed",
+      "sheet": "B",
+      "source_rect": [
+        532,
+        74,
+        237,
+        178
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        650.5,
+        245
+      ],
+      "family": "tiles",
+      "variant": "glazed",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        548,
+        83,
+        752,
+        148
+      ],
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face."
+    },
+    {
+      "key": "tiles_blue",
+      "sheet": "B",
+      "source_rect": [
+        776,
+        74,
+        237,
+        178
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        894.5,
+        245
+      ],
+      "family": "tiles",
+      "variant": "blue",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        792,
+        83,
+        995,
+        148
+      ],
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face."
+    },
+    {
+      "key": "thatch_course",
+      "sheet": "B",
+      "source_rect": [
+        1030,
+        73,
+        244,
+        179
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1152.0,
+        245
+      ],
+      "family": "thatch",
+      "variant": "course",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1053,
+        84,
+        1251,
+        125
+      ],
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face."
+    },
+    {
+      "key": "rafter",
+      "sheet": "B",
+      "source_rect": [
+        1279,
+        118,
+        249,
+        76
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1403.5,
+        187
+      ],
+      "family": "rafter",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1287,
+        126,
+        1520,
+        186
+      ]
+    },
+    {
+      "key": "eave_gray",
+      "sheet": "B",
+      "source_rect": [
+        12,
+        332,
+        241,
+        132
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        132.5,
+        457
+      ],
+      "family": "eave",
+      "variant": "gray",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        20,
+        340,
+        245,
+        456
+      ]
+    },
+    {
+      "key": "eave_gold",
+      "sheet": "B",
+      "source_rect": [
+        270,
+        331,
+        243,
+        134
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        391.5,
+        458
+      ],
+      "family": "eave",
+      "variant": "gold",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        278,
+        339,
+        505,
+        457
+      ]
+    },
+    {
+      "key": "eave_green",
+      "sheet": "B",
+      "source_rect": [
+        523,
+        331,
+        244,
+        134
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        645.0,
+        458
+      ],
+      "family": "eave",
+      "variant": "green",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        531,
+        339,
+        759,
+        457
+      ]
+    },
+    {
+      "key": "eave_corner_gray",
+      "sheet": "B",
+      "source_rect": [
+        774,
+        290,
+        236,
+        196
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        892.0,
+        479
+      ],
+      "family": "eave",
+      "variant": "corner_gray",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        782,
+        298,
+        1002,
+        478
+      ]
+    },
+    {
+      "key": "eave_corner_gold",
+      "sheet": "B",
+      "source_rect": [
+        1028,
+        299,
+        236,
+        188
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1146.0,
+        480
+      ],
+      "family": "eave",
+      "variant": "corner_gold",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1036,
+        307,
+        1256,
+        479
+      ]
+    },
+    {
+      "key": "eave_corner_green",
+      "sheet": "B",
+      "source_rect": [
+        1279,
+        299,
+        242,
+        187
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1400.0,
+        479
+      ],
+      "family": "eave",
+      "variant": "corner_green",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1287,
+        307,
+        1513,
+        478
+      ]
+    },
+    {
+      "key": "ridge_gray",
+      "sheet": "B",
+      "source_rect": [
+        16,
+        573,
+        238,
+        109
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        135.0,
+        675
+      ],
+      "family": "ridge",
+      "variant": "gray",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        51,
+        595,
+        222,
+        629
+      ]
+    },
+    {
+      "key": "ridge_gold",
+      "sheet": "B",
+      "source_rect": [
+        273,
+        573,
+        238,
+        110
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        392.0,
+        676
+      ],
+      "family": "ridge",
+      "variant": "gold",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        310,
+        595,
+        476,
+        631
+      ]
+    },
+    {
+      "key": "ridge_hip_gray",
+      "sheet": "B",
+      "source_rect": [
+        533,
+        579,
+        228,
+        109
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        647.0,
+        681
+      ],
+      "family": "ridge",
+      "variant": "hip_gray",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        218,
+        99
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "image_axis_source": [
+        [
+          559,
+          620
+        ],
+        [
+          735,
+          648
+        ]
+      ]
+    },
+    {
+      "key": "ridge_hip_gold",
+      "sheet": "B",
+      "source_rect": [
+        783,
+        582,
+        230,
+        111
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        898.0,
+        686
+      ],
+      "family": "ridge",
+      "variant": "hip_gold",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        220,
+        101
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "image_axis_source": [
+        [
+          811,
+          624
+        ],
+        [
+          986,
+          652
+        ]
+      ]
+    },
+    {
+      "key": "ridge_hip_green",
+      "sheet": "B",
+      "source_rect": [
+        1038,
+        583,
+        233,
+        113
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1154.5,
+        689
+      ],
+      "family": "ridge",
+      "variant": "hip_green",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        223,
+        103
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "image_axis_source": [
+        [
+          1066,
+          625
+        ],
+        [
+          1243,
+          655
+        ]
+      ]
+    },
+    {
+      "key": "ridge_beast",
+      "sheet": "B",
+      "source_rect": [
+        1333,
+        523,
+        143,
+        203
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1404.5,
+        719
+      ],
+      "family": "ridge",
+      "variant": "beast",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        133,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "fabric_canvas",
+      "sheet": "B",
+      "source_rect": [
+        28,
+        750,
+        218,
+        198
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        137.0,
+        941
+      ],
+      "family": "fabric",
+      "variant": "canvas",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        43,
+        781,
+        230,
+        939
+      ]
+    },
+    {
+      "key": "fabric_awning",
+      "sheet": "B",
+      "source_rect": [
+        278,
+        749,
+        233,
+        200
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        394.5,
+        942
+      ],
+      "family": "fabric",
+      "variant": "awning",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        292,
+        781,
+        497,
+        939
+      ]
+    },
+    {
+      "key": "finial",
+      "sheet": "B",
+      "source_rect": [
+        565,
+        719,
+        145,
+        249
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        637.5,
+        961
+      ],
+      "family": "finial",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        135,
+        239
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "gable_panel",
+      "sheet": "B",
+      "source_rect": [
+        774,
+        752,
+        245,
+        179
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        896.5,
+        924
+      ],
+      "family": "gable",
+      "variant": "panel",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        782,
+        760,
+        1011,
+        923
+      ]
+    },
+    {
+      "key": "gable_trim",
+      "sheet": "B",
+      "source_rect": [
+        1033,
+        753,
+        249,
+        178
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1157.5,
+        924
+      ],
+      "family": "gable",
+      "variant": "trim",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1041,
+        761,
+        1274,
+        923
+      ]
+    },
+    {
+      "key": "ridge_green",
+      "sheet": "B",
+      "source_rect": [
+        1283,
+        811,
+        239,
+        101
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1402.5,
+        905
+      ],
+      "family": "ridge",
+      "variant": "green",
+      "leaf_role": "independent architectural component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1321,
+        825,
+        1482,
+        890
+      ]
+    },
+    {
+      "key": "sack",
+      "sheet": "C",
+      "source_rect": [
+        34,
+        58,
+        206,
+        203
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        137.0,
+        253
+      ],
+      "family": "sack",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        196,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "crate",
+      "sheet": "C",
+      "source_rect": [
+        292,
+        70,
+        208,
+        198
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        396.0,
+        260
+      ],
+      "family": "crate",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        198,
+        188
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "barrel",
+      "sheet": "C",
+      "source_rect": [
+        559,
+        45,
+        167,
+        227
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        642.5,
+        264
+      ],
+      "family": "barrel",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        157,
+        217
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "timber_stack",
+      "sheet": "C",
+      "source_rect": [
+        783,
+        80,
+        243,
+        183
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        904.5,
+        255
+      ],
+      "family": "timber",
+      "variant": "stack",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        233,
+        173
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "bucket",
+      "sheet": "C",
+      "source_rect": [
+        1076,
+        46,
+        151,
+        218
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1151.5,
+        256
+      ],
+      "family": "bucket",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        141,
+        208
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "wheel",
+      "sheet": "C",
+      "source_rect": [
+        1299,
+        46,
+        212,
+        216
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1405.0,
+        254
+      ],
+      "family": "wheel",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        202,
+        206
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "furnace_mouth",
+      "sheet": "C",
+      "source_rect": [
+        25,
+        296,
+        240,
+        217
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        145.0,
+        505
+      ],
+      "family": "furnace",
+      "variant": "mouth",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        230,
+        207
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base",
+      "emission_rect_source": [
+        82,
+        365,
+        113,
+        101
+      ],
+      "emission_mode": "furnace_interior"
+    },
+    {
+      "key": "chimney_course",
+      "sheet": "C",
+      "source_rect": [
+        304,
+        320,
+        181,
+        178
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        394.5,
+        490
+      ],
+      "family": "chimney",
+      "variant": "course",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        171,
+        168
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "pottery_vessel",
+      "sheet": "C",
+      "source_rect": [
+        544,
+        287,
+        193,
+        219
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        640.5,
+        498
+      ],
+      "family": "pottery",
+      "variant": "vessel",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        183,
+        209
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "loom_frame",
+      "sheet": "C",
+      "source_rect": [
+        772,
+        267,
+        211,
+        249
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        877.5,
+        508
+      ],
+      "family": "loom",
+      "variant": "frame",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        201,
+        239
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "workbench",
+      "sheet": "C",
+      "source_rect": [
+        996,
+        302,
+        287,
+        206
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1139.5,
+        500
+      ],
+      "family": "workbench",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        277,
+        196
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "millstone",
+      "sheet": "C",
+      "source_rect": [
+        1294,
+        323,
+        228,
+        179
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1408.0,
+        494
+      ],
+      "family": "millstone",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        218,
+        169
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "well_stone_nw",
+      "sheet": "E",
+      "source_rect": [
+        175,
+        175,
+        431,
+        222
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        390,
+        477
+      ],
+      "family": "well",
+      "variant": "stone_nw",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          180,
+          180
+        ],
+        [
+          600,
+          180
+        ],
+        [
+          600,
+          391
+        ],
+        [
+          180,
+          391
+        ]
+      ],
+      "masonry_height_ratio": 0.25184625083356493
+    },
+    {
+      "key": "well_stone_ne",
+      "sheet": "E",
+      "source_rect": [
+        587,
+        302,
+        167,
+        366
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        447,
+        541
+      ],
+      "family": "well",
+      "variant": "stone_ne",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          592,
+          307
+        ],
+        [
+          748,
+          307
+        ],
+        [
+          748,
+          662
+        ],
+        [
+          661,
+          662
+        ],
+        [
+          598,
+          614
+        ],
+        [
+          592,
+          590
+        ]
+      ],
+      "masonry_height_ratio": 0.25184625083356493
+    },
+    {
+      "key": "well_stone_sw",
+      "sheet": "E",
+      "source_rect": [
+        25,
+        298,
+        168,
+        366
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        332,
+        539
+      ],
+      "family": "well",
+      "variant": "stone_sw",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          30,
+          303
+        ],
+        [
+          187,
+          303
+        ],
+        [
+          187,
+          594
+        ],
+        [
+          174,
+          615
+        ],
+        [
+          119,
+          658
+        ],
+        [
+          30,
+          658
+        ]
+      ],
+      "masonry_height_ratio": 0.25184625083356493
+    },
+    {
+      "key": "well_stone_se",
+      "sheet": "E",
+      "source_rect": [
+        159,
+        564,
+        452,
+        232
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        387,
+        591
+      ],
+      "family": "well",
+      "variant": "stone_se",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          164,
+          616
+        ],
+        [
+          227,
+          569
+        ],
+        [
+          549,
+          569
+        ],
+        [
+          605,
+          613
+        ],
+        [
+          605,
+          790
+        ],
+        [
+          164,
+          790
+        ]
+      ],
+      "masonry_height_ratio": 0.25184625083356493
+    },
+    {
+      "key": "kiln_masonry_nw",
+      "sheet": "E",
+      "source_rect": [
+        928,
+        175,
+        438,
+        228
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1148,
+        485
+      ],
+      "family": "kiln",
+      "variant": "masonry_nw",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          933,
+          180
+        ],
+        [
+          1360,
+          180
+        ],
+        [
+          1360,
+          397
+        ],
+        [
+          933,
+          397
+        ]
+      ],
+      "masonry_height_ratio": 0.2712190393592237
+    },
+    {
+      "key": "kiln_masonry_ne",
+      "sheet": "E",
+      "source_rect": [
+        1345,
+        300,
+        170,
+        384
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1212,
+        547
+      ],
+      "family": "kiln",
+      "variant": "masonry_ne",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          1350,
+          305
+        ],
+        [
+          1509,
+          305
+        ],
+        [
+          1509,
+          678
+        ],
+        [
+          1418,
+          678
+        ],
+        [
+          1357,
+          615
+        ],
+        [
+          1350,
+          590
+        ]
+      ],
+      "masonry_height_ratio": 0.2712190393592237
+    },
+    {
+      "key": "kiln_masonry_sw",
+      "sheet": "E",
+      "source_rect": [
+        789,
+        302,
+        162,
+        382
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1093,
+        547
+      ],
+      "family": "kiln",
+      "variant": "masonry_sw",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          794,
+          307
+        ],
+        [
+          945,
+          307
+        ],
+        [
+          945,
+          593
+        ],
+        [
+          939,
+          615
+        ],
+        [
+          886,
+          678
+        ],
+        [
+          794,
+          678
+        ]
+      ],
+      "masonry_height_ratio": 0.2712190393592237
+    },
+    {
+      "key": "kiln_masonry_se",
+      "sheet": "E",
+      "source_rect": [
+        926,
+        564,
+        446,
+        237
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1152,
+        597
+      ],
+      "family": "kiln",
+      "variant": "masonry_se",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "anchor_role": "shared_assembly_center",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "source_polygon": [
+        [
+          931,
+          616
+        ],
+        [
+          988,
+          569
+        ],
+        [
+          1308,
+          569
+        ],
+        [
+          1366,
+          615
+        ],
+        [
+          1366,
+          795
+        ],
+        [
+          931,
+          795
+        ]
+      ],
+      "masonry_height_ratio": 0.2712190393592237
+    },
+    {
+      "key": "rope",
+      "sheet": "C",
+      "source_rect": [
+        539,
+        830,
+        227,
+        53
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        652.5,
+        875
+      ],
+      "family": "rope",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        547,
+        838,
+        758,
+        875
+      ]
+    },
+    {
+      "key": "water_surface",
+      "sheet": "C",
+      "source_rect": [
+        801,
+        779,
+        177,
+        169
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        889.5,
+        940
+      ],
+      "family": "water",
+      "variant": "surface",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        809,
+        787,
+        970,
+        940
+      ]
+    },
+    {
+      "key": "armillary_ring_vertical",
+      "sheet": "C",
+      "source_rect": [
+        1026,
+        748,
+        228,
+        229
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        1140.0,
+        969
+      ],
+      "family": "armillary",
+      "variant": "ring_vertical",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        1034,
+        756,
+        1246,
+        969
+      ]
+    },
+    {
+      "key": "armillary_ring_horizontal",
+      "sheet": "C",
+      "source_rect": [
+        1284,
+        797,
+        238,
+        129
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1403.0,
+        918
+      ],
+      "family": "armillary",
+      "variant": "ring_horizontal",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        228,
+        119
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "rice_seedling",
+      "sheet": "D",
+      "source_rect": [
+        20,
+        46,
+        230,
+        210
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        135.0,
+        248
+      ],
+      "family": "rice",
+      "variant": "seedling",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        220,
+        200
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "rice_ripe",
+      "sheet": "D",
+      "source_rect": [
+        265,
+        45,
+        232,
+        214
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        381.0,
+        251
+      ],
+      "family": "rice",
+      "variant": "ripe",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        222,
+        204
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "vegetable_patch",
+      "sheet": "D",
+      "source_rect": [
+        516,
+        64,
+        247,
+        194
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        639.5,
+        250
+      ],
+      "family": "vegetable",
+      "variant": "patch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        237,
+        184
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "fruit_branch",
+      "sheet": "D",
+      "source_rect": [
+        771,
+        49,
+        259,
+        208
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1010,
+        220
+      ],
+      "family": "fruit",
+      "variant": "branch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        249,
+        198
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "tree_trunk",
+      "sheet": "D",
+      "source_rect": [
+        1062,
+        39,
+        174,
+        237
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1150,
+        254
+      ],
+      "family": "tree",
+      "variant": "trunk",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        164,
+        227
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "willow_branch",
+      "sheet": "D",
+      "source_rect": [
+        1259,
+        36,
+        253,
+        259
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1285,
+        117
+      ],
+      "family": "willow",
+      "variant": "branch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        243,
+        249
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "gong",
+      "sheet": "D",
+      "source_rect": [
+        23,
+        274,
+        237,
+        244
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        141.5,
+        510
+      ],
+      "family": "gong",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        227,
+        234
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "drum",
+      "sheet": "D",
+      "source_rect": [
+        291,
+        299,
+        194,
+        218
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        388.0,
+        509
+      ],
+      "family": "drum",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        184,
+        208
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "banner",
+      "sheet": "D",
+      "source_rect": [
+        573,
+        269,
+        136,
+        250
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        641.0,
+        511
+      ],
+      "family": "banner",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        581,
+        277,
+        701,
+        511
+      ]
+    },
+    {
+      "key": "lion",
+      "sheet": "D",
+      "source_rect": [
+        794,
+        281,
+        191,
+        237
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        889.5,
+        510
+      ],
+      "family": "lion",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        181,
+        227
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "incense_burner",
+      "sheet": "D",
+      "source_rect": [
+        1047,
+        335,
+        195,
+        177
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1144.5,
+        504
+      ],
+      "family": "incense",
+      "variant": "burner",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        185,
+        167
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "pine_branch",
+      "sheet": "D",
+      "source_rect": [
+        1255,
+        295,
+        270,
+        217
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1497,
+        408
+      ],
+      "family": "pine",
+      "variant": "branch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        260,
+        207
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "cattle",
+      "sheet": "D",
+      "source_rect": [
+        19,
+        527,
+        230,
+        226
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        134.0,
+        745
+      ],
+      "family": "cattle",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        220,
+        216
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "sheep",
+      "sheet": "D",
+      "source_rect": [
+        276,
+        550,
+        213,
+        192
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        382.5,
+        734
+      ],
+      "family": "sheep",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        203,
+        182
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "fish",
+      "sheet": "D",
+      "source_rect": [
+        505,
+        545,
+        256,
+        194
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        633.0,
+        731
+      ],
+      "family": "fish",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        246,
+        184
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "meat",
+      "sheet": "D",
+      "source_rect": [
+        764,
+        557,
+        263,
+        180
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        895.5,
+        729
+      ],
+      "family": "meat",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        253,
+        170
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "vegetable_basket",
+      "sheet": "D",
+      "source_rect": [
+        1022,
+        537,
+        257,
+        203
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1150.5,
+        732
+      ],
+      "family": "vegetable",
+      "variant": "basket",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        247,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "fruit_basket",
+      "sheet": "D",
+      "source_rect": [
+        1284,
+        545,
+        225,
+        183
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1396.5,
+        720
+      ],
+      "family": "fruit",
+      "variant": "basket",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        215,
+        173
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "bloom_branch",
+      "sheet": "D",
+      "source_rect": [
+        14,
+        764,
+        255,
+        202
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        35,
+        941
+      ],
+      "family": "bloom",
+      "variant": "branch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        245,
+        192
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "reed_patch",
+      "sheet": "D",
+      "source_rect": [
+        268,
+        746,
+        234,
+        247
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        385.0,
+        985
+      ],
+      "family": "reed",
+      "variant": "patch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        224,
+        237
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "shrub_branch",
+      "sheet": "D",
+      "source_rect": [
+        509,
+        763,
+        263,
+        220
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        640.5,
+        975
+      ],
+      "family": "shrub",
+      "variant": "branch",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        253,
+        210
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "market_canopy_edge",
+      "sheet": "D",
+      "source_rect": [
+        780,
+        808,
+        266,
+        123
+      ],
+      "kind": "surface",
+      "pivot_source": [
+        913.0,
+        923
+      ],
+      "family": "market",
+      "variant": "canopy_edge",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "plane_bounds_source": [
+        788,
+        816,
+        1038,
+        923
+      ]
+    },
+    {
+      "key": "hanging_sign",
+      "sheet": "D",
+      "source_rect": [
+        1090,
+        748,
+        128,
+        245
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1154.0,
+        985
+      ],
+      "family": "hanging",
+      "variant": "sign",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        118,
+        235
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    },
+    {
+      "key": "water_bucket_rack",
+      "sheet": "D",
+      "source_rect": [
+        1285,
+        757,
+        222,
+        222
+      ],
+      "kind": "prop",
+      "pivot_source": [
+        1396.0,
+        971
+      ],
+      "family": "water",
+      "variant": "bucket_rack",
+      "leaf_role": "independent equipment or landscape component",
+      "crop_mode": "alpha_bbox",
+      "reference_size": [
+        212,
+        212
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "anchor_role": "center of component base"
+    }
+  ],
+  "required_legacy_keys": [
+    "stone_block",
+    "stone_step",
+    "post_wood",
+    "post_red",
+    "beam_wood",
+    "beam_painted",
+    "wall_earth",
+    "wall_plaster",
+    "wall_timber",
+    "wall_brick",
+    "brace_wood",
+    "dougong",
+    "door_wood",
+    "door_red",
+    "window_lattice",
+    "window_paper",
+    "railing",
+    "lantern",
+    "tiles_gray",
+    "tiles_green",
+    "tiles_glazed",
+    "thatch_course",
+    "eave_gray",
+    "eave_gold",
+    "ridge_gray",
+    "ridge_gold",
+    "ridge_beast",
+    "rafter",
+    "fabric_canvas",
+    "fabric_awning",
+    "sack",
+    "crate",
+    "barrel",
+    "timber_stack",
+    "bucket",
+    "wheel",
+    "kiln_masonry_nw",
+    "kiln_masonry_ne",
+    "kiln_masonry_sw",
+    "kiln_masonry_se",
+    "furnace_mouth",
+    "chimney_course",
+    "pottery_vessel",
+    "loom_frame",
+    "workbench",
+    "rice_seedling",
+    "rice_ripe",
+    "vegetable_patch",
+    "fruit_branch",
+    "well_stone_nw",
+    "well_stone_ne",
+    "well_stone_sw",
+    "well_stone_se",
+    "water_surface",
+    "gong",
+    "drum",
+    "banner",
+    "lion",
+    "incense_burner",
+    "rope",
+    "cattle",
+    "sheep",
+    "fish",
+    "meat",
+    "vegetable_basket",
+    "fruit_basket",
+    "millstone",
+    "armillary_ring_vertical",
+    "armillary_ring_horizontal",
+    "tree_trunk"
+  ],
+  "emission_masks": {
+    "window_lattice": {
+      "algorithm": "dark_recess_v1",
+      "path": "res://art/components/emission-lattice.png",
+      "size": [
+        256,
+        256
+      ],
+      "luminance_weights": [
+        0.3,
+        0.59,
+        0.11
+      ],
+      "luminance_thresholds": [
+        0.08,
+        0.2
+      ],
+      "border_feather_native_pixels": 1.5,
+      "wood_guard_rects_source": [
+        [
+          635,
+          535,
+          17,
+          169
+        ]
+      ],
+      "diagnostic_regions_source": {
+        "pane_interiors": [
+          [
+            586,
+            582,
+            12,
+            28
+          ],
+          [
+            608,
+            582,
+            10,
+            28
+          ],
+          [
+            662,
+            582,
+            12,
+            28
+          ],
+          [
+            683,
+            582,
+            10,
+            28
+          ],
+          [
+            586,
+            637,
+            12,
+            28
+          ],
+          [
+            608,
+            637,
+            10,
+            28
+          ],
+          [
+            662,
+            637,
+            12,
+            28
+          ],
+          [
+            683,
+            637,
+            10,
+            28
+          ]
+        ],
+        "central_wood_frame": [
+          [
+            638,
+            540,
+            11,
+            159
+          ]
+        ],
+        "outer_wood_frame": [
+          [
+            558,
+            535,
+            7,
+            169
+          ],
+          [
+            720,
+            535,
+            7,
+            169
+          ],
+          [
+            568,
+            523,
+            150,
+            7
+          ],
+          [
+            568,
+            713,
+            150,
+            7
+          ]
+        ],
+        "internal_wood_bars": [
+          [
+            601,
+            582,
+            3,
+            28
+          ],
+          [
+            678,
+            582,
+            3,
+            28
+          ],
+          [
+            584,
+            614,
+            37,
+            2
+          ],
+          [
+            660,
+            614,
+            37,
+            2
+          ],
+          [
+            601,
+            639,
+            3,
+            25
+          ],
+          [
+            678,
+            639,
+            3,
+            25
+          ]
+        ]
+      }
+    }
+  }
+}

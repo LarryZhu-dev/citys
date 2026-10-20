@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 let playwright;try{playwright=require(process.env.PLAYWRIGHT_MODULE||'playwright');}catch{playwright=require('/opt/codex/cua_node/lib/node_modules/playwright');}
 const {chromium}=playwright;
+const {chromiumGraphicsOptions,chromiumRunMetadata}=require('./browser-controls.cjs');
 let base=process.env.TEST_BASE_URL,localServer,localDirectory;
 const bridgeOnly=process.env.TEST_BRIDGE_ONLY==='1';
 const stamp=Date.now().toString(36),errors=[];
@@ -49,7 +50,10 @@ async function placeOffer(page,quantity,price=2){
 (async()=>{
   fs.mkdirSync('work',{recursive:true});
   if(!base){localDirectory=fs.mkdtempSync('work/browser-');localServer=require('../server/index.cjs').createServer({env:{DATA_FILE:localDirectory+'/online.json'}});await new Promise(r=>localServer.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+localServer.address().port;}
-  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-angle=swiftshader','--enable-unsafe-swiftshader','--enable-webgl']});
+  const graphics=chromiumGraphicsOptions();
+  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(fs.existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),...graphics,args:[...graphics.args,'--enable-webgl']});
+  const runtimeReport={mode:bridgeOnly?'bridge-only':'Godot Web',...await chromiumRunMetadata(browser)};
+  fs.writeFileSync('work/browser-runtime.json',JSON.stringify(runtimeReport,null,2));
   const pages=[];
   const watchdog=setTimeout(()=>{console.error('Browser integration exceeded five minutes; closing the engine contexts.');process.exitCode=1;browser.close().catch(()=>{});},300000);
   async function page(options={}){

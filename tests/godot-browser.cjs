@@ -3,15 +3,15 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium}=require('playwright');
 const {createServer}=require('../server/index.cjs');
+const {waitForStableGodotControl,clickGodotControl,chromiumGraphicsOptions,chromiumRunMetadata}=require('./browser-controls.cjs');
 const timeout=90000;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function metrics(page){return page.evaluate(()=>window.godotMetrics);}
 async function state(page){return page.evaluate(()=>JSON.parse(CityBridge.snapshot(false)));}
 async function control(page,name,text){
- await page.waitForFunction(({name,text})=>window.godotMetrics?.hud?.controls?.some(c=>c.name===name&&(!text||c.text.includes(text))&&!c.disabled),{name,text},{timeout});
- return (await metrics(page)).hud.controls.find(c=>c.name===name&&(!text||c.text.includes(text))&&!c.disabled);
+ return waitForStableGodotControl(page,{name,text},{timeout});
 }
-async function click(page,name,text){const c=await control(page,name,text);const x=c.rect[0]+c.rect[2]/2,y=c.rect[1]+c.rect[3]/2;if(await page.evaluate(()=>navigator.maxTouchPoints>0))await page.touchscreen.tap(x,y);else await page.mouse.click(x,y);await sleep(650);}
+async function click(page,name,text){return clickGodotControl(page,{name,text},{timeout});}
 async function tilePoint(page,x,y){
  const m=await metrics(page),w=m.world,css=m.hud.css_size;
  return [css[0]/2+((x-y)*64-w.camera_position[0])*w.css_zoom,css[1]/2+((x+y)*32-w.camera_position[1])*w.css_zoom];
@@ -27,8 +27,8 @@ async function pinch(page){
  const dir=fs.mkdtempSync('work/godot-validation/online-'),server=createServer({env:{DATA_FILE:dir+'/data.json'}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const base='http://127.0.0.1:'+server.address().port;
- const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
- const report={engine:'Godot 4.6.3 Compatibility Web',profiles:[],errors:[]};
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',...chromiumGraphicsOptions()});
+ const report={engine:'Godot 4.6.3 Compatibility Web',...await chromiumRunMetadata(browser),profiles:[],errors:[]};
  try{
   for(const profile of [{name:'desktop',width:1440,height:900,dpr:1,mobile:false},{name:'portrait',width:390,height:844,dpr:2,mobile:true},{name:'landscape',width:844,height:390,dpr:2,mobile:true}]){
    const context=await browser.newContext({viewport:{width:profile.width,height:profile.height},deviceScaleFactor:profile.dpr,hasTouch:profile.mobile,isMobile:profile.mobile});
@@ -40,7 +40,7 @@ async function pinch(page){
    if(profile.name==='desktop'){
     await page.screenshot({path:'work/godot-validation/new-city.png'});
     await click(page,'CityNameInput');await page.keyboard.press('Control+A');const ime=await context.newCDPSession(page);await ime.send('Input.imeSetComposition',{text:'长安验收',selectionStart:4,selectionEnd:4});await ime.send('Input.insertText',{text:'长安验收'});await ime.detach();await sleep(700);
-    const sandbox=(await metrics(page)).hud.controls.find(c=>c.text==='自由营造');assert(sandbox);await page.mouse.click(sandbox.rect[0]+sandbox.rect[2]/2,sandbox.rect[1]+sandbox.rect[3]/2);await sleep(600);
+    await clickGodotControl(page,{text:'自由营造',exactText:true},{timeout});
    }
    await click(page,'NewCityButton');await page.waitForFunction(()=>JSON.parse(CityBridge.snapshot(false)).hasSave,null,{timeout});
    await control(page,'BuildButton');let s=await state(page);assert.equal(s.civilization,'china');if(profile.name==='desktop')assert.equal(s.cityName,'长安验收','Chinese IME name persists');

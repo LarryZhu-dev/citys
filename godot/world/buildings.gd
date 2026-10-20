@@ -59,33 +59,33 @@ class LeafPrimitive extends Node2D:
 		draw_revision+=1
 
 const Recipes = preload("res://world/building_parts.gd")
+const ConstructionSchedule = preload("res://world/construction_schedule.gd")
 const MANIFEST := "res://art/components/manifest.json"
-const PHASE_LIMITS := [0.0,.12,.30,.53,.66,.91,1.0]
+const PHASE_LIMITS = ConstructionSchedule.PHASE_LIMITS
 const PART_SHADER := """
 shader_type canvas_item;
 render_mode unshaded;
 uniform float night = 0.0;
 uniform float clock = 0.0;
 uniform vec4 lattice_rect=vec4(.1,.1,.8,.8);
+uniform float lattice_dark_inset=0.0;
+uniform sampler2D lattice_emission_mask : filter_linear_mipmap, repeat_disable;
+uniform float lattice_mask_ready=0.0;
 uniform vec4 paper_rect=vec4(.1,.1,.8,.8);
 uniform vec4 lantern_rect=vec4(.15,.2,.7,.6);
 uniform vec4 furnace_rect=vec4(.15,.15,.7,.7);
-varying float installed;
 varying float emission;
 varying vec2 part_uv;
 void vertex() {
- installed=COLOR.r;
  part_uv=COLOR.gb;
  emission=COLOR.a*8.0;
  COLOR=vec4(1.0);
 }
 void fragment() {
  vec4 c=COLOR;
- float edge=1.0-part_uv.y;
- float reveal=installed>=.999 ? 1.0 : 1.0-smoothstep(installed-.015,installed,edge);
  vec3 daylight=c.rgb;
  c.rgb*=vec3(1.0-.26918*night,1.0-.19882*night,1.0-.10859*night);
- if(emission>.5 && installed>.999) {
+ if(emission>.5) {
   vec4 aperture=emission<1.5 ? lattice_rect : emission<2.5 ? paper_rect : emission<3.5 ? lantern_rect : furnace_rect;
   float inside=step(aperture.x,part_uv.x)*step(part_uv.x,aperture.x+aperture.z)*step(aperture.y,part_uv.y)*step(part_uv.y,aperture.y+aperture.w);
   float luminance=dot(daylight,vec3(.30,.59,.11));
@@ -95,7 +95,10 @@ void fragment() {
   if(emission>3.5) transmissive=smoothstep(.06,.28,daylight.r-daylight.b)*(1.0+.07*sin(clock*4.0));
   if(emission>4.5) c.rgb=mix(c.rgb,vec3(luminance*.25),inside*transmissive);
   else if(emission<1.5) {
-   // Light sits behind genuine alpha holes. Opaque wooden lattice stays dark.
+   // New painted window inserts have opaque dark recesses. Their brighter
+   // wooden bars stay unlit; transparent source holes still use alpha light.
+   float recess=lattice_mask_ready>.5 ? texture(lattice_emission_mask,part_uv).r : (1.0-smoothstep(.09,.16,luminance))*lattice_dark_inset;
+   c.rgb+=vec3(1.0,.58,.20)*recess*inside*night*.72;
    float pane=(1.0-c.a)*inside*night*.78;
    vec3 premultiplied=c.rgb*c.a+vec3(1.0,.58,.20)*pane;
    c.a+=pane;
@@ -103,7 +106,6 @@ void fragment() {
   }
   else c.rgb+=vec3(1.0,.58,.20)*transmissive*inside*night*.75;
  }
- c.a*=reveal;
  if(c.a<.003) discard;
  COLOR=c;
 }
@@ -159,6 +161,14 @@ func _init() -> void:
 			var r: Array=_manifest[key].emission_rect
 			var uniforms:Dictionary={"window_lattice":"lattice_rect","window_paper":"paper_rect","lantern":"lantern_rect","furnace_mouth":"furnace_rect"}
 			_material.set_shader_parameter(uniforms[key],Vector4(r[0],r[1],r[2],r[3]))
+	if str(_manifest.get("window_lattice",{}).get("emission_mode",""))=="dark_inset":
+		_material.set_shader_parameter("lattice_dark_inset",1.0)
+	var lattice_mask_path:=str(_manifest.get("window_lattice",{}).get("emission_mask",""))
+	if not lattice_mask_path.is_empty() and ResourceLoader.exists(lattice_mask_path):
+		var lattice_mask:=load(lattice_mask_path) as Texture2D
+		if lattice_mask:
+			_material.set_shader_parameter("lattice_emission_mask",lattice_mask)
+			_material.set_shader_parameter("lattice_mask_ready",1.0)
 
 func setup(_world: Node2D) -> void:
 	y_sort_enabled = true
@@ -192,61 +202,28 @@ static func _operating(b: Dictionary) -> bool:
 static func _fingerprint(leaf: Dictionary) -> String:
 	# Installation order and stage can change without replacing an unchanged object.
 	if leaf.has("_visual_fingerprint"):return str(leaf._visual_fingerprint)
-	return JSON.stringify([leaf.get("asset"),leaf.get("ground"),leaf.get("extent"),leaf.get("elevation",0),leaf.get("face","prop"),leaf.get("width"),leaf.get("height"),leaf.get("flip",false),leaf.get("rotation",0),leaf.get("layer",0),leaf.get("uv_crop"),leaf.get("uv_turns",0),leaf.get("surface_triangle"),leaf.get("image_ground"),leaf.get("image_extent")])
+	return JSON.stringify([leaf.get("asset"),leaf.get("ground"),leaf.get("extent"),leaf.get("elevation",0),leaf.get("face","prop"),leaf.get("width"),leaf.get("height"),leaf.get("flip",false),leaf.get("rotation",0),leaf.get("layer",0),leaf.get("uv_crop"),leaf.get("uv_turns",0),leaf.get("surface_triangle"),leaf.get("surface_vertices"),leaf.get("image_line"),leaf.get("image_ground"),leaf.get("image_extent")])
 
 static func _physical_key(leaf: Dictionary) -> String:
 	return str(leaf.id)+"@"+str(_fingerprint(leaf).hash())
 
-static func _installation_tier(leaf:Dictionary)->int:
-	var asset:=str(leaf.get("asset",""))
-	match int(leaf.get("phase",4)):
-		1:
-			if asset.begins_with("post_"):return 0
-			return 2 if asset=="dougong" else 1
-		2:
-			if asset.begins_with("window_"):return 2
-			if asset.begins_with("door_") or asset=="furnace_mouth":return 1
-		4:
-			if asset.begins_with("ridge_") or asset=="rope":return 2
-			if asset.begins_with("eave_"):return 1
-	return 0
-
 static func _schedule(recipe: Array) -> Dictionary:
-	var groups: Dictionary = {}
-	for leaf: Dictionary in recipe:
-		var phase := clampi(int(leaf.get("phase",4)),0,5)
-		if not groups.has(phase):groups[phase]=[]
-		groups[phase].append(leaf)
-	var result: Dictionary = {}
-	for phase: int in groups:
-		var items: Array = groups[phase]
-		var tiers:Dictionary={}
-		for leaf:Dictionary in items:
-			var tier:=_installation_tier(leaf)
-			if not tiers.has(tier):tiers[tier]=[]
-			tiers[tier].append(leaf)
-		var order:Array=tiers.keys();order.sort()
-		var phase_start:=float(PHASE_LIMITS[phase])
-		var phase_span:=float(PHASE_LIMITS[phase+1])-phase_start
-		var installed_before:=0
-		for tier:int in order:
-			var sequence:Array=tiers[tier]
-			sequence.sort_custom(func(a:Dictionary,b:Dictionary)->bool:return float(a.get("order",a.get("build_order",0)))<float(b.get("order",b.get("build_order",0))))
-			var start:=phase_start+phase_span*float(installed_before)/float(items.size())
-			var span:=phase_span*float(sequence.size())/float(items.size())
-			var duration:=span/minf(6.0,maxf(1.0,float(sequence.size())))
-			for index in range(sequence.size()):
-				var offset:float=(span-duration)*float(index)/maxf(1.0,float(sequence.size()-1))
-				result[str(sequence[index].id)]=Vector2(start+offset,duration)
-			installed_before+=sequence.size()
-	return result
+	return ConstructionSchedule.create(recipe).schedule
+
+static func _index_plan(plan: Dictionary) -> Dictionary:
+	plan["actions"]={}
+	for job: Dictionary in plan.jobs:
+		job["action_id"]=str(job.operation)+":"+_physical_key(job.leaf)
+		plan.actions[job.action_id]=job
+	return plan
 
 func _recipe(type: String,level: int) -> Dictionary:
 	var key := type+":"+str(level)
 	if not _recipes.has(key):
 		var leaves: Array = Recipes.create(type,level)
 		for leaf: Dictionary in leaves:leaf["_visual_fingerprint"]=_fingerprint(leaf)
-		_recipes[key]={"leaves":leaves,"schedule":_schedule(leaves)}
+		var plan := _index_plan(ConstructionSchedule.create(leaves))
+		_recipes[key]={"leaves":leaves,"schedule":plan.schedule,"plan":plan}
 	return _recipes[key]
 
 func _texture(meta: Dictionary) -> Texture2D:
@@ -257,6 +234,14 @@ func _texture(meta: Dictionary) -> Texture2D:
 	return _textures[path]
 
 static func _surface_corners(leaf: Dictionary) -> PackedVector2Array:
+	# A short tile course, diagonal wall bay or curved-eave segment remains one
+	# painted image. These four plan/elevation anchors only place that image in
+	# the 2D scene; no filled mesh or complete architectural model is generated.
+	if leaf.has("surface_vertices"):
+		var projected:=PackedVector2Array()
+		for point:Array in leaf.surface_vertices:
+			projected.append(iso(float(point[0]),float(point[1]))-Vector2(0,float(point[2])*64.))
+		return projected
 	var e := _extent(leaf)
 	var z := float(leaf.get("elevation",0))*64.0
 	var corners := PackedVector2Array()
@@ -278,14 +263,37 @@ static func _surface_corners(leaf: Dictionary) -> PackedVector2Array:
 	return corners
 
 static func _quad(leaf: Dictionary,meta: Dictionary) -> PackedVector2Array:
+	if leaf.has("image_line") and meta.has("image_axis"):
+		# This source already depicts a dimensional ridge segment. Align its
+		# painted long axis by rotation and UNIFORM scale, without projecting its
+		# existing perspective a second time.
+		var line:Array=leaf.image_line
+		var a:=iso(line[0][0],line[0][1])-Vector2(0,float(line[0][2])*64.)
+		var b:=iso(line[1][0],line[1][1])-Vector2(0,float(line[1][2])*64.)
+		var native:=Vector2(float(meta.rect[2]),float(meta.rect[3]))
+		var axis:Array=meta.image_axis
+		var sa:=Vector2(axis[0][0],axis[0][1])*native
+		var sb:=Vector2(axis[1][0],axis[1][1])*native
+		var factor:=a.distance_to(b)/maxf(.001,sa.distance_to(sb))
+		var angle:=(b-a).angle()-(sb-sa).angle()
+		var aligned:=PackedVector2Array()
+		for corner:Vector2 in [Vector2.ZERO,Vector2(native.x,0),native,Vector2(0,native.y)]:
+			aligned.append(a+(corner-sa).rotated(angle)*factor)
+		return aligned
 	if str(meta.get("kind","prop"))=="surface":
 		var points := _surface_corners(leaf)
 		if leaf.has("uv_crop"):return points
 		var bounds: Array = meta.get("plane_bounds",[0.0,0.0,1.0,1.0])
-		var u := (points[1]-points[0])/maxf(.001,float(bounds[2])-float(bounds[0]))
-		var v := (points[3]-points[0])/maxf(.001,float(bounds[3])-float(bounds[1]))
-		var origin := points[0]-u*float(bounds[0])-v*float(bounds[1])
-		return PackedVector2Array([origin,origin+u,origin+u+v,origin+v])
+		var width:=maxf(.001,float(bounds[2])-float(bounds[0]))
+		var height:=maxf(.001,float(bounds[3])-float(bounds[1]))
+		var expanded:=PackedVector2Array()
+		# Bilinear extension preserves tapered tile courses. The old affine
+		# extension discarded their fourth corner and turned hips into gaps.
+		for corner:Vector2 in [Vector2.ZERO,Vector2(1,0),Vector2.ONE,Vector2(0,1)]:
+			var u:float=(corner.x-float(bounds[0]))/width
+			var v:float=(corner.y-float(bounds[1]))/height
+			expanded.append(points[0].lerp(points[1],u).lerp(points[3].lerp(points[2],u),v))
+		return expanded
 	var e := _extent(leaf)
 	var image_offset:=Vector2.ZERO
 	if leaf.has("image_extent"):
@@ -300,10 +308,20 @@ static func _quad(leaf: Dictionary,meta: Dictionary) -> PackedVector2Array:
 		var circular:=str(meta.get("reference_projection","circle"))=="circle"
 		var target_size:=Vector2((e.x+e.y)*64.0,(e.x+e.y)*32.0+e.z*64.0)
 		if circular:target_size=Vector2(64.0*sqrt(2.0)*e.x,32.0*sqrt(2.0)*e.y+e.z*64.0)
-		var scale:=Vector2.ONE*(target_size.x/float(reference[0]))
+		var scale_factor:=target_size.x/float(reference[0])
+		if str(meta.get("reference_axis","width"))=="height":
+			scale_factor=e.z*64./maxf(.001,float(reference[1]))
+		if leaf.has("height"):
+			scale_factor=float(leaf.height)/maxf(.001,float(reference[1]))
+		elif leaf.has("width"):
+			scale_factor=float(leaf.width)/maxf(.001,float(reference[0]))
+		var scale:=Vector2.ONE*scale_factor
 		var size:=Vector2(native[0],native[1])*scale
 		var origin:=image_offset-Vector2(pivot[0],pivot[1])*size-Vector2(0,float(leaf.get("elevation",0))*64)
-		return PackedVector2Array([origin,origin+Vector2(size.x,0),origin+size,origin+Vector2(0,size.y)])
+		var points:=PackedVector2Array([origin,origin+Vector2(size.x,0),origin+size,origin+Vector2(0,size.y)])
+		if bool(leaf.get("flip",false)):
+			for i in range(points.size()):points[i].x=2.*image_offset.x-points[i].x
+		return points
 	var width := float(leaf.get("width",(e.x+e.y)*64.0))
 	var height := float(leaf.get("height",e.z*64.0+(e.x+e.y)*32.0))
 	var pivot: Array = meta.get("pivot",[.5,1.0])
@@ -435,7 +453,7 @@ func _update_part(part: Dictionary,b: Dictionary,amount: float) -> void:
 		_set_sort_y(part,position_now.y)
 		_sort_dirty=true
 		_dirty_owners[str(b.get("id","preview"))]=true
-	var installed := clampf(amount,0,1)
+	var installed := 1.0 if amount>=1.0 else 0.0
 	part.operating=_operating(b) and installed>=.999
 	var asset:=str(part.leaf.asset)
 	if part.leaf.has("growth_assets") and installed>=.999:
@@ -476,14 +494,13 @@ func _sync_entry(entry: Dictionary,b: Dictionary) -> void:
 	var progress_now:=_progress(b)
 	if entry.get("shape")==shape:
 		entry.building=b
-		if entry.get("state")==state and is_equal_approx(float(entry.get("progress",-1)),progress_now):return
+		if entry.get("state")==state and float(entry.get("progress",-1))==progress_now:return
 		var updates:Array=entry.parts.values() if progress_now<1.0 else entry.get("live_updates",[])
 		for part:Dictionary in updates:
 			var amount:=1.0
 			var timing:Vector2=part.get("timing",Vector2(0,1))
 			match str(part.get("policy","retain")):
-				"install":amount=clampf((progress_now-timing.x)/timing.y,0,1)
-				"remove":amount=1.0-clampf((progress_now-timing.x)/timing.y,0,1)
+				"install", "remove":amount=ConstructionSchedule.installed(progress_now,timing,str(part.policy))
 			_update_part(part,b,amount)
 		entry.state=state;entry.progress=progress_now
 		return
@@ -492,27 +509,29 @@ func _sync_entry(entry: Dictionary,b: Dictionary) -> void:
 	var level := int(c.get("toLevel",b.get("lvl",1))) if progress<1.0 else int(b.get("lvl",1))
 	var cached := _recipe(str(b.get("type","house")),level)
 	var recipe: Array = cached.leaves
-	var schedule: Dictionary = cached.schedule
 	var old: Array = _recipe(str(b.type),int(c.get("fromLevel",0))).leaves if progress<1.0 and int(c.get("fromLevel",0))>0 else []
 	var old_by_id := {}
 	for leaf: Dictionary in old:old_by_id[str(leaf.id)]=leaf
-	var target_by_id := {}
+	var retained_ids := {}
+	for leaf: Dictionary in recipe:
+		var id := str(leaf.id)
+		if old_by_id.has(id) and _fingerprint(old_by_id[id])==_fingerprint(leaf):retained_ids[id]=true
+	var plan: Dictionary=_index_plan(ConstructionSchedule.create(recipe,old,retained_ids)) if not old.is_empty() else cached.plan
+	var schedule: Dictionary=plan.schedule
 	var desired := {}
 	for leaf: Dictionary in recipe:
 		if not leaf.has("asset") or not leaf.has("id"):continue
 		var id := str(leaf.id)
-		target_by_id[id]=leaf
 		var timing: Vector2 = schedule[id]
-		var retained := old_by_id.has(id) and _fingerprint(old_by_id[id])==_fingerprint(leaf)
-		var amount := 1.0 if retained or progress>=1.0 else clampf((progress-timing.x)/timing.y,0.0,1.0)
-		desired[_physical_key(leaf)]={"leaf":leaf,"amount":amount,"timing":timing,"policy":"retain" if retained or progress>=1.0 else "install"}
+		var retained := retained_ids.has(id) or progress>=1.0
+		var amount := 1.0 if retained else ConstructionSchedule.installed(progress,timing,"install")
+		desired[_physical_key(leaf)]={"leaf":leaf,"amount":amount,"timing":timing,"policy":"retain" if retained else "install"}
 	for leaf: Dictionary in old:
 		var id := str(leaf.id)
-		if target_by_id.has(id) and _fingerprint(target_by_id[id])==_fingerprint(leaf):continue
-		var timing: Vector2 = schedule.get(id,Vector2(float(PHASE_LIMITS[clampi(int(leaf.get("phase",4)),0,5)]),.05))
-		var removal_end := maxf(.035,timing.x)
-		var amount := 1.0-clampf((progress-(removal_end-.035))/.035,0.0,1.0)
-		desired[_physical_key(leaf)]={"leaf":leaf,"amount":amount,"timing":Vector2(removal_end-.035,.035),"policy":"remove"}
+		if retained_ids.has(id):continue
+		var timing: Vector2 = plan.removals[id]
+		var amount := ConstructionSchedule.installed(progress,timing,"remove")
+		desired[_physical_key(leaf)]={"leaf":leaf,"amount":amount,"timing":timing,"policy":"remove"}
 	for key: String in desired:
 		var item: Dictionary=desired[key]
 		if not entry.parts.has(key):
@@ -533,6 +552,7 @@ func _sync_entry(entry: Dictionary,b: Dictionary) -> void:
 	entry.building=b
 	entry.recipe=recipe
 	entry.schedule=schedule
+	entry.plan=plan
 	entry.shape=shape;entry.state=state;entry.progress=progress_now
 	entry.live_updates=[]
 	for part:Dictionary in entry.parts.values():
@@ -574,6 +594,14 @@ static func _behind(a:Dictionary,b:Dictionary)->int:
 	if a.zmax<=b.zmin+.0001:return -1
 	if b.zmax<=a.zmin+.0001:return 1
 	if a.owner==b.owner:
+		if not str(a.get("roof_group","")).is_empty() and a.get("roof_group")==b.get("roof_group"):
+			# A long structural rafter spans several tile-height intervals. Its
+			# single bounding box therefore cannot express "inside this roof".
+			# Actual separately installed roof coverings occlude that timber.
+			if a.asset=="rafter" and b.get("roof_cover",false):return -1
+			if b.asset=="rafter" and a.get("roof_cover",false):return 1
+		if str(b.get("attached_to",""))==str(a.get("leaf_id","")):return -1
+		if str(a.get("attached_to",""))==str(b.get("leaf_id","")):return 1
 		# A fitted window sits on its wall plane. Height dependencies can postpone
 		# that wall behind other structural pieces, so its facade attachment must
 		# follow it explicitly; a tiny ground offset alone is insufficient.
@@ -646,13 +674,16 @@ func _sort_visuals()->void:
 				var world_point:Vector2=part.node.position+quad.transform*point
 				if first:bounds=Rect2(world_point,Vector2.ZERO);first=false
 				else:bounds=bounds.expand(world_point)
+			# Canvas transforms round to float32 after Y-sort compensation. Include
+			# their subpixel error so two shared tile edges keep a stable order.
+			bounds=bounds.grow(.00025)
 			owner_bounds=bounds if owner_first else owner_bounds.merge(bounds)
 			owner_first=false
 			var e:=_extent(part.leaf)
 			var ground:=_ground(part.leaf,entry.building)
 			var z:=float(part.leaf.get("elevation",0))
 			var index:=records.size()
-			records.append({"part":part,"owner":owner,"bounds":bounds,"ground":part.ground,"plan":Rect2(ground-Vector2(e.x,e.y)*.5,Vector2(e.x,e.y)),"zmin":z,"zmax":z+e.z,"phase":int(part.leaf.get("phase",4)),"layer":int(part.leaf.get("layer",0)),"face":str(part.leaf.get("face","prop")),"role":str(part.leaf.get("role","")),"edges":[],"incoming":0,"done":false})
+			records.append({"part":part,"owner":owner,"leaf_id":str(part.leaf.id),"asset":str(part.leaf.asset),"roof_group":str(part.leaf.get("roof_group","")),"roof_cover":str(part.leaf.get("role","")) in ["tile","thatch","fabric"],"attached_to":str(part.leaf.get("attached_to","")),"bounds":bounds,"ground":part.ground,"plan":Rect2(ground-Vector2(e.x,e.y)*.5,Vector2(e.x,e.y)),"zmin":z,"zmax":z+e.z,"phase":int(part.leaf.get("phase",4)),"layer":int(part.leaf.get("layer",0)),"face":str(part.leaf.get("face","prop")),"role":str(part.leaf.get("role","")),"edges":[],"incoming":0,"done":false})
 			for by in range(floori(bounds.position.y/40),floori(bounds.end.y/40)+1):
 				for bx in range(floori(bounds.position.x/40),floori(bounds.end.x/40)+1):
 					var bin:=Vector2i(bx,by)
@@ -704,6 +735,23 @@ func _sort_visuals()->void:
 	_dirty_owners.clear();_removed_bounds.clear()
 	_last_sort_ms=float(Time.get_ticks_usec()-start)/1000.0
 
+func construction_schedule(building_id: Variant) -> Array:
+	# Public deterministic work intervals. Workers and diagnostics read the same
+	# plan that switches image visibility; no independent visual progress clock.
+	var result: Array=[]
+	var entry: Dictionary=_entries.get(str(building_id),{})
+	for job: Dictionary in entry.get("plan",{}).get("jobs",[]):
+		result.append({"action_id":job.action_id,"leaf_id":job.leaf_id,"asset":str(job.leaf.asset),"operation":job.operation,"phase":job.phase,"scheduled_at":job.start,"complete_at":job.end,"duration":job.duration,"work_weight":job.weight})
+	return result
+
+func construction_target_valid(building_id: Variant,action_id: String) -> bool:
+	var entry: Dictionary=_entries.get(str(building_id),{})
+	if entry.is_empty():return false
+	var progress := _progress(entry.building)
+	if progress>=1.0:return false
+	var job: Dictionary=entry.get("plan",{}).get("actions",{}).get(action_id,{})
+	return not job.is_empty() and progress<float(job.end)-.000000001
+
 func construction_targets(building_id: Variant,phase: int = -1,max_count: int = 4) -> Array:
 	var result: Array=[]
 	var id := str(building_id)
@@ -713,19 +761,23 @@ func construction_targets(building_id: Variant,phase: int = -1,max_count: int = 
 	var progress := _progress(b)
 	if progress>=1.0:return result
 	var current_phase := _phase(progress) if phase<0 else phase
-	for leaf: Dictionary in entry.recipe:
-		if int(leaf.get("phase",4))!=current_phase:continue
-		var timing: Vector2=entry.schedule.get(str(leaf.id),Vector2(0,1))
-		var installed:=clampf((progress-timing.x)/timing.y,0,1)
-		if installed>=1.0:continue
+	for job: Dictionary in entry.get("plan",{}).get("jobs",[]):
+		if int(job.phase)!=current_phase or progress>=float(job.end)-.000000001:continue
+		# Automatic work selection stays on the operation being performed now.
+		# Explicit phase queries can still prepare future materials in an empty
+		# stage, which is how the existing crew handles wells and open workshops.
+		if phase<0 and progress<float(job.start)-.000000001:continue
+		var leaf: Dictionary=job.leaf
+		var timing:=Vector2(float(job.start),float(job.duration))
 		var ground:=_ground(leaf,b)
 		var elevation:=float(leaf.get("elevation",0))
 		var work_ground := Vector2(ground.x,ground.y+.025)
 		if leaf.has("work_ground"):
 			work_ground=Vector2(float(b.get("x",0))+float(leaf.work_ground[0]),float(b.get("y",0))+float(leaf.work_ground[1]))
-		result.append({"leaf_id":str(leaf.id),"asset":str(leaf.asset),"ground":[ground.x,ground.y],"work_ground":[work_ground.x,work_ground.y],"elevation":elevation,"worker_elevation":float(leaf.get("stand_elevation",0)),"phase":current_phase,"order":float(leaf.get("order",leaf.get("build_order",0))),"progress":installed,"scheduled_at":timing.x,"screen":iso(ground.x,ground.y)-Vector2(0,elevation*64.0),"sort_y":float(entry.parts.get(_physical_key(leaf),{}).get("sort_y",iso(ground.x,ground.y).y))})
-	result.sort_custom(func(a:Dictionary,b:Dictionary)->bool:return a.scheduled_at<b.scheduled_at if not is_equal_approx(a.scheduled_at,b.scheduled_at) else a.order<b.order)
-	return result.slice(0,clampi(max_count,1,64))
+		result.append({"action_id":job.action_id,"leaf_id":str(leaf.id),"asset":str(leaf.asset),"operation":job.operation,"ground":[ground.x,ground.y],"work_ground":[work_ground.x,work_ground.y],"elevation":elevation,"worker_elevation":float(leaf.get("stand_elevation",0)),"phase":current_phase,"order":float(leaf.get("order",leaf.get("build_order",0))),"progress":ConstructionSchedule.work_progress(progress,timing),"scheduled_at":job.start,"complete_at":job.end,"duration":job.duration,"work_weight":job.weight,"screen":iso(ground.x,ground.y)-Vector2(0,elevation*64.0),"sort_y":float(entry.parts.get(_physical_key(leaf),{}).get("sort_y",iso(ground.x,ground.y).y))})
+		if result.size()>=clampi(max_count,1,64):break
+	# Plan is already ordered, including any upgrade demolition before installs.
+	return result
 
 func create_preview(type: String,level: int = 1) -> Node2D:
 	var preview:=CityBuildings.new()

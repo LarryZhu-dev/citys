@@ -57,7 +57,7 @@ test('all 42 Chinese building types, 10 house levels and 6 villa levels use impo
   assert.equal(report.recipes.filter(recipe => recipe.type === 'villa').length, 6);
   assert.equal(report.manifest.complete, true);
   assert.deepEqual(report.manifest.missing_parts, []);
-  assert.ok(Object.keys(report.assets).length >= 54);
+  assert.ok(Object.keys(report.assets).length >= 96);
   assert.equal(Object.keys(report.assets).length, report.manifest.expected_parts);
   assert.deepEqual(report.missing_assets, []);
   assert.equal(report.image_only, true);
@@ -98,13 +98,21 @@ test('each referenced component has real nonempty alpha pixels and no complete-b
   const allowed = new Set(report.material_keys);
   const hashes = new Set();
   const generation = JSON.parse(fs.readFileSync(path.join(root, report.manifest.generation_record), 'utf8'));
-  for (const sheet of ['W1', 'K1']) {
-    const record = generation.sheets.find(item => item.sheet === sheet);
-    assert.equal(record?.original_generation_record?.accepted, true, `${sheet} directional parts require their explicit assembled-image review; merely existing on disk is insufficient`);
-    const source = fs.readFileSync(path.join(root, record.original_generation_record.source));
+  assert.equal(report.manifest.art_version, 4);
+  assert.equal(generation.art_version, 4);
+  assert.equal(generation.legacy_pixels_reused, false);
+  assert.equal(report.manifest.layout_migration, undefined, 'Fresh art must not impersonate a pixel-preserving migration');
+  assert.ok(generation.sheets.length >= 4);
+  const recordedSources = new Set();
+  for (const record of generation.sheets) {
+    assert.equal(record.source_reviewed, true, `${record.id} has not been visually inspected`);
+    // Unit tests can verify the evidence contract, not award visual acceptance.
+    assert.equal(typeof record.assembly_accepted, 'boolean');
+    assert.match(record.source, /^godot\/art\/components\/sources\/v4\//);
+    const source = fs.readFileSync(path.join(root, record.source));
     const hash = crypto.createHash('sha256').update(source).digest('hex');
-    assert.equal(record.original_generation_record.sha256, hash, `${sheet} accepted review belongs to different source pixels`);
-    assert.equal(record.sha256, hash, `${sheet} packing record belongs to different source pixels`);
+    assert.equal(record.source_sha256, hash, `${record.id} review belongs to different source pixels`);
+    recordedSources.add(record.source);
   }
   for (const [key, asset] of Object.entries(report.assets)) {
     assert.doesNotMatch(key, /(?:^|[_/-])(?:house|villa|whole|building|complete|architecture|room|roof)(?:$|[_/-])/i);
@@ -115,6 +123,7 @@ test('each referenced component has real nonempty alpha pixels and no complete-b
     assert.ok(asset.width < asset.atlas_width || asset.height < asset.atlas_height, `${key} cannot substitute a complete atlas sheet`);
     assert.match(asset.source, /^godot\/art\/components\/sources\//);
     assert.ok(fs.existsSync(path.join(root, asset.source)), `${key} original generated source is missing`);
+    assert.ok(recordedSources.has(asset.source), `${key} bypasses the reviewed fresh-source record`);
     hashes.add(asset.pixel_hash);
   }
   assert.equal(hashes.size, Object.keys(report.assets).length, 'Different component labels must not alias identical pixel crops');
@@ -138,8 +147,22 @@ test('actual leaves have unique identities, finite geometry and bounded footprin
       for (const number of [...leaf.ground, ...leaf.extent, leaf.elevation]) assert.ok(Number.isFinite(number), `${label}/${leaf.id} non-finite geometry`);
       assert.ok(leaf.extent.every(number => number > 0), `${label}/${leaf.id} nonpositive extent`);
       for (const field of ['full_structure', 'roof', 'style']) assert.equal(leaf[field], undefined, `${label}/${leaf.id} contains a legacy whole-module field`);
-      if (['tiles_gray', 'tiles_green', 'tiles_glazed', 'thatch_course'].includes(leaf.asset)) {
-        assert.ok(leaf.extent[0] <= .251 && leaf.extent[1] <= .151, `${label}/${leaf.id} replaces individual tile courses with a complete roof`);
+      if (/^tiles_|^thatch_course$/.test(leaf.asset)) {
+        if (leaf.surface_vertices) {
+          const points = leaf.surface_vertices;
+          assert.equal(points.length, 4);
+          let twiceArea = 0;
+          for (let i = 0; i < points.length; i++) {
+            const a = points[i], b = points[(i + 1) % points.length];
+            assert.ok(a.length === 3 && a.every(Number.isFinite), `${label}/${leaf.id} invalid mounting corner`);
+            assert.ok(Math.hypot(a[0] - b[0], a[1] - b[1]) <= .321,
+              `${label}/${leaf.id} stretches a tile course across a whole roof`);
+            twiceArea += a[0] * b[1] - b[0] * a[1];
+          }
+          assert.ok(Math.abs(twiceArea) / 2 <= .061, `${label}/${leaf.id} roof course exceeds the bounded piece area`);
+        } else {
+          assert.ok(leaf.extent[0] <= .251 && leaf.extent[1] <= .151, `${label}/${leaf.id} replaces individual tile courses with a complete roof`);
+        }
       }
       assert.ok(leaf.elevation >= -.03 && leaf.elevation + leaf.extent[2] <= 8, `${label}/${leaf.id} unbounded elevation`);
       // Small eaves, garden foliage and dock fittings may overhang a tile.
@@ -182,7 +205,7 @@ test('buildings and residence stages differ in real images and physical arrangem
 });
 
 test('wall fittings and higher overlapping components follow their actual physical draw order', () => {
-  let fittings = 0, verticalPairs = 0;
+  let fittings = 0, verticalPairs = 0, coveredRafters = 0;
   for (const recipe of report.recipes) {
     const label = `${recipe.type}:${recipe.level}`;
     assert.equal(recipe.sort_cycles, 0, `${label} has contradictory drawing constraints`);
@@ -203,6 +226,16 @@ test('wall fittings and higher overlapping components follow their actual physic
     for (let i = 0; i < records.length; i++) for (let j = i + 1; j < records.length; j++) {
       const a = records[i], b = records[j];
       if (a.maxX <= b.minX || b.maxX <= a.minX || a.maxY <= b.minY || b.maxY <= a.minY) continue;
+      if (a.leaf.roof_group && a.leaf.roof_group === b.leaf.roof_group) {
+        const cover = leaf => ['tile', 'thatch', 'fabric'].includes(leaf.role);
+        if (a.leaf.asset === 'rafter' && cover(b.leaf)) {
+          assert.ok(a.part.sort_y < b.part.sort_y, `${label} rafter ${a.leaf.id} covers its own roof skin ${b.leaf.id}`);
+          coveredRafters++;
+        } else if (b.leaf.asset === 'rafter' && cover(a.leaf)) {
+          assert.ok(b.part.sort_y < a.part.sort_y, `${label} rafter ${b.leaf.id} covers its own roof skin ${a.leaf.id}`);
+          coveredRafters++;
+        }
+      }
       // The production image geometry has a 0.001-tile minimum thickness:
       // clipped slivers can be smaller in the recipe but still overlap in 3D.
       const aTop = a.leaf.elevation + Math.max(.001, a.leaf.extent[2]);
@@ -216,11 +249,12 @@ test('wall fittings and higher overlapping components follow their actual physic
       }
     }
   }
-  assert.ok(fittings > 0 && verticalPairs > 0, 'Draw-order checks must exercise real wall fittings and stacked image components');
+  assert.ok(fittings > 0 && verticalPairs > 0 && coveredRafters > 0,
+    'Draw-order checks must exercise real wall fittings, stacked images and long rafters behind their roof covering');
 });
 
-test('real texture UVs implement cropping, rotation and triangular caps, and multi-face image parts are complete', () => {
-  let cropped = 0, rotated = 0, triangular = 0, multiFace = 0;
+test('real texture UVs implement cropping, rotation, caps and independently mounted image panels', () => {
+  let cropped = 0, rotated = 0, triangular = 0, mounted = 0;
   const area = polygon => Math.abs(polygon.reduce((sum, point, i) => {
     const next = polygon[(i + 1) % polygon.length];
     return sum + point[0] * next[1] - next[0] * point[1];
@@ -228,9 +262,14 @@ test('real texture UVs implement cropping, rotation and triangular caps, and mul
   for (const recipe of report.recipes) for (const part of recipe.appearance) {
     const leaf = recipe.leaves.find(item => item.id === part.leaf_id), meta = report.manifest.parts[part.asset];
     const label = `${recipe.type}:${recipe.level}/${part.leaf_id}`;
+    if (leaf.surface_vertices) {
+      mounted++;
+      assert.equal(meta.kind, 'surface', `${label} projects a pre-rendered solid as a flat wall`);
+      assert.equal(leaf.surface_vertices.length, 4);
+      assert.ok(leaf.surface_vertices.every(point => point.length === 3 && point.every(Number.isFinite)));
+    }
     let expected;
     if (meta.source_planes) {
-      multiFace++;
       expected = ['top', 'side_x', 'side_y'].flatMap(key => meta.source_planes[key] || []);
       assert.equal(expected.length, part.polygon.length, `${label} omits a declared image face`);
       assert.ok(part.faces.length > 0, `${label} cannot render a multi-face image as one self-intersecting polygon`);
@@ -274,7 +313,8 @@ test('real texture UVs implement cropping, rotation and triangular caps, and mul
       assert.ok(Math.abs(part.uvs[i][axis] - expected[i][axis]) < 1e-5, `${label} ignores UV crop/rotation/plane mapping at vertex ${i}`);
     }
   }
-  assert.ok(cropped > 0 && rotated > 0 && triangular > 0 && multiFace > 0, 'The real catalogue must exercise each supported source mapping');
+  assert.ok(cropped > 0 && rotated > 0 && triangular > 0 && mounted > 0,
+    'The real catalogue must exercise cropped/rotated/capped images and individually mounted curved-roof panels');
 });
 
 test('foundation, frame, walls, rafters and tile courses follow the production installation schedule', () => {
@@ -294,13 +334,19 @@ test('foundation, frame, walls, rafters and tile courses follow the production i
       const start = Math.min(...after.map(leaf => recipe.schedule[leaf.id][0]));
       assert.ok(done <= start + 1e-6, `${label} ${reason}`);
     };
-    const select = (phase, pattern) => recipe.leaves.filter(leaf => leaf.phase === phase && pattern.test(leaf.asset));
-    ordered(select(1, /^post_/), select(1, /^beam_|^brace_/), 'installs beams before their supporting posts');
-    ordered(select(1, /^beam_|^brace_/), select(1, /^dougong$/), 'installs brackets before the timber frame');
-    ordered(select(2, /^wall_/), select(2, /^door_/), 'installs doors before the wall bays');
-    ordered(select(2, /^door_/), select(2, /^window_/), 'installs windows before doors');
-    ordered(select(4, /^tiles_|^thatch_course$|^fabric_/), select(4, /^eave_|^ridge_|^rope$/), 'installs eaves or ridges before roof courses');
-    ordered(select(4, /^eave_/), select(4, /^ridge_|^rope$/), 'installs the ridge before eaves');
+    const floors = [...new Set(recipe.leaves.map(leaf => leaf.stand_elevation || 0))].sort((a, b) => a - b);
+    for (const floor of floors) {
+      const select = (phase, pattern) => recipe.leaves.filter(leaf => leaf.phase === phase
+        && Math.abs((leaf.stand_elevation || 0) - floor) < 1e-6 && pattern.test(leaf.asset));
+      ordered(select(1, /^post_/), select(1, /^beam_|^brace_/), 'installs beams before their supporting posts on the same floor');
+      ordered(select(1, /^beam_|^brace_/), select(1, /^dougong$/), 'installs brackets before the supporting frame on the same floor');
+      ordered(select(2, /^wall_/), select(2, /^door_/), 'installs doors before the wall bays on the same floor');
+      ordered(select(2, /^door_/), select(2, /^window_/), 'installs windows before doors on the same floor');
+      ordered(select(4, /^tiles_|^thatch_course$|^fabric_/), select(4, /^eave_|^ridge_|^rope$/), 'installs eaves or ridges before their roof courses');
+      ordered(select(4, /^eave_/), select(4, /^ridge_|^rope$/), 'installs the ridge before its eaves');
+      const lowerFrame = recipe.leaves.filter(leaf => leaf.phase === 1 && (leaf.stand_elevation || 0) < floor - 1e-6);
+      ordered(lowerFrame, select(1, /^post_/), 'erects upper-storey posts before the lower supporting frame is complete');
+    }
     for (const leaf of recipe.leaves) {
       assert.ok(Number.isInteger(leaf.phase) && leaf.phase >= 0 && leaf.phase < 6, `${label}/${leaf.id}`);
       if ((leaf.asset === 'stone_block' && leaf.id.includes('/block/') && !leaf.id.startsWith('stele/block/'))
@@ -329,6 +375,31 @@ test('foundation, frame, walls, rafters and tile courses follow the production i
         if (Number(prior) < Number(phase)) assert.ok(installed.minimum >= .99999, `${label} phase ${phase} appears before phase ${prior} is physically installed at ${sample.progress}`);
       }
     }
+  }
+});
+
+test('work weights install whole image components and upgrades dismantle changed structure before rebuilding', () => {
+  assert.ok(report.whole_component_checks > 100000, 'The real draw probe must inspect binary image visibility across the full catalogue');
+  for (const recipe of report.recipes) {
+    const label = `${recipe.type}:${recipe.level}`;
+    assert.equal(recipe.work_plan.length, recipe.leaves.length, `${label} must assign each actual image a work interval`);
+    for (const job of recipe.work_plan) {
+      assert.equal(job.operation, 'install');
+      assert.ok(job.action_id.startsWith('install:'));
+      assert.ok(job.work_weight > 0 && job.duration > 0);
+    }
+    for (const sample of recipe.samples) {
+      assert.ok([0, 1].includes(sample.minimum) && [0, 1].includes(sample.maximum), `${label} contains a partially revealed component`);
+      for (const amounts of Object.values(sample.phases)) {
+        assert.ok([0, 1].includes(amounts.minimum) && [0, 1].includes(amounts.maximum), `${label} contains a partially visible stage component`);
+      }
+    }
+  }
+  for (const upgrade of report.upgrades) {
+    assert.ok(upgrade.demolition_end >= 0 && upgrade.demolition_end <= .090001);
+    assert.ok(upgrade.demolition_end <= upgrade.first_install + 1e-6);
+    assert.equal(upgrade.work_plan.some(job => job.operation === 'remove'), upgrade.demolition_end > 0);
+    assert.ok(upgrade.work_plan.some(job => job.operation === 'install'));
   }
 });
 

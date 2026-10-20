@@ -2,7 +2,7 @@ extends SceneTree
 ## Uses the production renderer and imported image assets. No replacement
 ## textures, synthetic recipes, or headless screenshots stand in for artwork.
 
-var report: Dictionary = {"errors":[],"assets":{},"recipes":[],"upgrades":[],"primitive_checks":0,"submitted_triangles":0}
+var report: Dictionary = {"errors":[],"assets":{},"recipes":[],"upgrades":[],"primitive_checks":0,"submitted_triangles":0,"whole_component_checks":0}
 var renderer: Node2D
 var recipes: Script
 var renderer_script: Script
@@ -73,6 +73,10 @@ func flush_drawing() -> void:
 
 func submitted_geometry(quad: Variant,label: String,amount: float) -> Dictionary:
 	var result: Dictionary = {"points":[],"uv":[],"faces":[],"commands":0}
+	verify(amount==0.0 or amount==1.0,label+" has a partially installed image")
+	verify(quad.scale.is_equal_approx(Vector2.ONE) and quad.get_parent().scale.is_equal_approx(Vector2.ONE),label+" scales an image during construction")
+	verify(quad.modulate.a==1.0 and quad.self_modulate.a==1.0 and quad.get_parent().modulate.a==1.0,label+" fades a component during construction")
+	report.whole_component_checks+=1
 	verify(quad.has_method("get_draw_primitives") and not quad is Polygon2D,label+" must draw its image through the production primitive node")
 	if not quad.has_method("get_draw_primitives"):
 		return result
@@ -136,12 +140,31 @@ func inspect_recipe(type: String,level: int,size: int) -> void:
 	if entry.is_empty():
 		return
 	var ids := part_ids(entry)
+	var originals: Dictionary={}
+	for key: String in entry.parts:
+		originals[key]={"points":entry.parts[key].quad.polygon.duplicate(),"uv":entry.parts[key].quad.uv.duplicate()}
 	var node_checks: Array = []
 	var schedule: Dictionary = {}
 	for leaf: Dictionary in leaves:
 		var id := str(leaf.id)
 		var timing: Vector2 = entry.schedule.get(id,Vector2(-1,-1))
 		schedule[id]=[timing.x,timing.y]
+	var plan: Array=renderer.construction_schedule(label)
+	verify(plan==renderer.construction_schedule(label),label+" public work plan is nondeterministic")
+	var reordered: Array=leaves.duplicate()
+	reordered.reverse()
+	verify(renderer_script._schedule(reordered)==entry.schedule,label+" construction timing depends on input array order")
+	var previous_end := 0.0
+	var phase_ratios: Dictionary={}
+	for job: Dictionary in plan:
+		verify(job.operation=="install" and is_finite(float(job.work_weight)) and float(job.work_weight)>0,label+" invalid installation work metadata")
+		verify(float(job.scheduled_at)+.000001>=previous_end,label+" installation jobs overlap")
+		verify(absf(float(job.complete_at)-float(job.scheduled_at)-float(job.duration))<.000001,label+" work interval disagrees with its duration")
+		previous_end=float(job.complete_at)
+		var ratio: float=float(job.duration)/float(job.work_weight)
+		if phase_ratios.has(job.phase):
+			verify(absf(ratio-float(phase_ratios[job.phase]))<.000001,label+" phase time is not divided by actual work weights")
+		else:phase_ratios[job.phase]=ratio
 	for part: Dictionary in entry.parts.values():
 		var quad: Variant = part.quad
 		var texture: Texture2D = quad.texture
@@ -161,7 +184,18 @@ func inspect_recipe(type: String,level: int,size: int) -> void:
 	var previous: Dictionary = {}
 	var samples: Array = []
 	var target_checks: Array = []
-	for progress in [0.0,.06,.12,.24,.30,.45,.53,.60,.66,.80,.91,.97,1.0]:
+	var progress_samples: Array=[0.0,.06,.12,.24,.30,.45,.53,.60,.66,.80,.91,.97,1.0]
+	if type=="house" and level==3:
+		# Real heavy structural members and light roof pieces must remain absent
+		# throughout their work interval, then appear intact at its endpoint.
+		var observed: Dictionary={}
+		for job: Dictionary in plan:
+			if observed.has(job.phase):continue
+			observed[job.phase]=true
+			for at in [float(job.scheduled_at)+float(job.duration)*.5,float(job.complete_at)-.000002,float(job.complete_at),float(job.complete_at)+.000002]:
+				progress_samples.append(clampf(at,0,1))
+		progress_samples.sort()
+	for progress in progress_samples:
 		if progress<1.0:
 			building.construction={"total":100.0,"remaining":100.0*(1.0-progress)}
 		else:
@@ -177,6 +211,12 @@ func inspect_recipe(type: String,level: int,size: int) -> void:
 			var part: Dictionary = entry.parts[key]
 			var amount := float(part.installed)
 			var phase := str(part.leaf.phase)
+			var timing: Vector2=entry.schedule[str(part.leaf.id)]
+			var expected := 1.0 if progress>=1.0 or float(progress)>=float(timing.x)+float(timing.y)-.000000001 else 0.0
+			verify(amount==expected,label+"/"+str(part.leaf.id)+" image switches before or after the scheduled completion")
+			verify(part.quad.polygon==originals[key].points,label+" construction changes or clips source image geometry")
+			if not part.leaf.has("growth_assets"):
+				verify(part.quad.uv==originals[key].uv,label+" construction crops its source image")
 			verify(part.quad.visible==(amount>.0001),label+" image visibility does not match installation")
 			if amount>.0001:
 				verify(part.quad.is_visible_in_tree() and part.node.modulate.a>0 and part.quad.modulate.a>0,label+" installed component is hidden")
@@ -196,6 +236,8 @@ func inspect_recipe(type: String,level: int,size: int) -> void:
 			var last_scheduled := -1.0
 			for target: Dictionary in renderer.construction_targets(label,-1,64):
 				var scheduled := float(target.get("scheduled_at",-1))
+				verify(renderer.construction_target_valid(label,str(target.action_id)),label+" returns an expired worker action")
+				verify(target.operation=="install" and float(target.complete_at)>float(progress)-.000000001,label+" invalid worker operation interval")
 				verify(scheduled>=last_scheduled-.00001,label+" crew targets are not in installation order")
 				verify(absf(scheduled-float(schedule.get(str(target.leaf_id),[-2,0])[0]))<.00001,label+" crew target time differs from the actual component")
 				last_scheduled=scheduled
@@ -248,7 +290,7 @@ func inspect_recipe(type: String,level: int,size: int) -> void:
 				continue
 			verify(bounds.grow(.01).has_point(child.transform*(quad.transform*point)),label+" preview clips a real component")
 	preview.free()
-	report.recipes.append({"type":type,"level":level,"size":size,"leaves":leaves,"schedule":schedule,"nodes":node_checks,"appearance":appearance,"identity_stable":stable,"installation_monotonic":monotonic,"samples":samples,"targets":target_checks,"preview_nodes":preview_count,"sort_cycles":renderer.inspect().sort_cycles})
+	report.recipes.append({"type":type,"level":level,"size":size,"leaves":leaves,"schedule":schedule,"work_plan":plan,"nodes":node_checks,"appearance":appearance,"identity_stable":stable,"installation_monotonic":monotonic,"samples":samples,"targets":target_checks,"preview_nodes":preview_count,"sort_cycles":renderer.inspect().sort_cycles})
 
 func inspect_upgrade(type: String,from_level: int) -> void:
 	var label := type+":upgrade:"+str(from_level)
@@ -282,7 +324,25 @@ func inspect_upgrade(type: String,from_level: int) -> void:
 		if entry.parts.has(key):
 			target_ids[key]=[entry.parts[key].node.get_instance_id(),entry.parts[key].quad.get_instance_id()]
 	var target_stable := target_ids.size()==target_keys.size()
-	for progress in [.15,.45,.75,.99,1.0]:
+	var plan: Array=renderer.construction_schedule(label)
+	var removal_end := 0.0
+	var first_install := 1.0
+	var retained_actions := 0
+	for job: Dictionary in plan:
+		var key := str(job.action_id).trim_prefix(str(job.operation)+":")
+		if old_ids.has(key) and target_keys.has(key):retained_actions+=1
+		if job.operation=="remove":removal_end=maxf(removal_end,float(job.complete_at))
+		else:first_install=minf(first_install,float(job.scheduled_at))
+	verify(retained_actions==0,label+" retained pieces still receive work assignments")
+	verify(removal_end>=0.0 and removal_end<=.090001,label+" demolition does not finish during initial site preparation")
+	verify(removal_end<=first_install+.000001,label+" new structure starts before the old changed components are removed")
+	var progress_samples: Array=[.15,.45,.75,.99,1.0]
+	if not plan.is_empty():
+		progress_samples.append(float(plan[0].complete_at)*.5)
+		progress_samples.append(float(plan[0].complete_at))
+		progress_samples.append(removal_end)
+	progress_samples.sort()
+	for progress in progress_samples:
 		if progress<1.0:
 			building.construction.remaining=100.0*(1.0-progress)
 		else:
@@ -291,10 +351,33 @@ func inspect_upgrade(type: String,from_level: int) -> void:
 		renderer.sync_buildings([building],{})
 		await flush_drawing()
 		entry=renderer._entries[label]
+		var visible_ids: Dictionary={}
 		for key: String in target_ids:
 			target_stable=target_stable and entry.parts.has(key) and [entry.parts[key].node.get_instance_id(),entry.parts[key].quad.get_instance_id()]==target_ids[key]
 		for part: Dictionary in entry.parts.values():
+			var installed := float(part.installed)
+			if installed==1.0:
+				verify(not visible_ids.has(str(part.leaf.id)),label+" displays both old and replacement images in the same slot")
+				visible_ids[str(part.leaf.id)]=true
+			if str(part.policy)=="retain":
+				verify(installed==1.0,label+" hides an unchanged component during an upgrade")
+			elif progress<1.0:
+				var finish := float(part.timing.x)+float(part.timing.y)
+				var finished := float(progress)>=finish-.000000001
+				var expected := (0.0 if finished else 1.0) if str(part.policy)=="remove" else (1.0 if finished else 0.0)
+				verify(installed==expected,label+" does not switch a whole upgrade part at its work endpoint")
 			submitted_geometry(part.quad,label+"/"+str(part.leaf.id),float(part.installed))
+		for job: Dictionary in plan:
+			verify(renderer.construction_target_valid(label,str(job.action_id))==(progress<1.0 and float(progress)<float(job.complete_at)-.000000001),label+" worker action validity differs from actual work completion")
+		if is_equal_approx(float(progress),.45):
+			var resumed: Node2D=renderer_script.new()
+			root.add_child(resumed)
+			resumed.sync_buildings([building.duplicate(true)],{})
+			var recovered: Dictionary=resumed._entries[label]
+			verify(recovered.parts.size()==entry.parts.size(),label+" resumed construction changes the component set")
+			for key: String in entry.parts:
+				verify(recovered.parts.has(key) and recovered.parts[key].installed==entry.parts[key].installed,label+" resumed construction differs from continuously played construction")
+			resumed.free()
 	var final_keys := part_ids(entry).keys()
 	var expected_keys := target_keys.keys()
 	final_keys.sort()
@@ -302,7 +385,7 @@ func inspect_upgrade(type: String,from_level: int) -> void:
 	var finished_visible := true
 	for part: Dictionary in entry.parts.values():
 		finished_visible=finished_visible and float(part.installed)>=.99999 and part.quad.is_visible_in_tree()
-	report.upgrades.append({"type":type,"from":from_level,"to":from_level+1,"retained":retained,"retained_stable":retained_stable,"target_stable":target_stable,"finished_matches_target":final_keys==expected_keys,"finished_visible":finished_visible})
+	report.upgrades.append({"type":type,"from":from_level,"to":from_level+1,"retained":retained,"retained_stable":retained_stable,"target_stable":target_stable,"finished_matches_target":final_keys==expected_keys,"finished_visible":finished_visible,"work_plan":plan,"demolition_end":removal_end,"first_install":first_install})
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -312,6 +395,7 @@ func _run() -> void:
 		return
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(args[0]))
 	renderer_script=load("res://world/buildings.gd")
+	verify(not "reveal" in renderer_script.PART_SHADER and not "installed" in renderer_script.PART_SHADER,"Construction shader still wipes or fades individual image parts")
 	recipes=load("res://world/building_parts.gd")
 	renderer=renderer_script.new()
 	root.add_child(renderer)

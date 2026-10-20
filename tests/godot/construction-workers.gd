@@ -82,7 +82,12 @@ func run() -> void:
 	buildings.sync_buildings([{"id":77,"x":4,"y":4,"type":"house","lvl":10,"construction":{"total":360,"remaining":170}}],{})
 	var high := site_at(4,true,10)
 	workers.sync_city(city_at(high,5),buildings)
-	var upper_targets: Array = buildings.construction_targets(77,-1,64)
+	# Default targets now expose only the currently active installation. This
+	# route/climb fixture deliberately asks the explicit future phase catalogue
+	# for an upper-floor stand point; it is not the production target selector.
+	var upper_targets: Array = []
+	for phase in range(6):
+		upper_targets.append_array(buildings.construction_targets(77,phase,64))
 	var elevated: Array = upper_targets.filter(func(t: Dictionary):return float(t.worker_elevation)>.08)
 	check(not elevated.is_empty(),"L10 backend exposes real upper-floor stand elevations")
 	if not elevated.is_empty():

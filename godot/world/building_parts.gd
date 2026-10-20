@@ -7,7 +7,7 @@ extends RefCounted
 
 const SIZES:Dictionary={"house":1,"villa":2,"well":1,"watch":1,"police":1,"clinic":1,"repair":1,"temple":1,"school":1,"theater":1,"grainShop":1,"vegShop":1,"fruitShop":1,"fishShop":1,"meatShop":1,"farmland":2,"vegFarm":2,"orchard":2,"fishing":1,"pasture":2,"lumber":2,"quarry":2,"clayPit":2,"kiln":2,"pottery":2,"mill":2,"weaver":2,"winery":2,"granary":2,"warehouse":2,"treeDeco":1,"garden":2,"monument":1,"barracks":2,"university":2,"bath":2,"observatory":2,"harbor":2,"market":2,"copperMine":2,"pagoda":2,"wonder":3}
 const MAX_LEVELS:Dictionary={"house":10,"villa":6}
-const MATERIAL_KEYS:Array[String]=["stone_block","stone_step","post_wood","post_red","beam_wood","beam_painted","wall_earth","wall_plaster","wall_timber","wall_brick","brace_wood","dougong","door_wood","door_red","window_lattice","window_paper","railing","lantern","tiles_gray","tiles_green","tiles_glazed","thatch_course","eave_gray","eave_gold","ridge_gray","ridge_gold","ridge_beast","rafter","fabric_canvas","fabric_awning","sack","crate","barrel","timber_stack","bucket","wheel","kiln_masonry_nw","kiln_masonry_ne","kiln_masonry_sw","kiln_masonry_se","furnace_mouth","chimney_course","pottery_vessel","loom_frame","workbench","rice_seedling","rice_ripe","vegetable_patch","fruit_branch","well_stone_nw","well_stone_ne","well_stone_sw","well_stone_se","water_surface","gong","drum","banner","lion","incense_burner","rope","cattle","sheep","fish","meat","vegetable_basket","fruit_basket","millstone","armillary_ring_vertical","armillary_ring_horizontal","tree_trunk"]
+const MATERIAL_KEYS:Array[String]=["stone_block","stone_step","post_wood","post_red","beam_wood","beam_painted","wall_earth","wall_plaster","wall_timber","wall_brick","brace_wood","dougong","door_wood","door_red","window_lattice","window_paper","railing","lantern","tiles_gray","tiles_green","tiles_glazed","thatch_course","eave_gray","eave_gold","ridge_gray","ridge_gold","ridge_beast","rafter","fabric_canvas","fabric_awning","sack","crate","barrel","timber_stack","bucket","wheel","kiln_masonry_nw","kiln_masonry_ne","kiln_masonry_sw","kiln_masonry_se","furnace_mouth","chimney_course","pottery_vessel","loom_frame","workbench","rice_seedling","rice_ripe","vegetable_patch","fruit_branch","well_stone_nw","well_stone_ne","well_stone_sw","well_stone_se","water_surface","gong","drum","banner","lion","incense_burner","rope","cattle","sheep","fish","meat","vegetable_basket","fruit_basket","millstone","armillary_ring_vertical","armillary_ring_horizontal","tree_trunk","window_shop","door_round","wall_red_plaster","wall_white_brick_base","railing_stone","beam_carved","tiles_blue","eave_green","eave_corner_gray","eave_corner_gold","eave_corner_green","ridge_hip_gray","ridge_hip_gold","ridge_hip_green","finial","gable_panel","gable_trim","ridge_green","willow_branch","pine_branch","bloom_branch","reed_patch","shrub_branch","market_canopy_edge","hanging_sign","water_bucket_rack"]
 const MODULE_KINDS:Array[String]=["leaf"]
 const STAGE_NAMES:Array[String]=["基础砌块","柱梁承重","墙段门窗","屋面椽条","瓦排与屋脊","设备与陈设"]
 
@@ -37,6 +37,120 @@ static func _leaf(out:Array[Dictionary],id:String,asset:String,x:float,y:float,w
 	var leaf:Dictionary={"kind":"leaf","id":id,"asset":asset,"ground":[x+w*.5,y+d*.5],"extent":[w,d,h],"elevation":z,"face":face,"phase":phase,"role":role if not role.is_empty() else asset,"layer":layer,"stand_elevation":0.0}
 	out.append(leaf)
 	return leaf
+
+static func _surface_leaf(out:Array[Dictionary],id:String,asset:String,points:Array[Vector3],phase:int,role:String,layer:int=0,standing:float=0.) -> Dictionary:
+	assert(points.size()==4,"One image part has four mounting corners")
+	var low:=points[0]
+	var high:=points[0]
+	for point:Vector3 in points:
+		low=low.min(point);high=high.max(point)
+	var size:=high-low
+	var center:=Vector2((low.x+high.x)*.5,(low.y+high.y)*.5)
+	var leaf:=_leaf(out,id,asset,center.x-maxf(.005,size.x)*.5,center.y-maxf(.005,size.y)*.5,maxf(.005,size.x),maxf(.005,size.y),low.z,maxf(.001,size.z),"surface",phase,role,layer)
+	leaf["surface_vertices"]=[]
+	for point:Vector3 in points:leaf.surface_vertices.append([point.x-center.x,point.y-center.y,point.z])
+	leaf["stand_elevation"]=standing
+	return leaf
+
+static func _panel_between(out:Array[Dictionary],id:String,asset:String,a:Vector2,b:Vector2,z:float,height:float,phase:int,role:String,layer:int=0,standing:float=0.) -> Dictionary:
+	return _surface_leaf(out,id,asset,[Vector3(a.x,a.y,z+height),Vector3(b.x,b.y,z+height),Vector3(b.x,b.y,z),Vector3(a.x,a.y,z)],phase,role,layer,standing)
+
+static func _rope_between(out:Array[Dictionary],id:String,a:Vector3,b:Vector3,phase:int) -> void:
+	var delta:=Vector2((b.x-b.y-a.x+a.y)*64.,(b.x+b.y-a.x-a.y)*32.-(b.z-a.z)*64.)
+	var side:=Vector2(-delta.y,delta.x).normalized()*.35
+	var plan:=Vector3(side.x/128.+side.y/64.,side.y/64.-side.x/128.,0.)
+	var rope:=_surface_leaf(out,id,"rope",[a+plan,b+plan,b-plan,a-plan],phase,"rope",2)
+	rope["uv_crop"]=[0.,0.,1.,1.]
+
+static func _eave_asset(material:String,corner:bool=false) -> String:
+	var tint:="gold" if material=="tiles_glazed" else ("green" if material=="tiles_green" else "gray")
+	return ("eave_corner_" if corner else "eave_")+tint
+
+static func _ridge_asset(material:String,hip:bool=false) -> String:
+	var tint:="gold" if material=="tiles_glazed" else ("green" if material=="tiles_green" else "gray")
+	return ("ridge_hip_" if hip else "ridge_")+tint
+
+static func _curve_height(t:float,rise:float) -> float:
+	# The last 10% of the eave lifts slightly; the main slope rises smoothly.
+	# Each interval is still a complete, independently installed tile-course image.
+	return rise*(.34*t+.66*t*t)+minf(.045,rise*.20)*pow(1.-t,4.)
+
+static func _slope_corner(a:Vector2,b:Vector2,c:Vector2,d:Vector2,u:float,t:float,z:float,rise:float) -> Vector3:
+	var at:=a.lerp(b,u).lerp(c.lerp(d,u),t)
+	return Vector3(at.x,at.y,z+_curve_height(t,rise))
+
+static func _tiled_slope(out:Array[Dictionary],id:String,a:Vector2,b:Vector2,c:Vector2,d:Vector2,z:float,rise:float,material:String,standing:float) -> void:
+	var columns:=maxi(1,ceili(maxf(a.distance_to(b),c.distance_to(d))/.28))
+	var rows:=maxi(1,ceili(maxf(a.distance_to(c),b.distance_to(d))/.18))
+	for row in range(rows):
+		var t0:=float(row)/rows
+		var t1:=float(row+1)/rows
+		for column in range(columns):
+			var u0:=float(column)/columns
+			var u1:=float(column+1)/columns
+			var prefix:="%s/%d/%d"%[id,row,column]
+			var p0:=_slope_corner(a,b,c,d,u0,t1,z,rise)
+			var p1:=_slope_corner(a,b,c,d,u1,t1,z,rise)
+			var p2:=_slope_corner(a,b,c,d,u1,t0,z,rise)
+			var p3:=_slope_corner(a,b,c,d,u0,t0,z,rise)
+			var tile:=_surface_leaf(out,prefix+"/course",material,[p0,p1,p2,p3],4,"tile",5,standing)
+			tile["uv_crop"]=[0.,0.,1.,1.]
+			if row==0:
+				_panel_between(out,prefix+"/eave",_eave_asset(material),a.lerp(b,u0),a.lerp(b,u1),z+_curve_height(0.,rise)-.045,.055,4,"tile",6,standing)
+	# A structural rafter is one long member under several separate tile
+	# courses. Splitting the same timber at every decorative tile row needlessly
+	# multiplied CanvasItems and was not a believable building process.
+	for column in range(columns):
+		var middle:=(float(column)+.5)/columns
+		var ua:=middle-.065/columns
+		var ub:=middle+.065/columns
+		var r0:=_slope_corner(a,b,c,d,ua,1.,z-.06,rise)
+		var r1:=_slope_corner(a,b,c,d,ub,1.,z-.06,rise)
+		var r2:=_slope_corner(a,b,c,d,ub,0.,z-.06,rise)
+		var r3:=_slope_corner(a,b,c,d,ua,0.,z-.06,rise)
+		var rafter:=_surface_leaf(out,"%s/rafter/%d"%[id,column],"rafter",[r0,r1,r2,r3],3,"timber",4,standing)
+		rafter["uv_turns"]=1
+		rafter["uv_crop"]=[0.,0.,1.,1.]
+
+static func _hip_seam(out:Array[Dictionary],id:String,a:Vector2,b:Vector2,z:float,rise:float,material:String,standing:float) -> void:
+	var count:=maxi(1,ceili(a.distance_to(b)/.16))
+	for index in range(count):
+		var t0:=float(index)/count
+		var t1:=float(index+1)/count
+		var p0:=a.lerp(b,t0)
+		var p1:=a.lerp(b,t1)
+		var z0:=z+_curve_height(t0,rise)
+		var z1:=z+_curve_height(t1,rise)
+		var ridge:=_surface_leaf(out,"%s/ridge/%d"%[id,index],_ridge_asset(material,true),[Vector3(p0.x,p0.y,z0+.045),Vector3(p1.x,p1.y,z1+.045),Vector3(p1.x,p1.y,z1),Vector3(p0.x,p0.y,z0)],4,"tile",7,standing)
+		ridge["image_line"]=[[p0.x-float(ridge.ground[0]),p0.y-float(ridge.ground[1]),z0+.025],[p1.x-float(ridge.ground[0]),p1.y-float(ridge.ground[1]),z1+.025]]
+		ridge.erase("surface_vertices")
+		ridge["face"]="prop"
+	var tip:=a.lerp(b,minf(1.,.15/maxf(.01,a.distance_to(b))))
+	# At this fixed camera, two of an eight-sided roof's thin corner profiles
+	# are exactly edge-on. The adjacent real eave images already cover that line.
+	if absf((tip.x-tip.y)-(a.x-a.y))>.0001:
+		_panel_between(out,id+"/upturned-tip",_eave_asset(material,true),a,tip,z+.01,.10,4,"tile",8,standing)
+
+static func _hip_roof(out:Array[Dictionary],id:String,r:Rect2,z:float,rise:float,material:String,opening:Rect2=Rect2(),standing:float=0.) -> void:
+	var first_leaf:=out.size()
+	var inner:=opening.intersection(r) if opening.has_area() else Rect2(r.get_center()-Vector2(maxf(.015,r.size.x-r.size.y*.85),.012)*.5,Vector2(maxf(.015,r.size.x-r.size.y*.85),.012))
+	var outer_points:Array[Vector2]=[r.position,Vector2(r.end.x,r.position.y),r.end,Vector2(r.position.x,r.end.y)]
+	var inner_points:Array[Vector2]=[inner.position,Vector2(inner.end.x,inner.position.y),inner.end,Vector2(inner.position.x,inner.end.y)]
+	for side in range(4):
+		var next:=(side+1)%4
+		_tiled_slope(out,"%s/hip/%d"%[id,side],outer_points[side],outer_points[next],inner_points[side],inner_points[next],z,rise,material,standing)
+		_hip_seam(out,"%s/hip-seam/%d"%[id,side],outer_points[side],inner_points[side],z,rise,material,standing)
+	if not opening.has_area():
+		var columns:=maxi(1,ceili(inner.size.x/.23))
+		for column in range(columns):
+			var ridge:=_panel_between(out,"%s/ridge/%d"%[id,column],_ridge_asset(material),Vector2(inner.position.x+inner.size.x*column/columns,inner.get_center().y),Vector2(inner.position.x+inner.size.x*(column+1)/columns,inner.get_center().y),z+rise,.065,4,"tile",8,standing)
+			ridge["uv_crop"]=[0.,0.,1.,1.]
+		if material=="tiles_glazed":
+			for end in range(2):
+				var p:=Vector2(inner.position.x+inner.size.x*end,inner.get_center().y)
+				var beast:=_leaf(out,"%s/beast/%d"%[id,end],"ridge_beast",p.x-.04,p.y-.04,.08,.08,z+rise,.10,"prop",5,"ornament",9)
+				beast["stand_elevation"]=standing
+	for index in range(first_leaf,out.size()):out[index]["roof_group"]=id
 
 static func _block_course(out:Array[Dictionary],id:String,r:Rect2,z:float,height:float=.065) -> void:
 	var nx:=maxi(1,ceili(r.size.x/.28))
@@ -68,7 +182,7 @@ static func _wall_line(out:Array[Dictionary],id:String,x:float,y:float,length:fl
 		var d:=.035 if axis=="x" else step
 		var entry:=open_door and i==count/2
 		if entry:
-			_leaf(out,id+"/door","door_red" if asset=="wall_brick" else "door_wood",xx,yy,w,d,z,h*.91,axis,2,"door",3)
+			_leaf(out,id+"/door","door_red" if asset in ["wall_brick","wall_red_plaster"] else "door_wood",xx,yy,w,d,z,h*.91,axis,2,"door",3)
 		else:
 			_leaf(out,"%s/bay/%d"%[id,i],asset,xx,yy,w,d,z,h,axis,2,"wall",1)
 			if windows and (count<=2 or i%2==0):
@@ -122,8 +236,13 @@ static func _roof_piece(out:Array[Dictionary],id:String,asset:String,r:Rect2,z:f
 		if clipped:
 			var crop:Array=[(piece.position.x-r.position.x)/r.size.x,(r.end.y-piece.end.y)/r.size.y if side==0 else (piece.position.y-r.position.y)/r.size.y,piece.size.x/r.size.x,piece.size.y/r.size.y]
 			leaf["uv_crop"]=[1.-float(crop[1])-float(crop[3]),crop[0],crop[3],crop[2]] if asset=="rafter" else crop
+		elif asset.begins_with("tiles_") or asset.begins_with("fabric_") or asset in ["thatch_course","rafter"]:
+			# Roof-material sheets include edges/ties outside their calibrated
+			# repeat plane. Every roof course samples its actual repeat field:
+			# otherwise the transparent sheet margins expand the physical roof.
+			leaf["uv_crop"]=[0.,0.,1.,1.]
 		if asset=="rafter":leaf["uv_turns"]=1
-		if asset in ["eave_gray","eave_gold"]:leaf["face"]="x"
+		if asset.begins_with("eave_"):leaf["face"]="x"
 
 static func _roof(out:Array[Dictionary],id:String,r:Rect2,z:float,rise:float,material:String="tiles_gray",opening:Rect2=Rect2(),standing:float=-1.) -> void:
 	var first_leaf:=out.size()
@@ -135,31 +254,43 @@ static func _roof(out:Array[Dictionary],id:String,r:Rect2,z:float,rise:float,mat
 	for side in range(2):
 		for row in range(rows):
 			var yy:=r.position.y+row*dy if side==0 else r.end.y-(row+1)*dy
-			var low_z:=z+rise*row/rows
+			var curved:=material.begins_with("tiles_")
+			var t0:=float(row)/rows
+			var t1:=float(row+1)/rows
+			var low_z:=z+rise*(pow(t0,1.35) if curved else t0)
+			var row_rise:=rise*((pow(t1,1.35)-pow(t0,1.35)) if curved else (t1-t0))
 			for col in range(cols):
 				var xx:=r.position.x+col*dx
 				var key:="%s/%s/%d/%d"%[id,"back" if side==0 else "front",row,col]
-				_roof_piece(out,key+"/rafter","rafter",Rect2(xx+dx*.45,yy,dx*.10,dy),low_z-.025,rise/rows,side,3,"timber",4,opening)
-				_roof_piece(out,key+"/course",material,Rect2(xx,yy,dx,dy),low_z,rise/rows,side,4,"thatch" if material=="thatch_course" else "tile",5,opening)
+				if row==0:
+					var half_y:=r.position.y if side==0 else r.get_center().y
+					_roof_piece(out,"%s/%s/rafter/%d"%[id,"back" if side==0 else "front",col],"rafter",Rect2(xx+dx*.45,half_y,dx*.10,r.size.y*.5),z-.035,rise,side,3,"timber",4,opening)
+				_roof_piece(out,key+"/course",material,Rect2(xx,yy,dx,dy),low_z,row_rise,side,4,"thatch" if material=="thatch_course" else "tile",5,opening)
 				if row==0 and material!="thatch_course" and not material.begins_with("fabric"):
-					_roof_piece(out,key+"/eave","eave_gold" if gold else "eave_gray",Rect2(xx,yy if side==0 else yy+dy-.055,dx,.055),z-.015,.045,side,4,"tile",6,opening)
+					_roof_piece(out,key+"/eave",_eave_asset(material),Rect2(xx,yy if side==0 else yy+dy-.055,dx,.055),z-.015,.045,side,4,"tile",6,opening)
 	for col in range(cols):
 		var xx:=r.position.x+col*dx
 		if opening.has_area() and opening.intersects(Rect2(xx,r.get_center().y-.025,dx,.05),true):continue
 		if material.begins_with("fabric") or material=="thatch_course":
 			_leaf(out,"%s/ridge-tie/%d"%[id,col],"rope",xx,r.get_center().y-.018,dx,.036,z+rise,.025,"x",4,"rope",7)
 		else:
-			_leaf(out,"%s/ridge/%d"%[id,col],"ridge_gold" if gold else "ridge_gray",xx,r.get_center().y-.025,dx,.05,z+rise,.065,"x",4,"tile",7)
+			var ridge:=_leaf(out,"%s/ridge/%d"%[id,col],_ridge_asset(material),xx,r.get_center().y-.025,dx,.05,z+rise,.045,"x",4,"tile",7)
+			ridge["uv_crop"]=[0.,0.,1.,1.]
 	if gold and not opening.has_area():
 		for end in range(2):_leaf(out,"%s/beast/%d"%[id,end],"ridge_beast",r.position.x-.02 if end==0 else r.end.x-.08,r.get_center().y-.04,.10,.08,z+rise,.10,"prop",5,"ornament",8)
-	for i in range(first_leaf,out.size()):out[i]["stand_elevation"]=standing if standing>=0. else maxf(0.,z-.4)
+	for i in range(first_leaf,out.size()):
+		out[i]["stand_elevation"]=standing if standing>=0. else maxf(0.,z-.4)
+		out[i]["roof_group"]=id
 
 static func _room(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float,wall:String="wall_plaster",roof:String="tiles_gray",open:bool=false,painted:bool=false,opening:Rect2=Rect2(),foundation:bool=true,entry:bool=true) -> void:
 	_frame(out,id,r,z,h,wall,open,painted,foundation,entry)
 	if not roof.is_empty():
 		var rise:=minf(.25,r.size.y*.23)
-		if not open and not opening.has_area():_gables(out,id+"/gable",r,z+h+.04,rise,wall,z)
-		_roof(out,id+"/roof",r.grow(.035),z+h+.04,rise,roof,opening,z)
+		if painted and roof.begins_with("tiles_"):
+			_hip_roof(out,id+"/roof",r.grow(.045),z+h+.04,rise*1.14,roof,opening,z)
+		else:
+			if not open and not opening.has_area():_gables(out,id+"/gable",r,z+h+.04,rise,wall,z)
+			_roof(out,id+"/roof",r.grow(.035),z+h+.04,rise,roof,opening,z)
 
 static func _gables(out:Array[Dictionary],id:String,r:Rect2,z:float,rise:float,wall:String,standing:float) -> void:
 	# Two image triangles close each gable. The roof's overhang lifts its intersection
@@ -186,8 +317,7 @@ static func _house(out:Array[Dictionary],level:int) -> void:
 				_post(out,"camp/ridge-post/"+str(x),x,.44,.01,.51,false,.03)
 				for y in [r.position.y,r.end.y]:
 					_post(out,"camp/peg/%s/%s"%[x,y],x,y,0.,.12,false,.025)
-					var tether:=_leaf(out,"camp/tether/%s/%s"%[x,y],"rope",x-.015,minf(y,.44),.03,absf(y-.44),.02,.50,"y",1,"rope")
-					if y<.44:tether["uv_turns"]=1
+					_rope_between(out,"camp/tether/%s/%s"%[x,y],Vector3(x,y,.07),Vector3(x,.44,.53),1)
 			_beam(out,"camp/ridge-beam",r.position.x,.42,r.size.x,.04,.52)
 			_roof(out,"camp/canvas",r,.12,.42,"fabric_canvas")
 			# Each end is an independent rectangular skirt plus two triangular cloth
@@ -197,6 +327,7 @@ static func _house(out:Array[Dictionary],level:int) -> void:
 				for half in range(2):
 					var panel:=_leaf(out,"camp/end/%d/triangle/%d"%[side,half],"fabric_canvas",xx,r.position.y+half*r.size.y*.5,.02,r.size.y*.5,.12,.42,"y",2,"fabric",2)
 					panel["surface_triangle"]=[0,2,3] if half==0 else [1,2,3]
+					panel["uv_crop"]=[0.,0.,1.,1.]
 				if side==0:
 					_leaf(out,"camp/end/0/skirt","fabric_canvas",xx,r.position.y,.02,r.size.y,.01,.11,"y",2,"fabric")
 				else:
@@ -220,7 +351,7 @@ static func _house(out:Array[Dictionary],level:int) -> void:
 			_stairs(out,"entry",Rect2(.37,.92,.26,.07),.10)
 			_stock(out,"fuel","timber_stack",Rect2(.12,.79,.20,.11),1)
 		5:
-			_room(out,"main",r,.065,.42,"wall_plaster","tiles_gray")
+			_room(out,"main",r,.065,.42,"wall_white_brick_base","tiles_gray")
 			_room(out,"entry-canopy",Rect2(.35,.80,.30,.14),.04,.28,"wall_timber","tiles_gray",true)
 			_stairs(out,"entry",Rect2(.38,.95,.24,.04),.065)
 			_leaf(out,"water-pot","pottery_vessel",.78,.81,.13,.12,.02,.18,"prop",5,"vessel")
@@ -304,7 +435,7 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			_stock(out,"buckets","bucket",Rect2(.69,.78,.21,.13),2)
 		"watch":
 			_room(out,"lower-tower",Rect2(.20,.20,.60,.60),.09,.80,"wall_brick","",false)
-			_room(out,"lookout",Rect2(.13,.13,.74,.74),.93,.32,"wall_timber","tiles_glazed",true,true,Rect2(),false)
+			_room(out,"lookout",Rect2(.13,.13,.74,.74),.93,.32,"wall_timber","tiles_green",true,true,Rect2(),false)
 			_rails(out,"lookout-rails",Rect2(.13,.13,.74,.74),.93,.18)
 			_leaf(out,"watch-gong","gong",.39,.73,.22,.06,1.05,.24,"x",5,"equipment")
 		"police":
@@ -322,7 +453,7 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			_leaf(out,"joinery-bench","workbench",.12,.71,.43,.20,.03,.23,"prop",5,"equipment")
 			_stock(out,"repair-timber","timber_stack",Rect2(.66,.67,.23,.25),2)
 		"temple":
-			_room(out,"sanctuary",Rect2(.08,.09,.84,.62),.15,.58,"wall_brick","tiles_glazed",false,true)
+			_room(out,"sanctuary",Rect2(.08,.09,.84,.62),.15,.58,"wall_red_plaster","tiles_glazed",false,true)
 			_stairs(out,"stairs",Rect2(.30,.73,.40,.20),.15)
 			_leaf(out,"censer","incense_burner",.42,.83,.16,.14,.04,.22,"prop",5,"ornament")
 			for side in range(2):_leaf(out,"guardian/%d"%side,"lion",.10+side*.66,.80,.14,.14,.03,.22,"prop",5,"ornament")
@@ -357,7 +488,7 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			_compound(out,"orchard-fence",2.,.48,.14,"railing")
 			_room(out,"fruit-shed",Rect2(.12,.12,.58,.32),.04,.29,"wall_timber","thatch_course")
 			for row in range(3):
-				for col in range(3):_tree(out,"fruit-tree/%d/%d"%[row,col],Vector2(.38+col*.61,.77+row*.43),.68)
+				for col in range(3):_tree(out,"fruit-tree/%d/%d"%[row,col],Vector2(.38+col*.61,.77+row*.43),.68,"fruit")
 			_stock(out,"harvest","fruit_basket",Rect2(1.17,.14,.58,.25),3)
 		"pasture":
 			_compound(out,"pasture-fence",2.,.50,.21,"railing")
@@ -426,13 +557,15 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			_stock(out,"crates","crate",Rect2(.19,1.59,.70,.25),4)
 			_stock(out,"barrels","barrel",Rect2(1.45,1.18,.35,.35),3)
 			_cart(out,"handcart",Rect2(1.15,1.70,.62,.17))
-		"treeDeco":_tree(out,"ornamental-tree",Vector2(.50,.50),1.18)
+		"treeDeco":_tree(out,"ornamental-tree",Vector2(.50,.50),1.18,"pine")
 		"garden":
 			_compound(out,"boundary",2.,.48,.23)
+			_leaf(out,"moon-gate","door_round",.76,1.94,.48,.018,.025,.49,"x",2,"door",3)
 			_room(out,"pavilion",Rect2(.20,.20,.68,.60),.07,.50,"wall_timber","tiles_green",true,true)
 			_pool(out,"pond",Rect2(.91,.98,.82,.57),.045)
-			_tree(out,"tree",Vector2(1.55,.43),.89)
-			_tree(out,"shrub",Vector2(.31,1.27),.62)
+			_tree(out,"tree",Vector2(1.55,.43),.89,"willow")
+			_tree(out,"shrub",Vector2(.31,1.27),.62,"blossom")
+			_leaf(out,"pond/reeds","reed_patch",1.59,1.47,.22,.18,.025,.22,"prop",5,"plant")
 			_deck(out,"footbridge",Rect2(.75,1.14,.27,.52),.10)
 			_leaf(out,"scholar-stone","stone_block",.47,1.65,.22,.20,.02,.30,"prop",5,"ornament")
 		"monument":
@@ -454,7 +587,7 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			_room(out,"library-west",Rect2(.15,.86,.36,.84),.08,.44,"wall_plaster","tiles_gray")
 			_room(out,"library-east",Rect2(1.49,.86,.36,.84),.08,.44,"wall_plaster","tiles_gray")
 			_room(out,"gate",Rect2(.70,1.69,.60,.21),.05,.40,"wall_timber","tiles_green",true,true)
-			_tree(out,"scholar-tree",Vector2(.87,1.17),.65)
+			_tree(out,"scholar-tree",Vector2(.87,1.17),.65,"blossom")
 			_leaf(out,"academy-gong","gong",1.22,1.32,.16,.05,.18,.22,"x",5,"equipment")
 		"bath":
 			_compound(out,"boundary",2.,.50,.27)
@@ -472,7 +605,7 @@ static func _civic(out:Array[Dictionary],type:String) -> void:
 			equator["width"]=64.*sqrt(2.)*.50
 			equator["height"]=32.*sqrt(2.)*.50
 			_room(out,"astronomer-study",Rect2(.10,.12,.47,.38),.05,.33,"wall_plaster","tiles_gray")
-			_rails(out,"balustrade",Rect2(.35,.36,1.30,1.22),.54,.18)
+			_rails(out,"balustrade",Rect2(.35,.36,1.30,1.22),.54,.18,"railing_stone")
 		"pagoda":_pagoda(out)
 		"wonder":_palace(out)
 
@@ -500,7 +633,7 @@ static func _deck(out:Array[Dictionary],id:String,r:Rect2,z:float) -> void:
 	for corner in [r.position,r.position+Vector2(r.size.x,0),r.end,r.position+Vector2(0,r.size.y)]:
 		_post(out,id+"/support/"+str(corner),corner.x,corner.y,0.,maxf(.03,z),false,.055)
 
-static func _rails(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float) -> void:
+static func _rails(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float,asset:String="railing") -> void:
 	for side in range(4):
 		var axis:="x" if side in [0,2] else "y"
 		var length:=r.size.x if axis=="x" else r.size.y
@@ -508,7 +641,7 @@ static func _rails(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float) -> v
 		for i in range(count):
 			var x:=r.position.x+(length*i/count if axis=="x" else (r.size.x if side==1 else 0.))
 			var y:=r.position.y+(length*i/count if axis=="y" else (r.size.y if side==2 else 0.))
-			_leaf(out,"%s/side/%d/%d"%[id,side,i],"railing",x,y,length/count if axis=="x" else .025,.025 if axis=="x" else length/count,z,h,axis,2,"timber",2)
+			_leaf(out,"%s/side/%d/%d"%[id,side,i],asset,x,y,length/count if axis=="x" else .025,.025 if axis=="x" else length/count,z,h,axis,2,"stone" if asset=="railing_stone" else "timber",2)
 
 static func _fence(out:Array[Dictionary],id:String,r:Rect2,h:float,asset:String="wall_plaster",gap:float=0.) -> void:
 	var axis:="x" if r.size.x>=r.size.y else "y"
@@ -537,9 +670,9 @@ static func _well(out:Array[Dictionary],id:String,p:Vector2,diameter:float) -> v
 	for direction:Array in directions:
 		var x:float=p.x-radius if int(direction[0])<0 else p.x
 		var y:float=p.y-radius if int(direction[1])<0 else p.y
-		var leaf:=_leaf(out,id+"/rim/"+str(direction[2]),"well_stone_"+str(direction[2]),x,y,radius,radius,.02,diameter*.110,"prop",0,"stone")
+		var leaf:=_leaf(out,id+"/rim/"+str(direction[2]),"well_stone_"+str(direction[2]),x,y,radius,radius,.02,diameter*.252,"prop",0,"stone")
 		leaf["image_ground"]=[p.x,p.y]
-		leaf["image_extent"]=[diameter,diameter,diameter*.110]
+		leaf["image_extent"]=[diameter,diameter,diameter*.252]
 
 static func _pool(out:Array[Dictionary],id:String,r:Rect2,h:float) -> void:
 	var nx:=maxi(1,ceili(r.size.x/.30))
@@ -551,17 +684,20 @@ static func _pool(out:Array[Dictionary],id:String,r:Rect2,h:float) -> void:
 	for i in range(ny):
 		for edge in range(2):_leaf(out,"%s/border-y/%d/%d"%[id,edge,i],"stone_block",r.position.x+edge*r.size.x-.04,r.position.y+r.size.y*i/ny,.08,r.size.y/ny,.02,h,"prop",0,"stone")
 
-static func _tree(out:Array[Dictionary],id:String,p:Vector2,height:float) -> void:
+static func _tree(out:Array[Dictionary],id:String,p:Vector2,height:float,species:String="broadleaf") -> void:
 	var trunk:=_leaf(out,id+"/trunk","tree_trunk",p.x-height*.07,p.y-height*.07,height*.14,height*.14,.02,height*.70,"prop",1,"timber")
-	# The pruned natural trunk includes its branching arms. Keep the original
-	# source aspect instead of squeezing those arms into the narrow root footprint.
+	# Preserve the new painted trunk's own aspect; no dimensions are inherited
+	# from the rejected source image.
 	trunk["height"]=height*.74*64.
-	trunk["width"]=height*.74*64.*552./488.
-	for i in range(9):
-		var angle:=TAU*i/9.
-		var span:=height*.25
+	var asset:String={"fruit":"fruit_branch","willow":"willow_branch","pine":"pine_branch","blossom":"bloom_branch","broadleaf":"shrub_branch"}.get(species,"shrub_branch")
+	var count:=6 if species in ["willow","pine"] else 7
+	for i in range(count):
+		var angle:=TAU*i/count
+		var span:=height*(.34 if species=="willow" else .29)
 		var at:=p+Vector2(cos(angle),sin(angle))*height*.16
-		var leaf:=_leaf(out,"%s/branch/%d"%[id,i],"fruit_branch",at.x-span*.5,at.y-span*.5,span,span,.02+height*(.37+(i%3)*.14),height*.21,"prop",5,"plant")
+		var level:=.36+(i%3)*.14
+		if species=="pine":level=.30+i*.075
+		var leaf:=_leaf(out,"%s/branch/%d"%[id,i],asset,at.x-span*.5,at.y-span*.5,span,span,.02+height*level,height*(.38 if species=="willow" else .22),"prop",5,"plant")
 		leaf["flip"]=i%2==1
 
 static func _rack(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float) -> void:
@@ -588,20 +724,21 @@ static func _sign(out:Array[Dictionary],id:String,p:Vector2,h:float) -> void:
 static func _kiln(out:Array[Dictionary],id:String,r:Rect2,z:float,h:float) -> void:
 	_block_course(out,id+"/base",r,z,.06)
 	var diameter:=minf(r.size.x,r.size.y)
-	# The photograph's complete ring has a calibrated course height of 0.18×D.
-	# Stack that actual height, never an unrelated target-step that leaves air gaps.
-	var levels:=maxi(2,ceili(h/(diameter*.18*.85)))
+	# Fresh E quarter-course images share a 584 px painted-circle reference.
+	# Their measured 112 px front rise is 0.271×D at the 2:1 camera. Keep each
+	# original arc uniformly scaled; 6% overlap closes the painted side variance.
+	var levels:=maxi(2,ceili(h/(diameter*.271*.94)))
 	var course_z:=z+.06
 	for row in range(levels):
 		var shrink:=float(row)/levels*.30
 		var span:=Vector2.ONE*diameter*(1.-shrink)
 		var origin:=r.get_center()-span*.5
-		var course_h:=span.x*.180
+		var course_h:=span.x*.271
 		for direction:Array in [[0,0,"nw"],[1,0,"ne"],[0,1,"sw"],[1,1,"se"]]:
 			var leaf:=_leaf(out,"%s/masonry/%d/%s"%[id,row,str(direction[2])],"kiln_masonry_"+str(direction[2]),origin.x+float(direction[0])*span.x*.5,origin.y+float(direction[1])*span.y*.5,span.x*.5,span.y*.5,course_z,course_h,"prop",2,"brick",row+1)
 			leaf["image_ground"]=[r.get_center().x,r.get_center().y]
 			leaf["image_extent"]=[span.x,span.y,course_h]
-		course_z+=course_h*.985
+		course_z+=course_h*.94
 
 	var mouth:=_leaf(out,id+"/fire-mouth","furnace_mouth",r.get_center().x-r.size.x*.16,r.end.y-.035,r.size.x*.32,.035,z+.07,h*.36,"x",5,"furnace",8)
 	mouth["animate"]="furnace"
@@ -614,16 +751,54 @@ static func _cart(out:Array[Dictionary],id:String,r:Rect2) -> void:
 	_beam(out,id+"/handle",r.end.x,r.get_center().y-.02,.20,.04,.12)
 
 static func _shop(out:Array[Dictionary],type:String) -> void:
-	_room(out,"shop",Rect2(.08,.08,.84,.53),.065,.40,"wall_timber","tiles_gray")
-	_room(out,"awning",Rect2(.09,.67,.82,.25),.035,.28,"wall_timber","fabric_awning",true)
-	_leaf(out,"counter","workbench",.15,.80,.70,.13,.04,.19,"prop",5,"equipment")
 	var asset:String={"grainShop":"sack","vegShop":"vegetable_basket","fruitShop":"fruit_basket","fishShop":"fish","meatShop":"meat"}.get(type,"crate")
-	_stock(out,"goods",asset,Rect2(.18,.80,.64,.11),4,.25,.09)
-	if type=="fishShop":
-		_pool(out,"fish-tub",Rect2(.74,.68,.14,.14),.14)
-	elif type=="meatShop":
-		_rack(out,"meat-rack",Rect2(.18,.72,.24,.10),.04,.36)
-		_leaf(out,"hanging-meat","meat",.24,.72,.12,.06,.19,.18,"prop",5,"goods")
+	match type:
+		"grainShop":
+			_room(out,"shop",Rect2(.08,.08,.84,.59),.10,.47,"wall_white_brick_base","tiles_gray")
+			_room(out,"loading-porch",Rect2(.13,.70,.47,.22),.055,.30,"wall_timber","tiles_gray",true)
+			_stock(out,"grain-stack/back","sack",Rect2(.65,.73,.25,.12),2,.04,.17)
+			_stock(out,"grain-stack/top","sack",Rect2(.65,.75,.25,.12),2,.20,.15)
+			_stairs(out,"loading-step",Rect2(.30,.92,.27,.06),.10)
+			_leaf(out,"weighing-counter","workbench",.19,.79,.34,.14,.10,.18,"prop",5,"equipment")
+			_stock(out,"goods",asset,Rect2(.23,.81,.25,.10),2,.30,.09)
+		"vegShop":
+			_room(out,"shop",Rect2(.08,.08,.84,.39),.065,.35,"wall_plaster","tiles_green")
+			_room(out,"produce-canopy",Rect2(.08,.53,.84,.35),.035,.38,"wall_timber","fabric_awning",true)
+			_leaf(out,"canopy-valance","market_canopy_edge",.08,.88,.84,.014,.33,.10,"x",5,"fabric")
+			for side in range(2):
+				var r:=Rect2(.12+side*.43,.76,.33,.18)
+				_leaf(out,"produce-counter/%d"%side,"workbench",r.position.x,r.position.y,r.size.x,r.size.y,.035,.19,"prop",5,"equipment")
+				_stock(out,"goods/%d"%side,asset,r,3,.245,.11)
+		"fruitShop":
+			_room(out,"shop",Rect2(.08,.08,.57,.58),.065,.46,"wall_white_brick_base","tiles_gray")
+			_room(out,"side-canopy",Rect2(.69,.17,.23,.57),.035,.34,"wall_timber","fabric_awning",true)
+			_leaf(out,"fruit-counter","workbench",.13,.77,.73,.15,.035,.21,"prop",5,"equipment")
+			_stock(out,"goods",asset,Rect2(.17,.80,.65,.12),4,.26,.11)
+			_leaf(out,"fruit-branch","fruit_branch",.73,.55,.17,.16,.11,.24,"prop",5,"plant")
+		"fishShop":
+			_room(out,"shop",Rect2(.08,.08,.84,.35),.065,.34,"wall_timber","tiles_blue")
+			_room(out,"wet-porch",Rect2(.08,.51,.49,.38),.035,.40,"wall_timber","tiles_blue",true)
+			_leaf(out,"fish-counter","workbench",.12,.77,.41,.15,.035,.18,"prop",5,"equipment")
+			_stock(out,"goods",asset,Rect2(.15,.80,.35,.10),3,.24,.08)
+			_pool(out,"fish-tub/front",Rect2(.67,.73,.23,.18),.17)
+			_pool(out,"fish-tub/back",Rect2(.67,.49,.23,.18),.17)
+			_leaf(out,"bucket-rack","water_bucket_rack",.71,.18,.18,.18,.05,.29,"prop",5,"equipment")
+		"meatShop":
+			_room(out,"shop",Rect2(.08,.08,.84,.48),.065,.44,"wall_brick","tiles_gray")
+			_room(out,"butcher-porch",Rect2(.11,.64,.78,.27),.035,.39,"wall_timber","tiles_gray",true)
+			_leaf(out,"butcher-block","workbench",.48,.78,.36,.14,.035,.23,"prop",5,"equipment")
+			_stock(out,"goods",asset,Rect2(.53,.81,.25,.11),2,.28,.10)
+			_rack(out,"meat-rack",Rect2(.16,.70,.23,.10),.04,.40)
+			for index in range(2):
+				_leaf(out,"hanging-meat/%d"%index,"meat",.18+index*.10,.72,.09,.06,.19,.22,"prop",5,"goods")
+	# A fitted service opening and separately painted hanging board distinguish
+	# the commercial frontage from residence windows.
+	for leaf:Dictionary in out:
+		if str(leaf.id)=="shop/wall/front/window/0":
+			leaf["asset"]="window_shop"
+	_post(out,"sign-post",.89,.61,.025,.59,false,.025)
+	_beam(out,"sign-bracket",.69,.59,.21,.035,.61)
+	_leaf(out,"hanging-sign","hanging_sign",.70,.61,.16,.012,.38,.25,"x",5,"ornament")
 
 static func _dock(out:Array[Dictionary],large:bool) -> void:
 	var s:=2. if large else 1.
@@ -658,19 +833,68 @@ static func _mine(out:Array[Dictionary],type:String) -> void:
 	if type=="clayPit":_pool(out,"mixing-trough",Rect2(.90,.97,.41,.28),.12)
 	elif type=="copperMine":_stock(out,"ore-buckets","bucket",Rect2(1.37,1.82,.43,.12),2)
 
+static func _octagon(center:Vector2,diameter:float) -> Array[Vector2]:
+	var ring:Array[Vector2]=[]
+	# Vertices on cardinal axes leave no vertical wall exactly edge-on to the
+	# 2:1 camera. Eight real sides still meet at the same shared post positions.
+	for index in range(8):
+		var angle:=PI+TAU*index/8.
+		ring.append(center+Vector2(cos(angle),sin(angle))*diameter*.5)
+	return ring
+
+static func _polygon_frame(out:Array[Dictionary],id:String,center:Vector2,diameter:float,z:float,h:float,wall:String,open:bool=false,entry:bool=false) -> void:
+	var ring:=_octagon(center,diameter)
+	for side in range(8):
+		var a:=ring[side]
+		var b:=ring[(side+1)%8]
+		_post(out,"%s/post/%d"%[id,side],a.x,a.y,z,h,true,.038)
+		out[-1]["stand_elevation"]=z
+		_panel_between(out,"%s/beam/%d"%[id,side],"beam_painted",a,b,z+h,.045,1,"timber",3,z)
+		var bracket:=_leaf(out,"%s/bracket/%d"%[id,side],"dougong",a.x-.035,a.y-.035,.07,.07,z+h-.025,.07,"prop",1,"timber",4)
+		bracket["stand_elevation"]=z
+		if open:continue
+		var middle:=a.lerp(b,.5)
+		var normal:=(middle-center).normalized()*.009
+		var front:=side in [3,4,5]
+		if entry and side==5:
+			_panel_between(out,"%s/entry/%d"%[id,side],"door_red",a,b,z,h*.95,2,"door",3,z)
+			continue
+		var panel:=_panel_between(out,"%s/wall-bay/%d"%[id,side],wall,a,b,z,h,2,"wall",1,z)
+		var window:=_panel_between(out,"%s/lattice/%d"%[id,side],"window_lattice",a.lerp(b,.18)+normal,a.lerp(b,.82)+normal,z+h*.22,h*.60,2,"window",4,z)
+		window["attached_to"]=panel.id
+		# Back windows remain part of construction, then the real front planes
+		# occlude them. No completed-tower picture replaces these eight sides.
+		if front:
+			_panel_between(out,"%s/carved-frieze/%d"%[id,side],"beam_carved",a,b,z+h*.86,h*.12,2,"ornament",5,z)
+
+static func _polygon_roof(out:Array[Dictionary],id:String,center:Vector2,outer_diameter:float,inner_diameter:float,z:float,rise:float,material:String,standing:float) -> void:
+	var first_leaf:=out.size()
+	var outer:=_octagon(center,outer_diameter)
+	var inner:=_octagon(center,maxf(.025,inner_diameter))
+	for side in range(8):
+		var next:=(side+1)%8
+		_tiled_slope(out,"%s/sector/%d"%[id,side],outer[side],outer[next],inner[side],inner[next],z,rise,material,standing)
+		_hip_seam(out,"%s/hip-seam/%d"%[id,side],outer[side],inner[side],z,rise,material,standing)
+	for index in range(first_leaf,out.size()):out[index]["roof_group"]=id
+
 static func _pagoda(out:Array[Dictionary]) -> void:
-	_block_course(out,"dais",Rect2(.38,.37,1.24,1.24),.03,.15)
+	var center:=Vector2(1.,.96)
+	_block_course(out,"dais",Rect2(.32,.28,1.36,1.36),.03,.15)
 	_stairs(out,"stairs",Rect2(.79,1.64,.42,.26),.18)
 	for tier in range(7):
-		var span:=1.02-tier*.085
-		var r:=Rect2(1.-span*.5,.96-span*.5,span,span)
-		var opening:=r.grow(-.075) if tier<6 else Rect2()
-		_room(out,"tier/%d"%tier,r,.20+tier*.46,.40,"wall_brick","tiles_glazed",false,true,opening,false,tier==0)
-		if tier>0:_rails(out,"tier/%d/rail"%tier,r.grow(.025),.20+tier*.46,.12)
-	for ring in range(4):
-		var span:=.15-ring*.025
-		_leaf(out,"spire/%d"%ring,"ridge_gold",1.-span*.5,.96-span*.5,span,span,3.55+ring*.09,.09,"prop",5,"ornament",9)
-	_leaf(out,"spire/beast","ridge_beast",.95,.91,.10,.10,3.91,.16,"prop",5,"ornament",10)
+		var span:=1.00-tier*.075
+		var floor_z:=.20+tier*.46
+		var name:="tier/%d"%tier
+		_polygon_frame(out,name,center,span,floor_z,.34,"wall_red_plaster",false,tier==0)
+		var inner_diameter:=span-.10 if tier<6 else .025
+		_polygon_roof(out,name+"/roof",center,span+.25,inner_diameter,floor_z+.365,.105 if tier<6 else .27,"tiles_glazed",floor_z)
+		if tier>0:
+			var rail:=_octagon(center,span+.025)
+			for side in range(8):
+				_panel_between(out,"%s/rail/%d"%[name,side],"railing",rail[side],rail[(side+1)%8],floor_z,.105,2,"timber",2,floor_z)
+	var finial:=_leaf(out,"spire/finial","finial",.945,.905,.11,.11,3.605,.30,"prop",5,"ornament",10)
+	finial["height"]=.30*64.
+	finial["stand_elevation"]=2.96
 
 static func _palace(out:Array[Dictionary]) -> void:
 	_compound(out,"boundary",3.,.82,.32)

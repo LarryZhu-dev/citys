@@ -1,6 +1,6 @@
 {
   "name": "chronicles-of-civilization",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "description": "Ancient city builder with persistent community services",
   "engines": {

@@ -1,4 +1,5 @@
 extends Node
+const ActorAnimation = preload("res://world/actor_animation.gd")
 
 var bridge: JavaScriptObject
 var world: Node2D
@@ -60,7 +61,9 @@ func _sync(full: bool) -> void:
 	if str(selected.get("type", "")) == "road" and world.has_method("road_info"):
 		selected["road"] = world.road_info(int(selected.get("x", 0)), int(selected.get("y", 0)))
 	world.select_tool(str(city.get("tool", "")))
-	world.set_paused(float(city.get("speed", 1)) == 0.0 or bool(city.get("onlineOpen", false)) or bool(city.get("settings", {}).get("reducedMotion", false)))
+	world.set_paused(ActorAnimation.simulation_paused(city))
+	if world.has_method("set_reduced_motion"):
+		world.set_reduced_motion(bool(city.get("settings", {}).get("reducedMotion", false)))
 	var mode: String = str(city.get("nightMode", "auto"))
 	# A long, gentle cycle. Production never follows this visual clock.
 	var seconds: float = float(city.get("clock", {}).get("elapsedSeconds", 0.0))

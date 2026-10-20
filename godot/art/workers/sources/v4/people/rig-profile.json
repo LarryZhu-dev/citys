@@ -1,0 +1,47 @@
+{
+  "version": 4,
+  "purpose": "Original cutout body-part registration for hand-painted Hua Xia workers, water carriers and merchants.",
+  "camera": "orthographic dimetric; 0 NW back, 1 mirrored NE back, 2 mirrored SW front, 3 SE front",
+  "frame_size": [384, 448],
+  "foot_pivot": [192, 412],
+  "world_scale": 0.088,
+  "body": {
+    "hip_neutral": [192, 273],
+    "torso_size": [89, 125],
+    "torso_anchor": [0.5, 0.79],
+    "neck_from_hip": [3, -88],
+    "head_size": [42, 50],
+    "head_anchor": [0.52, 0.89],
+    "shoulder_centre_from_hip": [0, -70],
+    "near_shoulder": [-31, 4],
+    "far_shoulder": [27, -12]
+  },
+  "limbs": {
+    "upper_arm_length": 51,
+    "forearm_length": 53,
+    "arm_max_reach": 102,
+    "thigh_length": 68,
+    "shin_length": 65,
+    "upper_arm_source_joints": [[0.28, 0.15], [0.68, 0.88]],
+    "forearm_source_joints": [[0.25, 0.06], [0.72, 0.84]],
+    "thigh_source_joints": [[0.5, 0.1], [0.5, 0.9]],
+    "shin_source_joints": [[0.5, 0.08], [0.5, 0.92]],
+    "upper_arm_hidden_socket_crop_fraction": 0.19,
+    "forearm_hidden_socket_crop_fraction": 0.14,
+    "shoe_size": [38, 26],
+    "worker_reverse_shoe_reflection": true,
+    "water_merchant_reverse_shoe_reflection": false
+  },
+  "poses": {
+    "frames": 8,
+    "walking_phase": "near phase t, far phase t + pi; foot contact travel cos(t), swing lift max(0,sin(t)); arms counter-swing",
+    "walking_stride": 23,
+    "swing_foot_lift": 18,
+    "load": "38px hip squat, 0.65rad forward torso bend, constrained 102px hand reach",
+    "hammer": "prepare, raised, overhead, descent, strike, contact, recoil, recover",
+    "climb": "opposed hands/feet move through alternating rungs",
+    "cycle_selection": "movement uses route distance; stationary work uses elapsed action time"
+  },
+  "processing": "Alpha connected-component extraction, source joint-cap crop, limb affine transforms and compositing only. No painted or synthetic replacement pixels.",
+  "source_attribution": "Original generated supplementary human art. People in the user reference city screenshot are too small to extract identifiable source poses."
+}

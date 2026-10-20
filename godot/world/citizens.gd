@@ -1,5 +1,6 @@
 extends Node2D
 class_name CityCitizens
+const Motion = preload("res://world/actor_animation.gd")
 
 ## Every actor belongs to one authoritative logistics job. This renderer never
 ## chooses destinations, delivers goods, or creates population-based walkers.
@@ -22,9 +23,43 @@ class Courier extends Node2D:
 	var vehicle := ""
 	var atlas: Texture2D
 	var sprites: Dictionary = {}
+	var animations: Dictionary = {}
+	var directions := 4
+	var reduced_motion := false
 	var retire := false
 	var edge_seconds := 3.0
 	var distance_walked := 0.0
+	var last_frame := ""
+	var vehicle_frame := ""
+	var frame_changes := 0
+	var vehicle_frame_changes := 0
+	var wheel_angle := 0.0
+
+	func _pose(action: String, moving: bool, offset: Vector2 = Vector2.ZERO, bob: float = 0.0) -> void:
+		var pose := Motion.sample(animations,action,facing,distance_walked,phase_clock if action.ends_with("_work") else 0.0,moving)
+		var key: String = pose.key
+		if key != last_frame:
+			frame_changes += 1
+			last_frame = key
+		_sprite(key, offset, bob)
+
+	func _wheel(info: Dictionary, scale_factor: float, location: Vector2, offset: Vector2) -> void:
+		var key: String = str(info.get("sprite", "wheel"))
+		if not sprites.has(key) or atlas == null:
+			return
+		var data: Dictionary = sprites[key]
+		var rect: Array = data.rect
+		var centre: Array = info.get("center", [0,0])
+		var radius: float = float(info.get("radius", 20.0))*scale_factor
+		var center := offset+location+Vector2(float(centre[0]),float(centre[1]))*scale_factor
+		# A front-on painted wheel turns in its own plane before projecting onto
+		# the cart's side. This rotates the actual hub/rim/spokes, not overlay lines.
+		var axis: Array = info.get("axis", [1.0,.5])
+		var projection := Transform2D(Vector2(float(axis[0]),float(axis[1]))*radius,Vector2(0,radius),center)
+		draw_set_transform_matrix(projection*Transform2D(wheel_angle,Vector2.ZERO))
+		var tint := Color.WHITE.lerp(Color(.59,.73,.90),night)
+		draw_texture_rect_region(atlas,Rect2(-1,-1,2,2),Rect2(rect[0],rect[1],rect[2],rect[3]),tint)
+		draw_set_transform(Vector2.ZERO)
 
 	func _sprite(key: String, offset: Vector2 = Vector2.ZERO, bob: float = 0.0, lean: float = 0.0) -> void:
 		if atlas == null or not sprites.has(key):
@@ -38,36 +73,50 @@ class Courier extends Node2D:
 		var tint := Color.WHITE.lerp(Color(.59, .73, .90), night)
 		draw_texture_rect_region(atlas, Rect2(location, Vector2(rect[2], rect[3]) * scale_factor), Rect2(rect[0], rect[1], rect[2], rect[3]), tint)
 		if role == "water" and bool(job.get("isLoaded", false)):
-			for point: Array in info.get("buckets", []):
+			for water: Dictionary in info.get("water_surfaces", []):
+				var point: Array = water.center
 				var center := location + Vector2(point[0], point[1]) * scale_factor
 				draw_set_transform(offset + center.rotated(lean), lean, Vector2(1, .34))
-				draw_circle(Vector2.ZERO, 2.0, Color(.21, .63, .75).lerp(Color(.12, .33, .47), night))
+				draw_circle(Vector2.ZERO, float(water.radius)*scale_factor, Color(.21, .63, .75).lerp(Color(.12, .33, .47), night))
 				draw_set_transform(offset, lean)
-		if walking and info.has("wheel"):
-			var wheel: Array = info.wheel
-			var center := location + Vector2(wheel[0], wheel[1]) * scale_factor
-			var radius := Vector2(wheel[2], wheel[3]) * scale_factor
-			for spoke in range(3):
-				var angle := stride * 2.0 + float(spoke) * PI / 3.0
-				var rim := Vector2(cos(angle) * radius.x, sin(angle) * radius.y)
-				draw_line(center - rim, center + rim, Color(.48, .35, .22, .45).lerp(Color(.27, .25, .22, .45), night), .55, true)
+		for wheel: Dictionary in info.get("wheels", []):
+			_wheel(wheel,scale_factor,location,offset)
 		draw_set_transform(Vector2.ZERO)
 
 	func _draw() -> void:
-		var pose := int(floor(stride / PI)) % 2 if walking else 0
+		if animations.is_empty():
+			return
 		var phase: String = str(job.get("phase", "waiting"))
 		var working := phase in ["loading", "unloading"] and not walking
-		var bob: float = sin(stride * 2.0) * .28 if walking else sin(phase_clock * 4.0) * .4 if working else 0.0
-		var lean := sin(phase_clock * 3.0) * .08 if working else 0.0
+		var bob: float = sin(stride * 2.0) * .24 if walking and not reduced_motion else 0.0
+		var action: String = role+"_work" if working else role+"_walk"
 		if vehicle.is_empty():
-			_sprite("%s/%d/%d" % [role, facing, pose], Vector2.ZERO, bob, lean)
+			_pose(action,walking,Vector2.ZERO,bob)
 			return
-		var direction: Vector2 = [Vector2(-.8944, -.4472), Vector2(.8944, -.4472), Vector2(-.8944, .4472), Vector2(.8944, .4472)][facing]
+		var direction: Vector2 = [Vector2(-.8944,-.4472),Vector2(.8944,-.4472),Vector2(-.8944,.4472),Vector2(.8944,.4472),Vector2.UP,Vector2.RIGHT,Vector2.DOWN,Vector2.LEFT][facing]
 		var loaded := 1 if bool(job.get("isLoaded", false)) else 0
-		_sprite("%s/%d/%d" % [vehicle, facing, loaded], Vector2.ZERO, bob * .35)
-		var driver_offset := Vector2(-direction.y, direction.x) * 11.0 + direction * 4.0 if vehicle == "horse" else direction * 17.0
-		var driver_frame := int(floor(stride / (PI * .5))) % 4 if role == "artisan" and walking else pose
-		_sprite("%s/%d/%d" % [role, facing, driver_frame], driver_offset, bob, lean * signf(direction.x))
+		var cart_key: String = "%s/%d/%d" % ["horse_cart" if vehicle=="horse" else "handcart",facing,loaded]
+		var cart: Dictionary = sprites.get(cart_key,{})
+		var horse_offset := direction*float(cart.get("horse_distance",25.0))
+		# The painted handcart shafts face the travel direction. A pulling
+		# carrier stands at their tips, with the independent arms reaching back.
+		var driver_offset := Vector2(-direction.y,direction.x)*10.0 if vehicle=="horse" else direction*15.0
+		if vehicle=="horse" and direction.y<0:
+			_draw_horse(horse_offset,bob*.35)
+		if driver_offset.y<0:
+			_pose(action,walking,driver_offset,bob)
+		_sprite(cart_key,Vector2.ZERO,bob*.25)
+		if vehicle=="horse" and direction.y>=0:
+			_draw_horse(horse_offset,bob*.35)
+		if driver_offset.y>=0:
+			_pose(action,walking,driver_offset,bob)
+
+	func _draw_horse(offset: Vector2, bob: float) -> void:
+		var pose := Motion.sample(animations,"horse_walk",facing,distance_walked,0.0,walking)
+		if vehicle_frame!=str(pose.key):
+			vehicle_frame_changes+=1
+		vehicle_frame = str(pose.key)
+		_sprite(vehicle_frame,offset,bob)
 
 var _actors: Dictionary = {}
 var _roads: Dictionary = {}
@@ -78,16 +127,22 @@ var _city_identity := ""
 var _last_city_time := -1.0
 var _atlas: Texture2D
 var _sprites: Dictionary = {}
+var _animations: Dictionary = {}
+var _directions := 4
+var _reduced_motion := false
 var population_limit := 80
 var _job_count := 0
 
-func _init() -> void:
+func _init(load_art: bool=true) -> void:
 	y_sort_enabled = true
+	if not load_art:return
 	var path := "res://art/citizens/logistics-atlas.json"
 	if FileAccess.file_exists(path):
 		var metadata: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if metadata is Dictionary:
 			_sprites = metadata.get("sprites", {})
+			_animations = metadata.get("animations", {})
+			_directions = Motion.direction_count(metadata)
 			var atlas_path: String = str(metadata.get("atlas", ""))
 			if ResourceLoader.exists(atlas_path):
 				_atlas = load(atlas_path) as Texture2D
@@ -157,6 +212,7 @@ func sync_city(buildings: Array, city: Dictionary = {}) -> void:
 		_city_identity = identity
 	_last_city_time = city_time
 	_speed = maxf(0.0, float(city.get("speed", 1)))
+	_reduced_motion = bool(city.get("settings",{}).get("reducedMotion",false))
 	_roads.clear()
 	for building: Dictionary in buildings:
 		if str(building.get("type", "")) == "road":
@@ -191,18 +247,22 @@ func sync_city(buildings: Array, city: Dictionary = {}) -> void:
 			actor.position = _iso(current + Vector2(.5, .5))
 			actor.atlas = _atlas
 			actor.sprites = _sprites
+			actor.animations = _animations
+			actor.directions = _directions
 			actor.night = _night
 			actor.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 			add_child(actor)
 			_actors[id] = actor
 		actor.retire = false
+		if str(actor.job.get("phase",""))!=str(job.get("phase","")):actor.phase_clock=0.0
 		actor.job = job.duplicate(true)
 		actor.edge_seconds = edge_seconds
+		actor.reduced_motion = _reduced_motion
 		_set_role(actor)
 		if route.size() >= 2 and actor.distance_walked < .001:
 			var segment := clampi(int(progress), 0, route.size() - 2)
 			var direction := route[segment + 1] - route[segment]
-			actor.facing = (3 if direction.x > 0 else 0) if absf(direction.x) > .5 else (2 if direction.y > 0 else 1)
+			actor.facing = Motion.facing_from_motion(direction,_directions,actor.facing)
 		var signature := _signature(job)
 		if signature != actor.last_signature:
 			actor.snapshot_age = 0.0
@@ -238,16 +298,17 @@ func _advance(actor: Courier, distance: float) -> float:
 		actor.route_position += step
 		actor.world_point = _point_on(actor.route, actor.route_position)
 		var direction := finish - start
-		actor.facing = (3 if direction.x > 0 else 0) if absf(direction.x) > .5 else (2 if direction.y > 0 else 1)
+		actor.facing = Motion.facing_from_motion(direction,_directions,actor.facing)
 		moved += step
 		distance -= step
 	return moved
 
 func animate(delta: float) -> void:
+	var dt := clampf(delta,0.0,1.0)
 	for id: String in _actors.keys():
 		var actor: Courier = _actors[id]
 		if actor.retire:
-			actor.modulate.a = maxf(0.0, actor.modulate.a - delta * 4)
+			actor.modulate.a = maxf(0.0, actor.modulate.a - dt * 4)
 			if actor.modulate.a <= 0:
 				remove_child(actor)
 				actor.queue_free()
@@ -255,8 +316,8 @@ func animate(delta: float) -> void:
 			continue
 		if _paused or _speed <= 0:
 			continue
-		actor.snapshot_age += delta
-		actor.phase_clock += delta
+		actor.snapshot_age += dt
+		actor.phase_clock += dt * minf(_speed,4.0)
 		var previously_walking := actor.walking
 		actor.walking = false
 		var phase: String = str(actor.job.get("phase", "waiting"))
@@ -268,15 +329,16 @@ func animate(delta: float) -> void:
 		if may_move and not actor.route.is_empty():
 			# Bounded between snapshots, never beyond the authorized road route,
 			# loading endpoint, waiting phase, or a removed/non-adjacent road.
-			var forecast := minf(actor.snapshot_age, 1.1) * _speed / actor.edge_seconds if in_transit else 0.0
+			var forecast := minf(actor.snapshot_age, 1.5) * _speed / actor.edge_seconds if in_transit else 0.0
 			var target := minf(float(actor.route.size() - 1), actor.authorized_position + forecast)
 			if not actor.pending_route.is_empty():
 				target = float(actor.route.size() - 1)
-			var step := minf(maxf(0, target - actor.route_position), delta * _speed / actor.edge_seconds * 1.15)
+			var step := minf(maxf(0, target - actor.route_position), dt * _speed / actor.edge_seconds * 1.15)
 			var moved := _advance(actor, step)
 			actor.walking = moved > .00001
 			actor.distance_walked += moved
 			actor.stride += moved * 14.0
+			actor.wheel_angle += moved * 64.0 / 4.0
 			if not actor.pending_route.is_empty() and actor.route_position >= actor.route.size() - 1 - .001:
 				var projection := _project(actor.pending_route, actor.world_point)
 				if projection.y < .04:
@@ -311,8 +373,8 @@ func diagnostics() -> Dictionary:
 		var phase: String = str(actor.job.get("phase", ""))
 		kinds[kind] = int(kinds.get(kind, 0)) + 1
 		phases[phase] = int(phases.get(phase, 0)) + 1
-		moving += 1 if actor.walking else 0
+		moving += 1 if actor.walking and not _paused and _speed>0 else 0
 		loaded += 1 if bool(actor.job.get("isLoaded", false)) else 0
 		if samples.size() < 12:
-			samples.append({"id": id, "role": actor.role, "vehicle": actor.vehicle, "position": [actor.world_point.x, actor.world_point.y], "ground_screen": [actor.position.x, actor.position.y], "phase": phase, "leg": actor.job.get("leg", ""), "loaded": bool(actor.job.get("isLoaded", false)), "facing": actor.facing, "walking": actor.walking})
-	return {"actors": _actors.size(), "authoritative_jobs": _job_count, "moving": moving, "loaded": loaded, "kinds": kinds, "phases": phases, "samples": samples, "shared_atlas": _atlas != null, "atlas_sprites": _sprites.size(), "random_walkers": 0, "city_identity": _city_identity}
+			samples.append({"id":id,"role":actor.role,"vehicle":actor.vehicle,"position":[actor.world_point.x,actor.world_point.y],"ground_screen":[actor.position.x,actor.position.y],"phase":phase,"leg":actor.job.get("leg",""),"loaded":bool(actor.job.get("isLoaded",false)),"facing":actor.facing,"walking":actor.walking,"frame":actor.last_frame,"vehicleFrame":actor.vehicle_frame,"frameChanges":actor.frame_changes,"vehicleFrameChanges":actor.vehicle_frame_changes,"wheelAngle":actor.wheel_angle,"distanceWalked":actor.distance_walked})
+	return {"actors":_actors.size(),"authoritative_jobs":_job_count,"moving":moving,"loaded":loaded,"kinds":kinds,"phases":phases,"samples":samples,"shared_atlas":_atlas!=null,"atlas_sprites":_sprites.size(),"animations":_animations.size(),"legacyArtFixture":_animations.is_empty(),"random_walkers":0,"city_identity":_city_identity}

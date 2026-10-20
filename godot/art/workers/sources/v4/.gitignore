@@ -1,0 +1,6 @@
+__pycache__/
+people/__pycache__/
+people/*-parts/
+people/*-frames/
+vehicles/frames/
+vehicles/review-*.png

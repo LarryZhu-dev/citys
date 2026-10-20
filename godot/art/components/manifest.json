@@ -1,17 +1,19 @@
 {
   "schema": 1,
+  "art_version": 4,
   "projection": "2:1 dimetric image assembly",
-  "provenance": "All components are new image_gen source pixels; no rejected old architecture reused. Mechanical extraction and packing only.",
-  "generation_record": "godot/art/components/sources/generation-record.json",
+  "provenance": "Fresh original image_gen components informed by the supplied visual reference; mechanical native-pixel extraction and packing only.",
+  "generation_record": "godot/art/components/sources/v4/generation-record.json",
+  "source_layout": "godot/art/components/sources/v4/atlas-layout.json",
   "layout_mode": "single_shared_texture",
-  "layout_migration": "godot/art/components/sources/migrations/2026-10-20-single-atlas/migration.json",
   "complete": true,
-  "expected_parts": 72,
+  "ready_for_activation": true,
+  "expected_parts": 96,
   "missing_parts": [],
   "padding": 16,
   "coordinate_contract": {
     "rect": "atlas pixels x,y,width,height excluding padding",
-    "pivot": "normalized point relative to rect, u,v",
+    "pivot": "normalized point relative to rect; an external shared center is explicitly marked",
     "plane_bounds": "normalized left,top,right,bottom relative to rect",
     "emission_rect": "normalized x,y,width,height relative to rect"
   },
@@ -22,7 +24,8 @@
         4096,
         4096
       ],
-      "sha256": "c36527461d6eb940d3ef32feb6d110e24bea12e4459b50aae56e1a4bc57a14e3",
+      "sha256": "3cbf28c76b640106edb6d0ea265dd9cd35d45019509435dbf99bd85790d69148",
+      "rgba_sha256": "e9fc33bc71d61ea734ca5264fb62fc2de9caf09bc0b2edd007ff796d7a64e338",
       "mipmaps": true,
       "fix_alpha_border": true
     }
@@ -31,2393 +34,5073 @@
     "stone_block": {
       "kind": "prop",
       "pivot": [
-        0.500945179584121,
-        0.7011834319526628
+        0.4979919678714859,
+        0.6301369863013698
       ],
-      "source": "godot/art/components/sources/S1-original.png",
-      "source_rect": [
-        23,
-        113,
-        529,
-        338
-      ],
-      "native_size": [
-        529,
-        338
-      ],
-      "sheet": "S1",
       "pivot_source": [
-        288,
-        350
+        145,
+        194
       ],
-      "anchor_role": "center of ground footprint, not lowest visible corner",
-      "native_plan_ratio": [
-        1,
-        3.3
+      "family": "stone",
+      "variant": "block",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        243,
+        142
       ],
-      "source_planes": {
-        "top": [
-          [
-            0.7599243856332704,
-            0.020710059171597635
-          ],
-          [
-            0.9735349716446124,
-            0.12130177514792899
-          ],
-          [
-            0.24196597353497165,
-            0.5769230769230769
-          ],
-          [
-            0.015122873345935728,
-            0.45857988165680474
-          ]
-        ],
-        "side_x": [
-          [
-            0.9735349716446124,
-            0.12130177514792899
-          ],
-          [
-            0.24196597353497165,
-            0.5769230769230769
-          ],
-          [
-            0.24196597353497165,
-            0.9792899408284024
-          ],
-          [
-            0.9735349716446124,
-            0.5207100591715976
-          ]
-        ],
-        "side_y": [
-          [
-            0.24196597353497165,
-            0.5769230769230769
-          ],
-          [
-            0.015122873345935728,
-            0.45857988165680474
-          ],
-          [
-            0.013232514177693762,
-            0.8461538461538461
-          ],
-          [
-            0.24196597353497165,
-            0.9792899408284024
-          ]
-        ]
-      },
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "calibration": "Manually measured three painted faces from new A source after inspecting construction contact sheet. Independent source corners project to exact physical component extents; no legacy calibration or new painted pixels.",
       "source_plane_order": {
         "top": "back,right,front,left",
         "side_x": "right,front,bottom_front,bottom_right",
         "side_y": "front,left,bottom_left,bottom_front"
       },
-      "calibration": "Manually observed painted source-face corners; source is not a mathematical cube. Each original face can be mapped independently into an isometric component face.",
+      "leaf_role": "independent architectural component",
+      "source_planes": {
+        "top": [
+          [
+            0.3253012048192771,
+            0.03424657534246575
+          ],
+          [
+            0.963855421686747,
+            0.2945205479452055
+          ],
+          [
+            0.6867469879518072,
+            0.636986301369863
+          ],
+          [
+            0.024096385542168676,
+            0.3561643835616438
+          ]
+        ],
+        "side_x": [
+          [
+            0.963855421686747,
+            0.2945205479452055
+          ],
+          [
+            0.6867469879518072,
+            0.636986301369863
+          ],
+          [
+            0.6867469879518072,
+            0.958904109589041
+          ],
+          [
+            0.963855421686747,
+            0.6301369863013698
+          ]
+        ],
+        "side_y": [
+          [
+            0.6867469879518072,
+            0.636986301369863
+          ],
+          [
+            0.024096385542168676,
+            0.3561643835616438
+          ],
+          [
+            0.024096385542168676,
+            0.6643835616438356
+          ],
+          [
+            0.6867469879518072,
+            0.958904109589041
+          ]
+        ]
+      },
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        21,
+        102,
+        249,
+        146
+      ],
+      "selection_rect": [
+        18,
+        99,
+        253,
+        152
+      ],
+      "native_size": [
+        249,
+        146
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "ab9138bd63f0445d682bad3d1898bde10ac986d68507cc00ed56ebbadeceb92a",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        16,
-        1685,
-        529,
-        338
+        2755,
+        236,
+        249,
+        146
       ]
     },
     "stone_step": {
       "kind": "prop",
       "pivot": [
-        0.47714808043875684,
-        0.6332046332046332
+        0.4977578475336323,
+        0.6071428571428571
       ],
-      "source": "godot/art/components/sources/S1-original.png",
+      "pivot_source": [
+        416,
+        219
+      ],
+      "family": "stone",
+      "variant": "step",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        219,
+        108
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        589,
-        173,
-        547,
-        259
+        305,
+        151,
+        223,
+        112
+      ],
+      "selection_rect": [
+        302,
+        148,
+        229,
+        118
       ],
       "native_size": [
-        547,
-        259
+        223,
+        112
       ],
-      "sheet": "S1",
-      "pivot_source": [
-        850,
-        337
-      ],
-      "anchor_role": "center of ground footprint, not lowest visible corner",
-      "native_plan_ratio": [
-        1,
-        3.2
-      ],
-      "source_planes": {
-        "top": [
-          [
-            0.7276051188299817,
-            0.023166023166023165
-          ],
-          [
-            0.9780621572212066,
-            0.16602316602316602
-          ],
-          [
-            0.226691042047532,
-            0.7027027027027027
-          ],
-          [
-            0.014625228519195612,
-            0.5444015444015444
-          ]
-        ],
-        "side_x": [
-          [
-            0.9780621572212066,
-            0.16602316602316602
-          ],
-          [
-            0.226691042047532,
-            0.7027027027027027
-          ],
-          [
-            0.226691042047532,
-            0.9691119691119691
-          ],
-          [
-            0.9835466179159049,
-            0.4362934362934363
-          ]
-        ],
-        "side_y": [
-          [
-            0.226691042047532,
-            0.7027027027027027
-          ],
-          [
-            0.014625228519195612,
-            0.5444015444015444
-          ],
-          [
-            0.016453382084095063,
-            0.833976833976834
-          ],
-          [
-            0.226691042047532,
-            0.9691119691119691
-          ]
-        ]
-      },
-      "source_plane_order": {
-        "top": "back,right,front,left",
-        "side_x": "right,front,bottom_front,bottom_right",
-        "side_y": "front,left,bottom_left,bottom_front"
-      },
-      "calibration": "Manually observed painted source-face corners; source is not a mathematical cube. Each original face can be mapped independently into an isometric component face.",
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "f8fb51055448a88f282b5b736a5155e90e08686700948520940e23bffe3c3aac",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        474,
-        3336,
-        547,
-        259
+        2701,
+        414,
+        223,
+        112
       ]
     },
     "post_wood": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.951417004048583
       ],
-      "source": "godot/art/components/sources/S1-original.png",
+      "pivot_source": [
+        646,
+        253
+      ],
+      "family": "post",
+      "variant": "wood",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        62,
+        243
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        1301,
-        12,
-        78,
-        492
+        613,
+        18,
+        66,
+        247
+      ],
+      "selection_rect": [
+        610,
+        15,
+        72,
+        253
       ],
       "native_size": [
-        78,
-        492
+        66,
+        247
       ],
-      "sheet": "S1",
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "02d233925e2137c5789c75deef79a8d81a723c1740fc81b4ecd77aa5d066273a",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1852,
-        16,
-        78,
-        492
+        1334,
+        417,
+        66,
+        247
       ]
     },
     "post_red": {
       "kind": "prop",
       "pivot": [
-        0.5,
-        0.98
+        0.4927536231884058,
+        0.952755905511811
       ],
-      "source": "godot/art/components/sources/S1-original.png",
+      "pivot_source": [
+        885,
+        259
+      ],
+      "family": "post",
+      "variant": "red",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        65,
+        250
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        124,
-        502,
-        80,
-        508
+        851,
+        17,
+        69,
+        254
+      ],
+      "selection_rect": [
+        848,
+        14,
+        75,
+        260
       ],
       "native_size": [
-        80,
-        508
+        69,
+        254
       ],
-      "sheet": "S1",
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "125354d41e1ca0e9e5acc0f80494531c2d13ccc3598d82564969e8113fcfb9d6",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1740,
-        16,
-        80,
-        508
+        1612,
+        321,
+        69,
+        254
       ]
     },
     "beam_wood": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9402985074626866
       ],
-      "source": "godot/art/components/sources/S1-original.png",
+      "pivot_source": [
+        1136.0,
+        203
+      ],
+      "family": "beam",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.015384615384615385,
+        0.05970149253731343,
+        0.9807692307692307,
+        0.9104477611940298
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        305,
-        714,
-        587,
-        92
+        1006,
+        140,
+        260,
+        67
+      ],
+      "selection_rect": [
+        1003,
+        137,
+        266,
+        73
       ],
       "native_size": [
-        587,
-        92
+        260,
+        67
       ],
-      "sheet": "S1",
-      "plane_bounds": [
-        0.0034071550255536627,
-        0.021739130434782608,
-        0.9965928449744463,
-        0.9782608695652174
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "9e6748592cd86664cfd8b7fea7421777f94bffda3a4b461d9ad48d558f7d5f6c",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        2195,
-        587,
-        92
+        1612,
+        16,
+        260,
+        67
       ]
     },
     "beam_painted": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9393939393939394
       ],
-      "source": "godot/art/components/sources/S1-original.png",
+      "pivot_source": [
+        1402.0,
+        202
+      ],
+      "family": "beam",
+      "variant": "painted",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.016260162601626018,
+        0.06060606060606061,
+        0.983739837398374,
+        0.9242424242424242
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        933,
-        714,
-        582,
-        93
+        1279,
+        140,
+        246,
+        66
+      ],
+      "selection_rect": [
+        1276,
+        137,
+        252,
+        72
       ],
       "native_size": [
-        582,
-        93
+        246,
+        66
       ],
-      "sheet": "S1",
-      "plane_bounds": [
-        0.003436426116838488,
-        0.021505376344086023,
-        0.9965635738831615,
-        0.978494623655914
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "215a5041058eff802b445ac8cfa6e22d378ef0af2325f580c80e82b22db28484",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        3030,
-        2064,
-        582,
-        93
+        2472,
+        245,
+        246,
+        66
       ]
     },
     "wall_earth": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.978494623655914
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        145.0,
+        484
+      ],
+      "family": "wall",
+      "variant": "earth",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.018018018018018018,
+        0.021505376344086023,
+        0.9774774774774775,
+        0.9731182795698925
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        92,
-        15,
-        398,
-        485
+        34,
+        302,
+        222,
+        186
+      ],
+      "selection_rect": [
+        31,
+        299,
+        228,
+        192
       ],
       "native_size": [
-        398,
-        485
+        222,
+        186
       ],
-      "sheet": "S2",
-      "plane_bounds": [
-        0.005025125628140704,
-        0.004123711340206186,
-        0.9949748743718593,
-        0.9958762886597938
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "d5d5d7328fa3c8b8410b1c63775818f43f0bce7ab4478f27a0f27e77eb1c0acf",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        908,
-        1166,
-        398,
-        485
+        3292,
+        492,
+        222,
+        186
       ]
     },
     "wall_plaster": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9786096256684492
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        398.5,
+        483
+      ],
+      "family": "wall",
+      "variant": "plaster",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02262443438914027,
+        0.026737967914438502,
+        0.9773755656108597,
+        0.9732620320855615
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        575,
-        13,
-        390,
-        487
+        288,
+        300,
+        221,
+        187
+      ],
+      "selection_rect": [
+        285,
+        297,
+        227,
+        193
       ],
       "native_size": [
-        390,
-        487
+        221,
+        187
       ],
-      "sheet": "S2",
-      "plane_bounds": [
-        0.005128205128205128,
-        0.004106776180698152,
-        0.9948717948717949,
-        0.9958932238193019
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "74a0d6531320c6c4a5ec3ad2a74c27b9a8df984c81ec255e833dff5384b22d64",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        16,
-        1166,
-        390,
-        487
+        2462,
+        693,
+        221,
+        187
       ]
     },
     "wall_timber": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9794871794871794
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        645.5,
+        484
+      ],
+      "family": "wall",
+      "variant": "timber",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.018957345971563982,
+        0.02564102564102564,
+        0.976303317535545,
+        0.9692307692307692
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        1047,
-        12,
-        402,
-        487
+        540,
+        293,
+        211,
+        195
+      ],
+      "selection_rect": [
+        537,
+        290,
+        217,
+        201
       ],
       "native_size": [
-        402,
-        487
+        211,
+        195
       ],
-      "sheet": "S2",
-      "plane_bounds": [
-        0.004975124378109453,
-        0.004106776180698152,
-        0.9950248756218906,
-        0.9958932238193019
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "a55a41cf32eb50fb20ba8c11c83a800d1fe0ce240360246d56c3daf4baf8a4bb",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1286,
-        625,
-        402,
-        487
+        1473,
+        1032,
+        211,
+        195
       ]
     },
     "wall_brick": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9794871794871794
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        889.5,
+        484
+      ],
+      "family": "wall",
+      "variant": "brick",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02304147465437788,
+        0.02564102564102564,
+        0.9769585253456221,
+        0.9743589743589743
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        92,
-        521,
-        398,
-        480
+        781,
+        293,
+        217,
+        195
+      ],
+      "selection_rect": [
+        778,
+        290,
+        223,
+        201
       ],
       "native_size": [
-        398,
-        480
+        217,
+        195
       ],
-      "sheet": "S2",
-      "plane_bounds": [
-        0.005025125628140704,
-        0.004166666666666667,
-        0.9949748743718593,
-        0.9958333333333333
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "bdbcaff27fbb928036b2147ec0c384348a6b2ae22df8ab8f885f14ae8ac164e3",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1338,
-        1166,
-        398,
-        480
+        1861,
+        871,
+        217,
+        195
       ]
     },
     "brace_wood": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.976878612716763
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        1162.0,
+        477
+      ],
+      "family": "brace",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.01904761904761905,
+        0.028901734104046242,
+        0.9714285714285714,
+        0.9710982658959537
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        543,
-        523,
-        457,
-        472
+        1057,
+        308,
+        210,
+        173
+      ],
+      "selection_rect": [
+        1054,
+        305,
+        216,
+        179
       ],
       "native_size": [
-        457,
-        472
+        210,
+        173
       ],
-      "sheet": "S2",
-      "plane_bounds": [
-        0.00437636761487965,
-        0.00423728813559322,
-        0.9956236323851203,
-        0.9957627118644068
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "388d41c5e712e14fe3828bb7a91e6b32bd9a89748c7792843b13eaa476b28c74",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2426,
-        16,
-        457,
-        472
+        3085,
+        710,
+        210,
+        173
       ]
     },
     "dougong": {
       "kind": "prop",
       "pivot": [
-        0.5,
-        0.98
+        0.4975124378109453,
+        0.8719211822660099
       ],
-      "source": "godot/art/components/sources/S2-original.png",
+      "pivot_source": [
+        1408,
+        465
+      ],
+      "family": "dougong",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        197,
+        199
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        1042,
-        565,
-        423,
-        407
+        1308,
+        288,
+        201,
+        203
+      ],
+      "selection_rect": [
+        1305,
+        285,
+        207,
+        209
       ],
       "native_size": [
-        423,
-        407
+        201,
+        203
       ],
-      "sheet": "S2",
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "3f45ea28e6905af18cdcddbae817f16ef0e8d655d954ce2f8fc3cb4fe80a6ffd",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1477,
-        2064,
-        423,
-        407
+        1954,
+        1206,
+        201,
+        203
       ]
     },
     "door_wood": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9822222222222222
       ],
-      "source": "godot/art/components/sources/S3-original.png",
+      "pivot_source": [
+        139.0,
+        732
+      ],
+      "family": "door",
+      "variant": "wood",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02717391304347826,
+        0.017777777777777778,
+        0.967391304347826,
+        0.9733333333333334
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        142,
-        11,
-        330,
-        512
+        47,
+        511,
+        184,
+        225
+      ],
+      "selection_rect": [
+        44,
+        508,
+        190,
+        231
       ],
       "native_size": [
-        330,
-        512
+        184,
+        225
       ],
-      "sheet": "S3",
-      "plane_bounds": [
-        0.006060606060606061,
-        0.00390625,
-        0.9939393939393939,
-        0.99609375
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "1a3e774ce4ae1b5d5eaa47a0c087e260f56b0062d58cdd226f38880391590deb",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1378,
-        16,
-        330,
-        512
+        3318,
+        155,
+        184,
+        225
       ]
     },
     "door_red": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9822222222222222
       ],
-      "source": "godot/art/components/sources/S3-original.png",
+      "pivot_source": [
+        398.5,
+        732
+      ],
+      "family": "door",
+      "variant": "red",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02564102564102564,
+        0.017777777777777778,
+        0.9692307692307692,
+        0.9733333333333334
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        606,
-        10,
-        320,
-        513
+        301,
+        511,
+        195,
+        225
+      ],
+      "selection_rect": [
+        298,
+        508,
+        201,
+        231
       ],
       "native_size": [
-        320,
-        513
+        195,
+        225
       ],
-      "sheet": "S3",
-      "plane_bounds": [
-        0.00625,
-        0.003898635477582846,
-        0.99375,
-        0.9961013645224172
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "96c14b38cac519cf4a360833c36edb5ff092317921d972c1f58c4683c240a369",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1026,
-        16,
-        320,
-        513
+        903,
+        658,
+        195,
+        225
       ]
     },
     "window_lattice": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9809523809523809
       ],
-      "source": "godot/art/components/sources/S3-original.png",
-      "source_rect": [
-        1032,
-        67,
-        433,
-        418
+      "pivot_source": [
+        642.5,
+        721
       ],
-      "native_size": [
-        433,
-        418
-      ],
-      "sheet": "S3",
+      "family": "window",
+      "variant": "lattice",
+      "emission_mode": "dark_inset",
+      "leaf_role": "independent architectural component",
+      "emission_mask": "res://art/components/emission-lattice.png",
       "plane_bounds": [
-        0.004618937644341801,
-        0.004784688995215311,
-        0.9953810623556582,
-        0.9952153110047847
+        0.02702702702702703,
+        0.02857142857142857,
+        0.9675675675675676,
+        0.9714285714285714
       ],
       "emission_rect": [
-        0.1,
-        0.1,
-        0.8,
-        0.8
+        0.10810810810810811,
+        0.09523809523809523,
+        0.7891891891891892,
+        0.8047619047619048
       ],
-      "emission_mode": "aperture_inside_frame",
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        550,
+        515,
+        185,
+        210
+      ],
+      "selection_rect": [
+        547,
+        512,
+        191,
+        216
+      ],
+      "native_size": [
+        185,
+        210
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "6c1a47b595db078d6f29214e307dd48d30a860a0c715331a9b13bd9df0c9695f",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        16,
-        2064,
-        433,
-        418
+        1297,
+        1259,
+        185,
+        210
       ]
     },
     "window_paper": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9808612440191388
       ],
-      "source": "godot/art/components/sources/S3-original.png",
-      "source_rect": [
-        62,
-        551,
-        419,
-        413
+      "pivot_source": [
+        888.0,
+        721
       ],
-      "native_size": [
-        419,
-        413
-      ],
-      "sheet": "S3",
+      "family": "window",
+      "variant": "paper",
+      "emission_mode": "aperture_inside_frame",
+      "leaf_role": "independent architectural component",
       "plane_bounds": [
-        0.00477326968973747,
-        0.004842615012106538,
-        0.9952267303102625,
-        0.9951573849878934
+        0.027472527472527472,
+        0.028708133971291867,
+        0.967032967032967,
+        0.9760765550239234
       ],
       "emission_rect": [
-        0.1,
-        0.1,
-        0.8,
-        0.8
+        0.1043956043956044,
+        0.09090909090909091,
+        0.7857142857142857,
+        0.8086124401913876
       ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        797,
+        516,
+        182,
+        209
+      ],
+      "selection_rect": [
+        794,
+        513,
+        188,
+        215
+      ],
+      "native_size": [
+        182,
+        209
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "23544d9dadc45519e8c159d5ed9489a6187adf5d86fe00bc92c531c4904677fd",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1026,
-        2064,
-        419,
-        413
+        3327,
+        710,
+        182,
+        209
       ]
     },
     "railing": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9735099337748344
       ],
-      "source": "godot/art/components/sources/S3-original.png",
+      "pivot_source": [
+        1165.5,
+        706
+      ],
+      "family": "railing",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.017921146953405017,
+        0.039735099337748346,
+        0.982078853046595,
+        0.9668874172185431
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        519,
-        640,
-        638,
-        274
+        1026,
+        559,
+        279,
+        151
+      ],
+      "selection_rect": [
+        1023,
+        556,
+        285,
+        157
       ],
       "native_size": [
-        638,
-        274
+        279,
+        151
       ],
-      "sheet": "S3",
-      "plane_bounds": [
-        0.003134796238244514,
-        0.0072992700729927005,
-        0.9968652037617555,
-        0.9927007299270073
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "c0648680d470ebad179ff736243d4b81521321b2f18586580c8517ad101ef2a7",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1028,
-        2946,
-        638,
-        274
+        329,
+        648,
+        279,
+        151
       ]
     },
     "lantern": {
       "kind": "prop",
       "pivot": [
-        0.5,
-        0.98
+        0.504,
+        0.7430830039525692
       ],
-      "source": "godot/art/components/sources/S3-original.png",
+      "pivot_source": [
+        1425,
+        701
+      ],
+      "family": "lantern",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        121,
+        249
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "emission_mode": "warm_lantern_core",
+      "leaf_role": "independent architectural component",
+      "emission_rect": [
+        0.16,
+        0.2134387351778656,
+        0.656,
+        0.3952569169960474
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
       "source_rect": [
-        1215,
-        495,
-        229,
-        519
+        1362,
+        513,
+        125,
+        253
+      ],
+      "selection_rect": [
+        1359,
+        510,
+        131,
+        259
       ],
       "native_size": [
-        229,
-        519
+        125,
+        253
       ],
-      "sheet": "S3",
-      "emission_rect": [
-        0.12,
-        0.22,
-        0.76,
-        0.43
-      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "894b00d0ba0081470559414595be83afc6ddcde7eb11a19a3482f71a7cd3bf0b",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        319,
+        1713,
+        321,
+        125,
+        253
+      ]
+    },
+    "window_shop": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9803921568627451
+      ],
+      "pivot_source": [
+        139.5,
+        970
+      ],
+      "family": "window",
+      "variant": "shop",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02575107296137339,
+        0.029411764705882353,
+        0.9742489270386266,
+        0.9607843137254902
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        23,
+        770,
+        233,
+        204
+      ],
+      "selection_rect": [
+        20,
+        767,
+        239,
+        210
+      ],
+      "native_size": [
+        233,
+        204
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "f00b459860161f2bfe38dc65030786db7d5fb89629c7cac07efe0a9a21a25682",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        551,
+        1086,
+        233,
+        204
+      ]
+    },
+    "door_round": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9815668202764977
+      ],
+      "pivot_source": [
+        404.0,
+        972
+      ],
+      "family": "door",
+      "variant": "round",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.026785714285714284,
+        0.027649769585253458,
+        0.9776785714285714,
+        0.9769585253456221
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        292,
+        759,
+        224,
+        217
+      ],
+      "selection_rect": [
+        289,
+        756,
+        230,
+        223
+      ],
+      "native_size": [
+        224,
+        217
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "4d03a947d0874392b1bec68bb90802665b87a6b87949c165409a29a8cc51960f",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3036,
+        244,
+        224,
+        217
+      ]
+    },
+    "wall_red_plaster": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9796954314720813
+      ],
+      "pivot_source": [
+        652.0,
+        962
+      ],
+      "family": "wall",
+      "variant": "red_plaster",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.024509803921568627,
+        0.025380710659898477,
+        0.9754901960784313,
+        0.9746192893401016
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        550,
+        769,
+        204,
+        197
+      ],
+      "selection_rect": [
+        547,
+        766,
+        210,
+        203
+      ],
+      "native_size": [
+        204,
+        197
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "8e2c4e5e30a71d73cd9262bc44ed9c74d0ba266027b07ccf14afc5e9c7ace5a7",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2354,
+        1160,
+        204,
+        197
+      ]
+    },
+    "wall_white_brick_base": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9806763285024155
+      ],
+      "pivot_source": [
+        885.0,
+        972
+      ],
+      "family": "wall",
+      "variant": "white_brick_base",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.025510204081632654,
+        0.024154589371980676,
+        0.9693877551020408,
+        0.9758454106280193
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        787,
+        769,
+        196,
+        207
+      ],
+      "selection_rect": [
+        784,
+        766,
+        202,
+        213
+      ],
+      "native_size": [
+        196,
+        207
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "8b2e2e6365e48a4a2c8e4fac7ce6d2f97413d72feccc661c7bf64a4f776e4ee4",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3085,
+        915,
+        196,
+        207
+      ]
+    },
+    "railing_stone": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9741935483870968
+      ],
+      "pivot_source": [
+        1124.5,
+        965
+      ],
+      "family": "railing",
+      "variant": "stone",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02040816326530612,
+        0.03870967741935484,
+        0.9755102040816327,
+        0.967741935483871
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        1002,
+        814,
+        245,
+        155
+      ],
+      "selection_rect": [
+        999,
+        811,
+        251,
+        161
+      ],
+      "native_size": [
+        245,
+        155
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "a8e2d5caa851aa60726a68513dc7c04e0d48450ba2f67d7b29a43205413a8836",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2187,
+        303,
+        245,
+        155
+      ]
+    },
+    "beam_carved": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9493670886075949
+      ],
+      "pivot_source": [
+        1391.5,
+        921
+      ],
+      "family": "beam",
+      "variant": "carved",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.028070175438596492,
+        0.05063291139240506,
+        0.9754385964912281,
+        0.9367088607594937
+      ],
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_rect": [
+        1249,
+        846,
+        285,
+        79
+      ],
+      "selection_rect": [
+        1248,
+        843,
+        287,
+        85
+      ],
+      "native_size": [
+        285,
+        79
+      ],
+      "sheet": "A",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "rgba_sha256": "3962ab5fb98d509e83740e434df1beb3aae24ab1172da0827baa3061a28231ab",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
         16,
-        229,
-        519
+        507,
+        285,
+        79
       ]
     },
     "tiles_gray": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9770114942528736
       ],
-      "source": "godot/art/components/sources/R1-original.png",
+      "pivot_source": [
+        133.5,
+        247
+      ],
+      "family": "tiles",
+      "variant": "gray",
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face.",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.06060606060606061,
+        0.034482758620689655,
+        0.948051948051948,
+        0.40804597701149425
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        29,
-        282,
-        466,
-        123
+        18,
+        77,
+        231,
+        174
+      ],
+      "selection_rect": [
+        15,
+        74,
+        237,
+        180
       ],
       "native_size": [
-        466,
-        123
+        231,
+        174
       ],
-      "sheet": "R1",
-      "plane_bounds": [
-        0.04,
-        0.18,
-        0.96,
-        0.8
-      ],
-      "calibration": "Inner opaque course rectangle. Rounded tile lips extend beyond this face to overlap adjacent roof rows; measured alpha coverage is 100% across central 90% width at v=0.2..0.8.",
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "6eb0fea117a428fa160f0a22b74e242b02fabd2a9ac8bc618aa91c065ed14379",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1016,
-        3842,
-        466,
-        123
+        16,
+        1433,
+        231,
+        174
       ]
     },
     "tiles_green": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9767441860465116
       ],
-      "source": "godot/art/components/sources/R1-original.png",
+      "pivot_source": [
+        392.0,
+        245
+      ],
+      "family": "tiles",
+      "variant": "green",
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face.",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.06086956521739131,
+        0.03488372093023256,
+        0.9478260869565217,
+        0.4127906976744186
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        536,
-        283,
-        464,
-        124
+        277,
+        77,
+        230,
+        172
+      ],
+      "selection_rect": [
+        274,
+        74,
+        236,
+        178
       ],
       "native_size": [
-        464,
-        124
+        230,
+        172
       ],
-      "sheet": "R1",
-      "plane_bounds": [
-        0.04,
-        0.18,
-        0.96,
-        0.8
-      ],
-      "calibration": "Inner opaque course rectangle. Rounded tile lips extend beyond this face to overlap adjacent roof rows; measured alpha coverage is 100% across central 90% width at v=0.2..0.8.",
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "c24a6eea40926a9aaa055033ee26444c7612a06c08f077c223f41e907f8508cc",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        520,
-        3842,
-        464,
-        124
+        16,
+        1639,
+        230,
+        172
       ]
     },
     "tiles_glazed": {
       "kind": "surface",
       "pivot": [
-        0.5,
-        1.0
+        0.4978448275862069,
+        0.9767441860465116
       ],
-      "source": "godot/art/components/sources/R1-original.png",
+      "pivot_source": [
+        650.5,
+        245
+      ],
+      "family": "tiles",
+      "variant": "glazed",
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face.",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.05603448275862069,
+        0.03488372093023256,
+        0.9353448275862069,
+        0.4127906976744186
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        1043,
-        284,
-        465,
-        123
+        535,
+        77,
+        232,
+        172
+      ],
+      "selection_rect": [
+        532,
+        74,
+        237,
+        178
       ],
       "native_size": [
-        465,
-        123
+        232,
+        172
       ],
-      "sheet": "R1",
-      "plane_bounds": [
-        0.04,
-        0.18,
-        0.96,
-        0.8
-      ],
-      "calibration": "Inner opaque course rectangle. Rounded tile lips extend beyond this face to overlap adjacent roof rows; measured alpha coverage is 100% across central 90% width at v=0.2..0.8.",
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "bfe76731bf3d2c5173159712b280353928cb41ba05bced27092a46717dc5ccd3",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1514,
-        3842,
-        465,
-        123
+        816,
+        1131,
+        232,
+        172
+      ]
+    },
+    "tiles_blue": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9767441860465116
+      ],
+      "pivot_source": [
+        894.5,
+        245
+      ],
+      "family": "tiles",
+      "variant": "blue",
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face.",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.05627705627705628,
+        0.03488372093023256,
+        0.935064935064935,
+        0.4127906976744186
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        779,
+        77,
+        231,
+        172
+      ],
+      "selection_rect": [
+        776,
+        74,
+        237,
+        178
+      ],
+      "native_size": [
+        231,
+        172
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "ef075f176359234cd46624c1da2910795ff69ce70111411ba65a614aad96efcf",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        811,
+        1335,
+        231,
+        172
       ]
     },
     "thatch_course": {
       "kind": "surface",
       "pivot": [
-        0.5,
-        1.0
+        0.502092050209205,
+        0.976878612716763
       ],
-      "source": "godot/art/components/sources/R1-original.png",
-      "source_rect": [
-        25,
-        674,
-        472,
-        133
+      "pivot_source": [
+        1152.0,
+        245
       ],
-      "native_size": [
-        472,
-        133
-      ],
-      "sheet": "R1",
+      "family": "thatch",
+      "variant": "course",
+      "calibration": "plane_bounds selects one repeatable upper tile/thatch course and excludes decorative end caps and lower timber. Recipe must use uv_crop (including full [0,0,1,1]) to sample only this face.",
+      "leaf_role": "independent architectural component",
       "plane_bounds": [
-        0.04,
-        0.12,
-        0.96,
-        0.76
+        0.08786610878661087,
+        0.046242774566473986,
+        0.9163179916317992,
+        0.2832369942196532
       ],
-      "calibration": "Inner opaque straw course. Loose fiber tips remain outside the layout face and overlap the next course; alpha coverage becomes sparse near v=0.9.",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        16,
-        3842,
-        472,
-        133
-      ]
-    },
-    "eave_gray": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/R1-original.png",
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        547,
-        685,
-        451,
-        99
+        1032,
+        76,
+        239,
+        173
+      ],
+      "selection_rect": [
+        1030,
+        73,
+        244,
+        179
       ],
       "native_size": [
-        451,
-        99
+        239,
+        173
       ],
-      "sheet": "R1",
-      "plane_bounds": [
-        0.004434589800443459,
-        0.020202020202020204,
-        0.9955654101995566,
-        0.9797979797979798
-      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "058e192288652c88a9908063d3258066cdc7be0f2d47c8e86026890864e6192d",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        2064,
-        451,
-        99
-      ]
-    },
-    "eave_gold": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/R1-original.png",
-      "source_rect": [
-        1052,
-        686,
-        451,
-        98
-      ],
-      "native_size": [
-        451,
-        98
-      ],
-      "sheet": "R1",
-      "plane_bounds": [
-        0.004434589800443459,
-        0.02040816326530612,
-        0.9955654101995566,
-        0.9795918367346939
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2547,
-        2064,
-        451,
-        98
-      ]
-    },
-    "ridge_gray": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/R2-original.png",
-      "source_rect": [
-        29,
-        261,
-        493,
-        80
-      ],
-      "native_size": [
-        493,
-        80
-      ],
-      "sheet": "R2",
-      "plane_bounds": [
-        0.004056795131845842,
-        0.025,
-        0.9959432048681541,
-        0.975
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2683,
-        2195,
-        493,
-        80
-      ]
-    },
-    "ridge_gold": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/R2-original.png",
-      "source_rect": [
-        584,
-        261,
-        488,
-        80
-      ],
-      "native_size": [
-        488,
-        80
-      ],
-      "sheet": "R2",
-      "plane_bounds": [
-        0.004098360655737705,
-        0.025,
-        0.9959016393442623,
-        0.975
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3208,
-        2195,
-        488,
-        80
-      ]
-    },
-    "ridge_beast": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/R2-original.png",
-      "source_rect": [
-        1198,
-        150,
-        248,
-        282
-      ],
-      "native_size": [
-        248,
-        282
-      ],
-      "sheet": "R2",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3817,
-        16,
-        248,
-        282
+        1590,
+        827,
+        239,
+        173
       ]
     },
     "rafter": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9428571428571428
       ],
-      "source": "godot/art/components/sources/R2-original.png",
+      "pivot_source": [
+        1403.5,
+        187
+      ],
+      "family": "rafter",
+      "variant": "default",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.0205761316872428,
+        0.07142857142857142,
+        0.9794238683127572,
+        0.9285714285714286
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        14,
-        702,
-        521,
-        69
+        1282,
+        121,
+        243,
+        70
+      ],
+      "selection_rect": [
+        1279,
+        118,
+        249,
+        76
       ],
       "native_size": [
-        521,
-        69
+        243,
+        70
       ],
-      "sheet": "R2",
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "6f10d27b0a9c4d1e6691b87cca150df2f017c7cc4f705d4d14bc5a3782f60aa2",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1870,
+        496,
+        243,
+        70
+      ]
+    },
+    "eave_gray": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9682539682539683
+      ],
+      "pivot_source": [
+        132.5,
+        457
+      ],
+      "family": "eave",
+      "variant": "gray",
+      "leaf_role": "independent architectural component",
       "plane_bounds": [
-        0.003838771593090211,
-        0.028985507246376812,
-        0.9961612284069098,
-        0.9710144927536232
+        0.02127659574468085,
+        0.03968253968253968,
+        0.9787234042553191,
+        0.9603174603174603
       ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        15,
+        335,
+        235,
+        126
+      ],
+      "selection_rect": [
+        12,
+        332,
+        241,
+        132
+      ],
+      "native_size": [
+        235,
+        126
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "9e5d1e2f97a29ef17d1a28c754032330074b72d2ce3a8c57b38a2b4f3c885341",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        599,
+        928,
+        235,
+        126
+      ]
+    },
+    "eave_gold": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.96875
+      ],
+      "pivot_source": [
+        391.5,
+        458
+      ],
+      "family": "eave",
+      "variant": "gold",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02109704641350211,
+        0.0390625,
+        0.9789029535864979,
+        0.9609375
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        273,
+        334,
+        237,
+        128
+      ],
+      "selection_rect": [
+        270,
+        331,
+        243,
+        134
+      ],
+      "native_size": [
+        237,
+        128
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "4996eddeb0aafc495ce2b8053503571ab37e3942639f3e0d56838ca5eedd0bc9",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
         16,
-        4007,
-        521,
-        69
+        1010,
+        237,
+        128
+      ]
+    },
+    "eave_green": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.96875
+      ],
+      "pivot_source": [
+        645.0,
+        458
+      ],
+      "family": "eave",
+      "variant": "green",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02100840336134454,
+        0.0390625,
+        0.9789915966386554,
+        0.9609375
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        526,
+        334,
+        238,
+        128
+      ],
+      "selection_rect": [
+        523,
+        331,
+        244,
+        134
+      ],
+      "native_size": [
+        238,
+        128
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "c2c0b2028a66c0c2a686116e8e2e265113856a499f2bc58ccd9950d222fa14c6",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        16,
+        850,
+        238,
+        128
+      ]
+    },
+    "eave_corner_gray": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9789473684210527
+      ],
+      "pivot_source": [
+        892.0,
+        479
+      ],
+      "family": "eave",
+      "variant": "corner_gray",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.021739130434782608,
+        0.02631578947368421,
+        0.9782608695652174,
+        0.9736842105263158
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        777,
+        293,
+        230,
+        190
+      ],
+      "selection_rect": [
+        774,
+        290,
+        236,
+        196
+      ],
+      "native_size": [
+        230,
+        190
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "5c13b6b3cdc980b3d7187fe091fe03a024db3f23668df269de25301caeb88f82",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        279,
+        1633,
+        230,
+        190
+      ]
+    },
+    "eave_corner_gold": {
+      "kind": "surface",
+      "pivot": [
+        0.49783549783549785,
+        0.978021978021978
+      ],
+      "pivot_source": [
+        1146.0,
+        480
+      ],
+      "family": "eave",
+      "variant": "corner_gold",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.021645021645021644,
+        0.027472527472527472,
+        0.974025974025974,
+        0.9725274725274725
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1031,
+        302,
+        231,
+        182
+      ],
+      "selection_rect": [
+        1028,
+        299,
+        236,
+        188
+      ],
+      "native_size": [
+        231,
+        182
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "7b0db3f7f9f4f4a9c784e5a9e1c8dba7c039f83005077676f2c8a095e3c932b8",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        281,
+        1419,
+        231,
+        182
+      ]
+    },
+    "eave_corner_green": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9779005524861878
+      ],
+      "pivot_source": [
+        1400.0,
+        479
+      ],
+      "family": "eave",
+      "variant": "corner_green",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.0211864406779661,
+        0.027624309392265192,
+        0.9788135593220338,
+        0.9723756906077348
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1282,
+        302,
+        236,
+        181
+      ],
+      "selection_rect": [
+        1279,
+        299,
+        242,
+        187
+      ],
+      "native_size": [
+        236,
+        181
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "9c72816e28dd4d84973fb037a3d8067bcf15dbc7ebfa970e21974819d267a1fb",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        903,
+        918,
+        236,
+        181
+      ]
+    },
+    "ridge_gray": {
+      "kind": "surface",
+      "pivot": [
+        0.4978540772532189,
+        0.9611650485436893
+      ],
+      "pivot_source": [
+        135.0,
+        675
+      ],
+      "family": "ridge",
+      "variant": "gray",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.13733905579399142,
+        0.18446601941747573,
+        0.871244635193133,
+        0.5145631067961165
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        19,
+        576,
+        233,
+        103
+      ],
+      "selection_rect": [
+        16,
+        573,
+        238,
+        109
+      ],
+      "native_size": [
+        233,
+        103
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "3f7f2b917eae41026b2f1db4858e0d09f964641c4d1d5601dea2c58b9291bfca",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        282,
+        1284,
+        233,
+        103
+      ]
+    },
+    "ridge_gold": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9615384615384616
+      ],
+      "pivot_source": [
+        392.0,
+        676
+      ],
+      "family": "ridge",
+      "variant": "gold",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.14957264957264957,
+        0.18269230769230768,
+        0.8589743589743589,
+        0.5288461538461539
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        275,
+        576,
+        234,
+        104
+      ],
+      "selection_rect": [
+        273,
+        573,
+        238,
+        110
+      ],
+      "native_size": [
+        234,
+        104
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "63c7170a542ea8cdb0d92f6a8fd57f8092181277f56411428fcf3a80d2e6c1ed",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        16,
+        1170,
+        234,
+        104
+      ]
+    },
+    "ridge_hip_gray": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9611650485436893
+      ],
+      "pivot_source": [
+        647.0,
+        681
+      ],
+      "family": "ridge",
+      "variant": "hip_gray",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        218,
+        99
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "leaf_role": "independent architectural component",
+      "image_axis": [
+        [
+          0.1036036036036036,
+          0.36893203883495146
+        ],
+        [
+          0.8963963963963963,
+          0.6407766990291263
+        ]
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        536,
+        582,
+        222,
+        103
+      ],
+      "selection_rect": [
+        533,
+        579,
+        228,
+        109
+      ],
+      "native_size": [
+        222,
+        103
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "9cc7925a9922f096b298ee2da69d273df5613abc3e059516f0330f79fee60af1",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2701,
+        558,
+        222,
+        103
+      ]
+    },
+    "ridge_hip_gold": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9619047619047619
+      ],
+      "pivot_source": [
+        898.0,
+        686
+      ],
+      "family": "ridge",
+      "variant": "hip_gold",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        220,
+        101
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "leaf_role": "independent architectural component",
+      "image_axis": [
+        [
+          0.11160714285714286,
+          0.37142857142857144
+        ],
+        [
+          0.8928571428571429,
+          0.638095238095238
+        ]
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        786,
+        585,
+        224,
+        105
+      ],
+      "selection_rect": [
+        783,
+        582,
+        230,
+        111
+      ],
+      "native_size": [
+        224,
+        105
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "2b9cdbd1af3671348f7c08cbe4ed4d945a8ba85564d7a0688f14329d9421adb9",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3790,
+        268,
+        224,
+        105
+      ]
+    },
+    "ridge_hip_green": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9626168224299065
+      ],
+      "pivot_source": [
+        1154.5,
+        689
+      ],
+      "family": "ridge",
+      "variant": "hip_green",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        223,
+        103
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "calibration": "Native isometric short hip-ridge silhouette; preserve aspect. Do not re-project as a frontal surface.",
+      "leaf_role": "independent architectural component",
+      "image_axis": [
+        [
+          0.11013215859030837,
+          0.3644859813084112
+        ],
+        [
+          0.8898678414096917,
+          0.6448598130841121
+        ]
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1041,
+        586,
+        227,
+        107
+      ],
+      "selection_rect": [
+        1038,
+        583,
+        233,
+        113
+      ],
+      "native_size": [
+        227,
+        107
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "5ca00c2711ac73868b1e788feb2fb7fec26ae10fd060aa0eaac4c4807ff9b38f",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3318,
+        16,
+        227,
+        107
+      ]
+    },
+    "ridge_beast": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9796954314720813
+      ],
+      "pivot_source": [
+        1404.5,
+        719
+      ],
+      "family": "ridge",
+      "variant": "beast",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        133,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1336,
+        526,
+        137,
+        197
+      ],
+      "selection_rect": [
+        1333,
+        523,
+        143,
+        203
+      ],
+      "native_size": [
+        137,
+        197
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "6eeb61dc55de0d90552fec5ba40060b62214b12982585c98c8e7f492d1b5d90e",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2908,
+        942,
+        137,
+        197
       ]
     },
     "fabric_canvas": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.9791666666666666
       ],
-      "source": "godot/art/components/sources/R2-original.png",
+      "pivot_source": [
+        137.0,
+        941
+      ],
+      "family": "fabric",
+      "variant": "canvas",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.05660377358490566,
+        0.14583333333333334,
+        0.9386792452830188,
+        0.96875
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        565,
-        575,
-        439,
-        295
+        31,
+        753,
+        212,
+        192
+      ],
+      "selection_rect": [
+        28,
+        750,
+        218,
+        198
       ],
       "native_size": [
-        439,
-        295
+        212,
+        192
       ],
-      "sheet": "R2",
-      "plane_bounds": [
-        0.004555808656036446,
-        0.006779661016949152,
-        0.9954441913439636,
-        0.9932203389830508
-      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "d9ac2777d6b6db401e3c85f9c0dd9233ec5395ec1e64f41030a776b5b831cd07",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        557,
-        2946,
-        439,
-        295
+        2110,
+        982,
+        212,
+        192
       ]
     },
     "fabric_awning": {
       "kind": "surface",
       "pivot": [
         0.5,
-        1.0
+        0.979381443298969
       ],
-      "source": "godot/art/components/sources/R2-original.png",
+      "pivot_source": [
+        394.5,
+        942
+      ],
+      "family": "fabric",
+      "variant": "awning",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.048458149779735685,
+        0.14948453608247422,
+        0.9515418502202643,
+        0.9639175257731959
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
       "source_rect": [
-        1053,
-        575,
-        456,
-        296
+        281,
+        752,
+        227,
+        194
+      ],
+      "selection_rect": [
+        278,
+        749,
+        233,
+        200
       ],
       "native_size": [
-        456,
-        296
+        227,
+        194
       ],
-      "sheet": "R2",
-      "plane_bounds": [
-        0.0043859649122807015,
-        0.006756756756756757,
-        0.9956140350877193,
-        0.9932432432432432
-      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "84027ab2050f80440250385536ac6bdb24e332aeacef31ce5602aece589fea7e",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        1491,
-        1685,
-        456,
-        296
+        16,
+        1843,
+        227,
+        194
+      ]
+    },
+    "finial": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9835390946502057
+      ],
+      "pivot_source": [
+        637.5,
+        961
+      ],
+      "family": "finial",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        135,
+        239
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "leaf_role": "independent architectural component",
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        568,
+        722,
+        139,
+        243
+      ],
+      "selection_rect": [
+        565,
+        719,
+        145,
+        249
+      ],
+      "native_size": [
+        139,
+        243
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "14a13223304ea9011d5bc118c8a62ce6e92c683ef2916b28e5f35432e5642014",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1148,
+        643,
+        139,
+        243
+      ]
+    },
+    "gable_panel": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.976878612716763
+      ],
+      "pivot_source": [
+        896.5,
+        924
+      ],
+      "family": "gable",
+      "variant": "panel",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.02092050209205021,
+        0.028901734104046242,
+        0.9790794979079498,
+        0.9710982658959537
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        777,
+        755,
+        239,
+        173
+      ],
+      "selection_rect": [
+        774,
+        752,
+        245,
+        179
+      ],
+      "native_size": [
+        239,
+        173
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "c627493f92a0c472d810ccdfe780a55881a8ebcf60edf42e167b58eb9c5eae29",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1319,
+        696,
+        239,
+        173
+      ]
+    },
+    "gable_trim": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9767441860465116
+      ],
+      "pivot_source": [
+        1157.5,
+        924
+      ],
+      "family": "gable",
+      "variant": "trim",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.0205761316872428,
+        0.029069767441860465,
+        0.9794238683127572,
+        0.9709302325581395
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1036,
+        756,
+        243,
+        172
+      ],
+      "selection_rect": [
+        1033,
+        753,
+        249,
+        178
+      ],
+      "native_size": [
+        243,
+        172
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "a6ab2ed0c112e1d2e19378cc1de525bc44c89323a65b840be8c66a8ca247df87",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2187,
+        490,
+        243,
+        172
+      ]
+    },
+    "ridge_green": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9578947368421052
+      ],
+      "pivot_source": [
+        1402.5,
+        905
+      ],
+      "family": "ridge",
+      "variant": "green",
+      "leaf_role": "independent architectural component",
+      "plane_bounds": [
+        0.15021459227467812,
+        0.11578947368421053,
+        0.8412017167381974,
+        0.8
+      ],
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_rect": [
+        1286,
+        814,
+        233,
+        95
+      ],
+      "selection_rect": [
+        1283,
+        811,
+        239,
+        101
+      ],
+      "native_size": [
+        233,
+        95
+      ],
+      "sheet": "B",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "rgba_sha256": "3ec38a68df09ccca67226c5568d03d7d7b6dd83c27688e8586a9759ae2ee149e",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        16,
+        1306,
+        233,
+        95
       ]
     },
     "sack": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9746192893401016
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        137.0,
+        253
+      ],
+      "family": "sack",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        196,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        23,
-        2,
-        441,
-        498
+        37,
+        61,
+        200,
+        197
+      ],
+      "selection_rect": [
+        34,
+        58,
+        206,
+        203
       ],
       "native_size": [
-        441,
-        498
+        200,
+        197
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "dbabf7abe796c0b780dc92cd02caf68b33182317fdfa0f08c91aa0dd84ee5c73",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        813,
-        625,
-        441,
-        498
+        1074,
+        1501,
+        200,
+        197
       ]
     },
     "crate": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9739583333333334
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        396.0,
+        260
+      ],
+      "family": "crate",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        198,
+        188
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        531,
-        22,
-        482,
-        466
+        295,
+        73,
+        202,
+        192
+      ],
+      "selection_rect": [
+        292,
+        70,
+        208,
+        198
       ],
       "native_size": [
-        482,
-        466
+        202,
+        192
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "c977862497c9bc10e85d8e0f65998cb9e23a1a91bb359e93f87f25f5a8d8798e",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        528,
-        482,
-        466
+        1514,
+        1340,
+        202,
+        192
       ]
     },
     "barrel": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9773755656108597
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        642.5,
+        264
+      ],
+      "family": "barrel",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        157,
+        217
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        1131,
-        3,
-        354,
-        502
+        562,
+        48,
+        161,
+        221
+      ],
+      "selection_rect": [
+        559,
+        45,
+        167,
+        227
       ],
       "native_size": [
-        354,
-        502
+        161,
+        221
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "b3de7d3ae3bb5aa30aabba7b27e260eff693496e1b32c867f9168a846b34b5e9",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        427,
-        625,
-        354,
-        502
+        2715,
+        693,
+        161,
+        221
       ]
     },
     "timber_stack": {
       "kind": "prop",
       "pivot": [
-        0.5,
-        0.98
+        0.5021008403361344,
+        0.9719101123595506
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        904.5,
+        255
+      ],
+      "family": "timber",
+      "variant": "stack",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        233,
+        173
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        17,
-        546,
-        513,
-        416
+        785,
+        82,
+        238,
+        178
+      ],
+      "selection_rect": [
+        783,
+        80,
+        243,
+        183
       ],
       "native_size": [
-        513,
-        416
+        238,
+        178
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "548ea612b85ba2ed11a97cf8ee36fa42924a1520af3622f6ec9ac44e3b5635ed",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        481,
-        2064,
-        513,
-        416
+        329,
+        831,
+        238,
+        178
       ]
     },
     "bucket": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9764150943396226
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        1151.5,
+        256
+      ],
+      "family": "bucket",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        141,
+        208
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        631,
-        508,
-        330,
-        480
+        1079,
+        49,
+        145,
+        212
+      ],
+      "selection_rect": [
+        1076,
+        46,
+        151,
+        218
       ],
       "native_size": [
-        330,
-        480
+        145,
+        212
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "91113004ffbd1fc49bc2906618037255aeec05e9494d40e008bbf2d8478b4d9c",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        16,
-        330,
-        480
+        2908,
+        698,
+        145,
+        212
       ]
     },
     "wheel": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9761904761904762
       ],
-      "source": "godot/art/components/sources/p1.png",
+      "pivot_source": [
+        1405.0,
+        254
+      ],
+      "family": "wheel",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        202,
+        206
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        1073,
-        512,
-        438,
-        485
+        1302,
+        49,
+        206,
+        210
+      ],
+      "selection_rect": [
+        1299,
+        46,
+        212,
+        216
       ],
       "native_size": [
-        438,
-        485
+        206,
+        210
       ],
-      "sheet": "P1",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "4ac0a49619fa7ea0beb415157d75e44df7b6b653326d0c0580410ab6f0e8580d",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        438,
-        1166,
-        438,
-        485
-      ]
-    },
-    "kiln_masonry": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p2.png",
-      "source_rect": [
-        55,
-        21,
-        424,
-        441
-      ],
-      "native_size": [
-        424,
-        441
-      ],
-      "sheet": "P2",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3618,
-        528,
-        424,
-        441
+        1716,
+        1098,
+        206,
+        210
       ]
     },
     "furnace_mouth": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.976303317535545
       ],
-      "source": "godot/art/components/sources/p2.png",
+      "pivot_source": [
+        145.0,
+        505
+      ],
+      "family": "furnace",
+      "variant": "mouth",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        230,
+        207
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "emission_mode": "furnace_interior",
+      "leaf_role": "independent equipment or landscape component",
+      "emission_rect": [
+        0.23076923076923078,
+        0.3127962085308057,
+        0.4829059829059829,
+        0.4786729857819905
+      ],
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        542,
-        62,
-        468,
-        393
+        28,
+        299,
+        234,
+        211
+      ],
+      "selection_rect": [
+        25,
+        296,
+        240,
+        217
       ],
       "native_size": [
-        468,
-        393
+        234,
+        211
       ],
-      "sheet": "P2",
-      "emission_rect": [
-        0.2,
-        0.34,
-        0.6,
-        0.55
-      ],
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "b162cb2fb7884bbd3f82fd8b8fa351be98f97b909fe9f83e2b9aa79b273bc7f1",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        540,
-        2514,
-        468,
-        393
+        285,
+        1041,
+        234,
+        211
       ]
     },
     "chimney_course": {
       "kind": "prop",
       "pivot": [
-        0.5011160714285714,
-        0.6404833836858006
+        0.5,
+        0.9709302325581395
       ],
-      "source": "godot/art/components/sources/p2.png",
+      "pivot_source": [
+        394.5,
+        490
+      ],
+      "family": "chimney",
+      "variant": "course",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        171,
+        168
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        1052,
-        121,
-        448,
-        331
+        307,
+        323,
+        175,
+        172
+      ],
+      "selection_rect": [
+        304,
+        320,
+        181,
+        178
       ],
       "native_size": [
-        448,
-        331
+        175,
+        172
       ],
-      "sheet": "P2",
-      "pivot_source": [
-        1276.5,
-        333
-      ],
-      "anchor_role": "center of ground footprint, not lowest visible corner",
-      "native_plan_ratio": [
-        1,
-        1
-      ],
-      "source_planes": {
-        "top": [
-          [
-            0.49107142857142855,
-            0.01812688821752266
-          ],
-          [
-            0.984375,
-            0.32628398791540786
-          ],
-          [
-            0.5133928571428571,
-            0.6978851963746223
-          ],
-          [
-            0.015625,
-            0.37462235649546827
-          ]
-        ],
-        "side_x": [
-          [
-            0.984375,
-            0.32628398791540786
-          ],
-          [
-            0.5133928571428571,
-            0.6978851963746223
-          ],
-          [
-            0.5133928571428571,
-            0.9788519637462235
-          ],
-          [
-            0.984375,
-            0.6102719033232629
-          ]
-        ],
-        "side_y": [
-          [
-            0.5133928571428571,
-            0.6978851963746223
-          ],
-          [
-            0.015625,
-            0.37462235649546827
-          ],
-          [
-            0.015625,
-            0.6344410876132931
-          ],
-          [
-            0.5133928571428571,
-            0.9788519637462235
-          ]
-        ]
-      },
-      "source_plane_order": {
-        "top": "back,right,front,left",
-        "side_x": "right,front,bottom_front,bottom_right",
-        "side_y": "front,left,bottom_left,bottom_front"
-      },
-      "calibration": "Manually observed outer corners of the single brick ring; inner opening and inner brick walls remain original source pixels inside the top face.",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "8dcd0a2b750546099ab019af6cd3918d63ec974a58a78cdd9f4d6d3602db3eca",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        577,
-        1685,
-        448,
-        331
+        1306,
+        1501,
+        175,
+        172
       ]
     },
     "pottery_vessel": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9765258215962441
       ],
-      "source": "godot/art/components/sources/p2.png",
+      "pivot_source": [
+        640.5,
+        498
+      ],
+      "family": "pottery",
+      "variant": "vessel",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        183,
+        209
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        39,
-        496,
-        449,
-        463
+        547,
+        290,
+        187,
+        213
+      ],
+      "selection_rect": [
+        544,
+        287,
+        193,
+        219
       ],
       "native_size": [
-        449,
-        463
+        187,
+        213
       ],
-      "sheet": "P2",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "def70dc6af48c6cf2efb040b28c836231d0fa1635eb4274d53edbbd56af661fc",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2578,
-        528,
-        449,
-        463
+        3546,
+        492,
+        187,
+        213
       ]
     },
     "loom_frame": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.9794238683127572
       ],
-      "source": "godot/art/components/sources/p2.png",
+      "pivot_source": [
+        877.5,
+        508
+      ],
+      "family": "loom",
+      "variant": "frame",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        201,
+        239
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        570,
-        486,
-        379,
-        509
+        775,
+        270,
+        205,
+        243
+      ],
+      "selection_rect": [
+        772,
+        267,
+        211,
+        249
       ],
       "native_size": [
-        379,
-        509
+        205,
+        243
       ],
-      "sheet": "P2",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "c7801a745fe5ec4dd749715942300d02cdf739d809b9a54fcf4c567f6074dc6d",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        16,
-        625,
-        379,
-        509
+        2464,
+        343,
+        205,
+        243
       ]
     },
     "workbench": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.98
+        0.975
       ],
-      "source": "godot/art/components/sources/p2.png",
-      "source_rect": [
-        993,
-        524,
-        527,
-        458
-      ],
-      "native_size": [
-        527,
-        458
-      ],
-      "sheet": "P2",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3059,
-        528,
-        527,
-        458
-      ]
-    },
-    "rice_seedling": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        55,
-        67,
-        402,
-        425
-      ],
-      "native_size": [
-        402,
-        425
-      ],
-      "sheet": "P3",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2064,
-        1515,
-        402,
-        425
-      ]
-    },
-    "rice_ripe": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        542,
-        42,
-        465,
-        455
-      ],
-      "native_size": [
-        465,
-        455
-      ],
-      "sheet": "P3",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3108,
-        1026,
-        465,
-        455
-      ]
-    },
-    "vegetable_patch": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        1060,
-        75,
-        443,
-        423
-      ],
-      "native_size": [
-        443,
-        423
-      ],
-      "sheet": "P3",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2498,
-        1515,
-        443,
-        423
-      ]
-    },
-    "fruit_branch": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        31,
-        525,
-        470,
-        431
-      ],
-      "native_size": [
-        470,
-        431
-      ],
-      "sheet": "P3",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3605,
-        1026,
-        470,
-        431
-      ]
-    },
-    "well_stone": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        576,
-        572,
-        388,
-        385
-      ],
-      "native_size": [
-        388,
-        385
-      ],
-      "sheet": "P3",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1040,
-        2514,
-        388,
-        385
-      ]
-    },
-    "water_surface": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/p3.png",
-      "source_rect": [
-        1080,
-        676,
-        445,
-        225
-      ],
-      "native_size": [
-        445,
-        225
-      ],
-      "sheet": "P3",
-      "plane_bounds": [
-        0.0044943820224719105,
-        0.008888888888888889,
-        0.9955056179775281,
-        0.9911111111111112
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1053,
-        3336,
-        445,
-        225
-      ]
-    },
-    "gong": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        62,
-        0,
-        414,
-        517
-      ],
-      "native_size": [
-        414,
-        517
-      ],
-      "sheet": "P4",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        580,
-        16,
-        414,
-        517
-      ]
-    },
-    "drum": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        556,
-        64,
-        465,
-        457
-      ],
-      "native_size": [
-        465,
-        457
-      ],
-      "sheet": "P4",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2611,
-        1026,
-        465,
-        457
-      ]
-    },
-    "banner": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        1167,
-        0,
-        271,
-        577
-      ],
-      "native_size": [
-        271,
-        577
-      ],
-      "sheet": "P4",
-      "plane_bounds": [
-        0.007380073800738007,
-        0.0034662045060658577,
-        0.992619926199262,
-        0.9965337954939342
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        16,
-        16,
-        271,
-        577
-      ]
-    },
-    "lion": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        72,
-        534,
-        384,
-        467
-      ],
-      "native_size": [
-        384,
-        467
-      ],
-      "sheet": "P4",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3401,
-        16,
-        384,
-        467
-      ]
-    },
-    "incense_burner": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        588,
-        591,
-        428,
-        383
-      ],
-      "native_size": [
-        428,
-        383
-      ],
-      "sheet": "P4",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1460,
-        2514,
-        428,
-        383
-      ]
-    },
-    "rope": {
-      "kind": "surface",
-      "pivot": [
-        0.5,
-        1.0
-      ],
-      "source": "godot/art/components/sources/p4.png",
-      "source_rect": [
-        1066,
-        661,
-        426,
-        260
-      ],
-      "native_size": [
-        426,
-        260
-      ],
-      "sheet": "P4",
-      "plane_bounds": [
-        0.004694835680751174,
-        0.007692307692307693,
-        0.9953051643192489,
-        0.9923076923076923
-      ],
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        16,
-        3336,
-        426,
-        260
-      ]
-    },
-    "cattle": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        4,
-        42,
-        515,
-        457
-      ],
-      "native_size": [
-        515,
-        457
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2064,
-        1026,
-        515,
-        457
-      ]
-    },
-    "sheep": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        544,
-        72,
-        470,
-        421
-      ],
-      "native_size": [
-        470,
-        421
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        3519,
-        1515,
-        470,
-        421
-      ]
-    },
-    "fish": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        1074,
-        13,
-        454,
-        468
-      ],
-      "native_size": [
-        454,
-        468
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2915,
-        16,
-        454,
-        468
-      ]
-    },
-    "meat": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        3,
-        608,
-        509,
-        358
-      ],
-      "native_size": [
-        509,
-        358
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        16,
-        2946,
-        509,
-        358
-      ]
-    },
-    "vegetable_basket": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        518,
-        544,
-        514,
-        422
-      ],
-      "native_size": [
-        514,
-        422
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        2973,
-        1515,
-        514,
-        422
-      ]
-    },
-    "fruit_basket": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        0.98
-      ],
-      "source": "godot/art/components/sources/e1.png",
-      "source_rect": [
-        1043,
-        565,
-        492,
-        400
-      ],
-      "native_size": [
-        492,
-        400
-      ],
-      "sheet": "E1",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        16,
-        2514,
-        492,
-        400
-      ]
-    },
-    "well_stone_nw": {
-      "kind": "prop",
-      "pivot": [
-        0.4930966469428008,
-        1.474025974025974
-      ],
-      "source": "godot/art/components/sources/W1-original.png",
-      "source_rect": [
-        64,
-        209,
-        507,
-        154
-      ],
-      "native_size": [
-        507,
-        154
-      ],
-      "sheet": "W1",
       "pivot_source": [
-        314,
-        436
+        1139.5,
+        500
       ],
+      "family": "workbench",
+      "variant": "default",
+      "anchor_role": "center of component base",
       "reference_size": [
-        692.744,
-        346.372
+        277,
+        196
       ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 53.883,
-      "direction": "nw",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1086,
-        3628,
-        507,
-        154
-      ]
-    },
-    "well_stone_ne": {
-      "kind": "prop",
-      "pivot": [
-        -0.9398907103825137,
-        0.5527950310559007
-      ],
-      "source": "godot/art/components/sources/W1-original.png",
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        868,
-        136,
-        183,
-        322
+        999,
+        305,
+        281,
+        200
+      ],
+      "selection_rect": [
+        996,
+        302,
+        287,
+        206
       ],
       "native_size": [
-        183,
-        322
+        281,
+        200
       ],
-      "sheet": "W1",
-      "pivot_source": [
-        696,
-        314
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 53.883,
-      "direction": "ne",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1276,
-        1685,
-        183,
-        322
-      ]
-    },
-    "well_stone_sw": {
-      "kind": "prop",
-      "pivot": [
-        1.8877005347593583,
-        0.5496894409937888
-      ],
-      "source": "godot/art/components/sources/W1-original.png",
-      "source_rect": [
-        205,
-        763,
-        187,
-        322
-      ],
-      "native_size": [
-        187,
-        322
-      ],
-      "sheet": "W1",
-      "pivot_source": [
-        558,
-        940
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 53.883,
-      "direction": "sw",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1057,
-        1685,
-        187,
-        322
-      ]
-    },
-    "well_stone_se": {
-      "kind": "prop",
-      "pivot": [
-        0.5,
-        -0.2138364779874214
-      ],
-      "source": "godot/art/components/sources/W1-original.png",
-      "source_rect": [
-        688,
-        852,
-        504,
-        159
-      ],
-      "native_size": [
-        504,
-        159
-      ],
-      "sheet": "W1",
-      "pivot_source": [
-        940,
-        818
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 53.883,
-      "direction": "se",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        550,
-        3628,
-        504,
-        159
-      ]
-    },
-    "kiln_masonry_nw": {
-      "kind": "prop",
-      "pivot": [
-        0.498,
-        1.4480874316939891
-      ],
-      "source": "godot/art/components/sources/K1-original.png",
-      "source_rect": [
-        65,
-        171,
-        500,
-        183
-      ],
-      "native_size": [
-        500,
-        183
-      ],
-      "sheet": "K1",
-      "pivot_source": [
-        314,
-        436
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 88.172,
-      "direction": "nw",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1530,
-        3336,
-        500,
-        183
-      ]
-    },
-    "kiln_masonry_ne": {
-      "kind": "prop",
-      "pivot": [
-        -0.9608938547486033,
-        0.6268221574344023
-      ],
-      "source": "godot/art/components/sources/K1-original.png",
-      "source_rect": [
-        868,
-        99,
-        179,
-        343
-      ],
-      "native_size": [
-        179,
-        343
-      ],
-      "sheet": "K1",
-      "pivot_source": [
-        696,
-        314
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 88.172,
-      "direction": "ne",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1720,
-        625,
-        179,
-        343
-      ]
-    },
-    "kiln_masonry_sw": {
-      "kind": "prop",
-      "pivot": [
-        1.9285714285714286,
-        0.621301775147929
-      ],
-      "source": "godot/art/components/sources/K1-original.png",
-      "source_rect": [
-        207,
-        730,
-        182,
-        338
-      ],
-      "native_size": [
-        182,
-        338
-      ],
-      "sheet": "K1",
-      "pivot_source": [
-        558,
-        940
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 88.172,
-      "direction": "sw",
-      "atlas": "res://art/components/components-0.webp",
-      "rect": [
-        1768,
-        1166,
-        182,
-        338
-      ]
-    },
-    "kiln_masonry_se": {
-      "kind": "prop",
-      "pivot": [
-        0.4960159362549801,
-        0.005494505494505495
-      ],
-      "source": "godot/art/components/sources/K1-original.png",
-      "source_rect": [
-        691,
-        817,
-        502,
-        182
-      ],
-      "native_size": [
-        502,
-        182
-      ],
-      "sheet": "K1",
-      "pivot_source": [
-        940,
-        818
-      ],
-      "reference_size": [
-        692.744,
-        346.372
-      ],
-      "pivot_semantics": "center of the complete circular ring at ground elevation, not center of this quarter bounding box",
-      "reference_semantics": "full complete ring ground ellipse projected width,height in source pixels; excludes wall elevation; shared by all four quarters",
-      "wall_height_reference_pixels": 88.172,
-      "direction": "se",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "257fcaabfadb4e40476ab5c4005d2fbce16039239c6491ce88e5122981fb9282",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
         16,
-        3628,
-        502,
-        182
+        618,
+        281,
+        200
       ]
     },
     "millstone": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.6455696202531646
+        0.9710982658959537
       ],
-      "source": "godot/art/components/sources/m1.png",
+      "pivot_source": [
+        1408.0,
+        494
+      ],
+      "family": "millstone",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        218,
+        169
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        146,
-        104,
-        554,
-        395
+        1297,
+        326,
+        222,
+        173
+      ],
+      "selection_rect": [
+        1294,
+        323,
+        228,
+        179
       ],
       "native_size": [
-        554,
-        395
+        222,
+        173
       ],
-      "sheet": "M1",
-      "pivot_source": [
-        423,
-        359
-      ],
-      "anchor_role": "center of stone base ground ellipse; estimated from a 2:1 horizontal disk, not lowest front pixel",
-      "native_plan_ratio": [
-        1,
-        1
-      ],
-      "calibration": "The visible cylinder has native height/width about 0.713. Preserve the original aspect ratio instead of compressing it into the former wooden wheel shape.",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "dc2497448b5d7f4d08157a83d27467d5a2a7960e3973bf4b203091c92843330b",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        3135,
-        2320,
-        554,
-        395
+        2956,
+        493,
+        222,
+        173
+      ]
+    },
+    "well_stone_nw": {
+      "kind": "prop",
+      "pivot": [
+        0.4988235294117647,
+        1.3952380952380952
+      ],
+      "pivot_source": [
+        390,
+        477
+      ],
+      "family": "well",
+      "variant": "stone_nw",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.25184625083356493,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        178,
+        184,
+        425,
+        210
+      ],
+      "selection_rect": [
+        175,
+        175,
+        431,
+        222
+      ],
+      "native_size": [
+        425,
+        210
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "1c384ba22f5fd1ef6b2ba059a298ff4fe1bcac94db125d13d4b46ba158333f35",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          180,
+          180
+        ],
+        [
+          600,
+          180
+        ],
+        [
+          600,
+          391
+        ],
+        [
+          180,
+          391
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        966,
+        16,
+        425,
+        210
+      ]
+    },
+    "well_stone_ne": {
+      "kind": "prop",
+      "pivot": [
+        -0.9285714285714286,
+        0.6742857142857143
+      ],
+      "pivot_source": [
+        447,
+        541
+      ],
+      "family": "well",
+      "variant": "stone_ne",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.25184625083356493,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        590,
+        305,
+        154,
+        350
+      ],
+      "selection_rect": [
+        587,
+        302,
+        167,
+        366
+      ],
+      "native_size": [
+        154,
+        350
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "3949812bd1a974332166b67958bec6c922f8bd81f69546418ed113aba5da7111",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          592,
+          307
+        ],
+        [
+          748,
+          307
+        ],
+        [
+          748,
+          662
+        ],
+        [
+          661,
+          662
+        ],
+        [
+          598,
+          614
+        ],
+        [
+          592,
+          590
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        480,
+        266,
+        154,
+        350
+      ]
+    },
+    "well_stone_sw": {
+      "kind": "prop",
+      "pivot": [
+        1.922077922077922,
+        0.6742209631728046
+      ],
+      "pivot_source": [
+        332,
+        539
+      ],
+      "family": "well",
+      "variant": "stone_sw",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.25184625083356493,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        36,
+        301,
+        154,
+        353
+      ],
+      "selection_rect": [
+        25,
+        298,
+        168,
+        366
+      ],
+      "native_size": [
+        154,
+        353
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "21eb3084b740d8c6809b49551d495610842e016307327285d7c8ac6876ace160",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          30,
+          303
+        ],
+        [
+          187,
+          303
+        ],
+        [
+          187,
+          594
+        ],
+        [
+          174,
+          615
+        ],
+        [
+          119,
+          658
+        ],
+        [
+          30,
+          658
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1148,
+        258,
+        154,
+        353
+      ]
+    },
+    "well_stone_se": {
+      "kind": "prop",
+      "pivot": [
+        0.5044843049327354,
+        0.08962264150943396
+      ],
+      "pivot_source": [
+        387,
+        591
+      ],
+      "family": "well",
+      "variant": "stone_se",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        380
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.25184625083356493,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        162,
+        572,
+        446,
+        212
+      ],
+      "selection_rect": [
+        159,
+        564,
+        452,
+        232
+      ],
+      "native_size": [
+        446,
+        212
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "6c22d14efe93d073e7f80d1f82203c7ce82f4cc96c05105c3096572db9c17b82",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          164,
+          616
+        ],
+        [
+          227,
+          569
+        ],
+        [
+          549,
+          569
+        ],
+        [
+          605,
+          613
+        ],
+        [
+          605,
+          790
+        ],
+        [
+          164,
+          790
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        16,
+        16,
+        446,
+        212
+      ]
+    },
+    "kiln_masonry_nw": {
+      "kind": "prop",
+      "pivot": [
+        0.5023148148148148,
+        1.3953488372093024
+      ],
+      "pivot_source": [
+        1148,
+        485
+      ],
+      "family": "kiln",
+      "variant": "masonry_nw",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.2712190393592237,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        931,
+        185,
+        432,
+        215
+      ],
+      "selection_rect": [
+        928,
+        175,
+        438,
+        228
+      ],
+      "native_size": [
+        432,
+        215
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "a0e4d714bb59b772308e814e978150858bc2a4d45add88a8bf110c17eb08639d",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          933,
+          180
+        ],
+        [
+          1360,
+          180
+        ],
+        [
+          1360,
+          397
+        ],
+        [
+          933,
+          397
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        16,
+        260,
+        432,
+        215
+      ]
+    },
+    "kiln_masonry_ne": {
+      "kind": "prop",
+      "pivot": [
+        -0.8662420382165605,
+        0.6612466124661247
+      ],
+      "pivot_source": [
+        1212,
+        547
+      ],
+      "family": "kiln",
+      "variant": "masonry_ne",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.2712190393592237,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        1348,
+        303,
+        157,
+        369
+      ],
+      "selection_rect": [
+        1345,
+        300,
+        170,
+        384
+      ],
+      "native_size": [
+        157,
+        369
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "924b40d9f7439464e64cd683f53af47e56f9f2f9c452215a666e6a6a6f2b1538",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          1350,
+          305
+        ],
+        [
+          1509,
+          305
+        ],
+        [
+          1509,
+          678
+        ],
+        [
+          1418,
+          678
+        ],
+        [
+          1357,
+          615
+        ],
+        [
+          1350,
+          590
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1423,
+        16,
+        157,
+        369
+      ]
+    },
+    "kiln_masonry_sw": {
+      "kind": "prop",
+      "pivot": [
+        1.9666666666666666,
+        0.657608695652174
+      ],
+      "pivot_source": [
+        1093,
+        547
+      ],
+      "family": "kiln",
+      "variant": "masonry_sw",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.2712190393592237,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        798,
+        305,
+        150,
+        368
+      ],
+      "selection_rect": [
+        789,
+        302,
+        162,
+        382
+      ],
+      "native_size": [
+        150,
+        368
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "bff528d63867ede7eef73d420ca1fa1b61717539f8650f2d6b4425c7b8a96d1d",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          794,
+          307
+        ],
+        [
+          945,
+          307
+        ],
+        [
+          945,
+          593
+        ],
+        [
+          939,
+          615
+        ],
+        [
+          886,
+          678
+        ],
+        [
+          794,
+          678
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        966,
+        258,
+        150,
+        368
+      ]
+    },
+    "kiln_masonry_se": {
+      "kind": "prop",
+      "pivot": [
+        0.5068181818181818,
+        0.11926605504587157
+      ],
+      "pivot_source": [
+        1152,
+        597
+      ],
+      "family": "kiln",
+      "variant": "masonry_se",
+      "anchor_role": "shared_assembly_center",
+      "reference_size": [
+        584,
+        392
+      ],
+      "reference_projection": "circle",
+      "reference_axis": "width",
+      "calibration": "Four new E quarter components assembled using the recorded native-pixel translations only. Shared circle reference and source pivot preserve identical scale; mechanical closure preview accepted. Final in-game technical assembly review accepted; see technical-assembly-review.json.",
+      "leaf_role": "independent equipment or landscape component",
+      "masonry_height_ratio": 0.2712190393592237,
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_rect": [
+        929,
+        571,
+        440,
+        218
+      ],
+      "selection_rect": [
+        926,
+        564,
+        446,
+        237
+      ],
+      "native_size": [
+        440,
+        218
+      ],
+      "sheet": "E",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "rgba_sha256": "e511ccc4a25b613adb9ec977b7e6c526fcaa4598d30756810f9ee02e4716053f",
+      "crop_mode": "alpha_bbox",
+      "source_polygon": [
+        [
+          931,
+          616
+        ],
+        [
+          988,
+          569
+        ],
+        [
+          1308,
+          569
+        ],
+        [
+          1366,
+          615
+        ],
+        [
+          1366,
+          795
+        ],
+        [
+          931,
+          795
+        ]
+      ],
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        494,
+        16,
+        440,
+        218
+      ]
+    },
+    "rope": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.8936170212765957
+      ],
+      "pivot_source": [
+        652.5,
+        875
+      ],
+      "family": "rope",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "plane_bounds": [
+        0.02262443438914027,
+        0.10638297872340426,
+        0.9773755656108597,
+        0.8936170212765957
+      ],
+      "source": "godot/art/components/sources/v4/C-original.png",
+      "source_rect": [
+        542,
+        833,
+        221,
+        47
+      ],
+      "selection_rect": [
+        539,
+        830,
+        227,
+        53
+      ],
+      "native_size": [
+        221,
+        47
+      ],
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "a608cf72d58c1c2503cc42215eab2e58b3f62540580a1190b164fc4390052052",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2130,
+        694,
+        221,
+        47
+      ]
+    },
+    "water_surface": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9693251533742331
+      ],
+      "pivot_source": [
+        889.5,
+        940
+      ],
+      "family": "water",
+      "variant": "surface",
+      "leaf_role": "independent equipment or landscape component",
+      "plane_bounds": [
+        0.029239766081871343,
+        0.03067484662576687,
+        0.9707602339181286,
+        0.9693251533742331
+      ],
+      "source": "godot/art/components/sources/v4/C-original.png",
+      "source_rect": [
+        804,
+        782,
+        171,
+        163
+      ],
+      "selection_rect": [
+        801,
+        779,
+        177,
+        169
+      ],
+      "native_size": [
+        171,
+        163
+      ],
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "cec4936de9d4c813250c15bb1b10023c1eb6a312fea5124c8cdea306a7460a19",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1748,
+        1340,
+        171,
+        163
       ]
     },
     "armillary_ring_vertical": {
       "kind": "surface",
       "pivot": [
         0.5,
-        0.5
+        0.9775784753363229
       ],
-      "source": "godot/art/components/sources/m1.png",
+      "pivot_source": [
+        1140.0,
+        969
+      ],
+      "family": "armillary",
+      "variant": "ring_vertical",
+      "leaf_role": "independent equipment or landscape component",
+      "plane_bounds": [
+        0.02252252252252252,
+        0.02242152466367713,
+        0.9774774774774775,
+        0.9775784753363229
+      ],
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        933,
-        36,
-        455,
-        449
+        1029,
+        751,
+        222,
+        223
+      ],
+      "selection_rect": [
+        1026,
+        748,
+        228,
+        229
       ],
       "native_size": [
-        455,
-        449
+        222,
+        223
       ],
-      "sheet": "M1",
-      "plane_bounds": [
-        0.004395604395604396,
-        0.004454342984409799,
-        0.9956043956043956,
-        0.9955456570155902
-      ],
-      "calibration": "Nearly frontal circular engraved bronze ring. Map its original alpha rectangle onto the explicit vertical x or y plane; no spokes or pedestal.",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "101f97b56e549ab558e5406ac0ad32a1c51e37286fc730adccf04233fa709cd8",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2648,
-        2320,
-        455,
-        449
+        3790,
+        405,
+        222,
+        223
       ]
     },
     "armillary_ring_horizontal": {
       "kind": "prop",
       "pivot": [
         0.5,
-        0.5
+        0.9516129032258065
       ],
-      "source": "godot/art/components/sources/m1.png",
+      "pivot_source": [
+        1403.0,
+        918
+      ],
+      "family": "armillary",
+      "variant": "ring_horizontal",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        228,
+        119
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/C-original.png",
       "source_rect": [
-        119,
-        621,
-        607,
-        310
+        1287,
+        800,
+        232,
+        124
+      ],
+      "selection_rect": [
+        1284,
+        797,
+        238,
+        129
       ],
       "native_size": [
-        607,
-        310
+        232,
+        124
       ],
-      "sheet": "M1",
-      "anchor_role": "center of horizontal circular ring at elevation",
-      "calibration": "Already painted as a 2:1 horizontal ellipse (native alpha ratio 601x304); draw directly, never apply a second ground-plane shear.",
+      "sheet": "C",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "rgba_sha256": "32fd2ba58e968dd82ebb64ae090f1bfdc1b7dbd0c47d96e54005dfb15e30cdc5",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        2840,
+        547,
+        1322,
+        232,
+        124
+      ]
+    },
+    "rice_seedling": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9754901960784313
+      ],
+      "pivot_source": [
+        135.0,
+        248
+      ],
+      "family": "rice",
+      "variant": "seedling",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        220,
+        200
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        23,
+        49,
+        224,
+        204
+      ],
+      "selection_rect": [
+        20,
+        46,
+        230,
+        210
+      ],
+      "native_size": [
+        224,
+        204
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "7f55a03036660e794c8e332caa60d516cd743af12ed4ca1042105f3c89dfdb4b",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3534,
+        256,
+        224,
+        204
+      ]
+    },
+    "rice_ripe": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9759615384615384
+      ],
+      "pivot_source": [
+        381.0,
+        251
+      ],
+      "family": "rice",
+      "variant": "ripe",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        222,
+        204
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        268,
+        48,
+        226,
+        208
+      ],
+      "selection_rect": [
+        265,
+        45,
+        232,
+        214
+      ],
+      "native_size": [
+        226,
+        208
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "36d795c852e79e4c5a6c360af1ec69199c343e12c5d016046ed9474dd9380b63",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3577,
+        16,
+        226,
+        208
+      ]
+    },
+    "vegetable_patch": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.973404255319149
+      ],
+      "pivot_source": [
+        639.5,
+        250
+      ],
+      "family": "vegetable",
+      "variant": "patch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        237,
+        184
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        519,
+        67,
+        241,
+        188
+      ],
+      "selection_rect": [
+        516,
+        64,
+        247,
+        194
+      ],
+      "native_size": [
+        241,
+        188
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "f8c1c44221aa8608c300124b43b7042ee01bacb04e891cae49ad0fbb78a436ae",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1594,
         607,
-        310
+        241,
+        188
+      ]
+    },
+    "fruit_branch": {
+      "kind": "prop",
+      "pivot": [
+        0.9330708661417323,
+        0.8316831683168316
+      ],
+      "pivot_source": [
+        1010,
+        220
+      ],
+      "family": "fruit",
+      "variant": "branch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        249,
+        198
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        773,
+        52,
+        254,
+        202
+      ],
+      "selection_rect": [
+        771,
+        49,
+        259,
+        208
+      ],
+      "native_size": [
+        254,
+        202
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "329044c07a228c379421ba543043ef8027a5481a54b0103afa804cba15d0d962",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1901,
+        262,
+        254,
+        202
       ]
     },
     "tree_trunk": {
       "kind": "prop",
       "pivot": [
-        0.5851449275362319,
-        0.9672131147540983
+        0.5059523809523809,
+        0.9177489177489178
       ],
-      "source": "godot/art/components/sources/m1.png",
+      "pivot_source": [
+        1150,
+        254
+      ],
+      "family": "tree",
+      "variant": "trunk",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        164,
+        227
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "height",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
       "source_rect": [
-        887,
-        509,
-        552,
-        488
+        1065,
+        42,
+        168,
+        231
+      ],
+      "selection_rect": [
+        1062,
+        39,
+        174,
+        237
       ],
       "native_size": [
-        552,
-        488
+        168,
+        231
       ],
-      "sheet": "M1",
-      "pivot_source": [
-        1210,
-        981
-      ],
-      "anchor_role": "root flare base contact center, offset from asymmetric branch bounding-box center",
-      "calibration": "Natural bark and branched wood; canopy foliage is separately assembled.",
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "18029086a162c42d25026ee440e4e8aacb8f229f705c19ac5e49c091993e86ce",
+      "crop_mode": "alpha_bbox",
       "atlas": "res://art/components/components-0.webp",
       "rect": [
-        2064,
-        2320,
-        552,
-        488
+        544,
+        1478,
+        168,
+        231
       ]
+    },
+    "willow_branch": {
+      "kind": "prop",
+      "pivot": [
+        0.0931174089068826,
+        0.3137254901960784
+      ],
+      "pivot_source": [
+        1285,
+        117
+      ],
+      "family": "willow",
+      "variant": "branch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        243,
+        249
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1262,
+        37,
+        247,
+        255
+      ],
+      "selection_rect": [
+        1259,
+        36,
+        253,
+        259
+      ],
+      "native_size": [
+        247,
+        255
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "564009821f9cecdec598e6c90813e75c4c5cb4c70fef2e3667bcb4469a166979",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2193,
+        16,
+        247,
+        255
+      ]
+    },
+    "gong": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9789915966386554
+      ],
+      "pivot_source": [
+        141.5,
+        510
+      ],
+      "family": "gong",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        227,
+        234
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        26,
+        277,
+        231,
+        238
+      ],
+      "selection_rect": [
+        23,
+        274,
+        237,
+        244
+      ],
+      "native_size": [
+        231,
+        238
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "0109bfded95befbabec6d1cf494ea07fba1addb8062b8e79802f19a6ce1378fb",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        640,
+        658,
+        231,
+        238
+      ]
+    },
+    "drum": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9764150943396226
+      ],
+      "pivot_source": [
+        388.0,
+        509
+      ],
+      "family": "drum",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        184,
+        208
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        294,
+        302,
+        188,
+        212
+      ],
+      "selection_rect": [
+        291,
+        299,
+        194,
+        218
+      ],
+      "native_size": [
+        188,
+        212
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "75ba9256892eb755ae6e7320d78e973ddabae103783423ff39faf5526dd12d04",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3765,
+        660,
+        188,
+        212
+      ]
+    },
+    "banner": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9795081967213115
+      ],
+      "pivot_source": [
+        641.0,
+        511
+      ],
+      "family": "banner",
+      "variant": "default",
+      "leaf_role": "independent equipment or landscape component",
+      "plane_bounds": [
+        0.038461538461538464,
+        0.020491803278688523,
+        0.9615384615384616,
+        0.9795081967213115
+      ],
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        576,
+        272,
+        130,
+        244
+      ],
+      "selection_rect": [
+        573,
+        269,
+        136,
+        250
+      ],
+      "native_size": [
+        130,
+        244
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "5d52bbebd962b5098038f0c6c53e3760f629544b4e81d62fcc7de669fc7a0a8a",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1432,
+        417,
+        130,
+        244
+      ]
+    },
+    "lion": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9783549783549783
+      ],
+      "pivot_source": [
+        889.5,
+        510
+      ],
+      "family": "lion",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        181,
+        227
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        797,
+        284,
+        185,
+        231
+      ],
+      "selection_rect": [
+        794,
+        281,
+        191,
+        237
+      ],
+      "native_size": [
+        185,
+        231
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "6ccb321825ae9dba2f25c08a51254d861ef811ec80ab45598c798fc474a0a122",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1080,
+        1131,
+        185,
+        231
+      ]
+    },
+    "incense_burner": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9707602339181286
+      ],
+      "pivot_source": [
+        1144.5,
+        504
+      ],
+      "family": "incense",
+      "variant": "burner",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        185,
+        167
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1050,
+        338,
+        189,
+        171
+      ],
+      "selection_rect": [
+        1047,
+        335,
+        195,
+        177
+      ],
+      "native_size": [
+        189,
+        171
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "e38316f71b58c580b57ea918ce63bb055c4ed7998b5b11259bfcd5e6c9bf1737",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3541,
+        737,
+        189,
+        171
+      ]
+    },
+    "pine_branch": {
+      "kind": "prop",
+      "pivot": [
+        0.9053030303030303,
+        0.5213270142180095
+      ],
+      "pivot_source": [
+        1497,
+        408
+      ],
+      "family": "pine",
+      "variant": "branch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        260,
+        207
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1258,
+        298,
+        264,
+        211
+      ],
+      "selection_rect": [
+        1255,
+        295,
+        270,
+        217
+      ],
+      "native_size": [
+        264,
+        211
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "c2423ba7ca4152a8a61f4843847c1920410f41fef371b09935752055146968f5",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        666,
+        266,
+        264,
+        211
+      ]
+    },
+    "cattle": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9772727272727273
+      ],
+      "pivot_source": [
+        134.0,
+        745
+      ],
+      "family": "cattle",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        220,
+        216
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        22,
+        530,
+        224,
+        220
+      ],
+      "selection_rect": [
+        19,
+        527,
+        230,
+        226
+      ],
+      "native_size": [
+        224,
+        220
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "dc93fed38b6f7f03032ed5734a172f8dbfd73bea4db7f3abbefaafbac61a6897",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3835,
+        16,
+        224,
+        220
+      ]
+    },
+    "sheep": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9731182795698925
+      ],
+      "pivot_source": [
+        382.5,
+        734
+      ],
+      "family": "sheep",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        203,
+        182
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        279,
+        553,
+        207,
+        186
+      ],
+      "selection_rect": [
+        276,
+        550,
+        213,
+        192
+      ],
+      "native_size": [
+        207,
+        186
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "edf6f6572913ea87f44163079ca8d40cad0ff447934217cfb8056783aa6db57c",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2630,
+        946,
+        207,
+        186
+      ]
+    },
+    "fish": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.973404255319149
+      ],
+      "pivot_source": [
+        633.0,
+        731
+      ],
+      "family": "fish",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        246,
+        184
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        508,
+        548,
+        250,
+        188
+      ],
+      "selection_rect": [
+        505,
+        545,
+        256,
+        194
+      ],
+      "native_size": [
+        250,
+        188
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "fed3332ab783483cb9ec4241e34998e97c4a770168b0d015845b064c413fe1e4",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2755,
+        16,
+        250,
+        188
+      ]
+    },
+    "meat": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9712643678160919
+      ],
+      "pivot_source": [
+        895.5,
+        729
+      ],
+      "family": "meat",
+      "variant": "default",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        253,
+        170
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        767,
+        560,
+        257,
+        174
+      ],
+      "selection_rect": [
+        764,
+        557,
+        263,
+        180
+      ],
+      "native_size": [
+        257,
+        174
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "061fca7b4ff358cad0f78b14336460f66c70d36af2bfc32a4d735a2c7fe76895",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1612,
+        115,
+        257,
+        174
+      ]
+    },
+    "vegetable_basket": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9746192893401016
+      ],
+      "pivot_source": [
+        1150.5,
+        732
+      ],
+      "family": "vegetable",
+      "variant": "basket",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        247,
+        193
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1025,
+        540,
+        251,
+        197
+      ],
+      "selection_rect": [
+        1022,
+        537,
+        257,
+        203
+      ],
+      "native_size": [
+        251,
+        197
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "9d6e47ba309bb983a06c89dd676828a0129fc039e960cce1391706d833d82035",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2472,
+        16,
+        251,
+        197
+      ]
+    },
+    "fruit_basket": {
+      "kind": "prop",
+      "pivot": [
+        0.5022727272727273,
+        0.9717514124293786
+      ],
+      "pivot_source": [
+        1396.5,
+        720
+      ],
+      "family": "fruit",
+      "variant": "basket",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        215,
+        173
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1286,
+        548,
+        220,
+        177
+      ],
+      "selection_rect": [
+        1284,
+        545,
+        225,
+        183
+      ],
+      "native_size": [
+        220,
+        177
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "80b06650bfb6985e9235e30cbaf5199e70905ab6d0ee7397e3faa30e8fe41685",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2130,
+        773,
+        220,
+        177
+      ]
+    },
+    "bloom_branch": {
+      "kind": "prop",
+      "pivot": [
+        0.07228915662650602,
+        0.8877551020408163
+      ],
+      "pivot_source": [
+        35,
+        941
+      ],
+      "family": "bloom",
+      "variant": "branch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        245,
+        192
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        17,
+        767,
+        249,
+        196
+      ],
+      "selection_rect": [
+        14,
+        764,
+        255,
+        202
+      ],
+      "native_size": [
+        249,
+        196
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "a877deecd04591faaa028d0b95419e2634ce39a57eb186ebe7bd77430c7ecd34",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        3037,
+        16,
+        249,
+        196
+      ]
+    },
+    "reed_patch": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.979253112033195
+      ],
+      "pivot_source": [
+        385.0,
+        985
+      ],
+      "family": "reed",
+      "variant": "patch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        224,
+        237
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        271,
+        749,
+        228,
+        241
+      ],
+      "selection_rect": [
+        268,
+        746,
+        234,
+        247
+      ],
+      "native_size": [
+        228,
+        241
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "64f91877de5fe0e7c760c78ed6927930e60983b7ec120b2e8a614e47c1176571",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1870,
+        598,
+        228,
+        241
+      ]
+    },
+    "shrub_branch": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9766355140186916
+      ],
+      "pivot_source": [
+        640.5,
+        975
+      ],
+      "family": "shrub",
+      "variant": "branch",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        253,
+        210
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        512,
+        766,
+        257,
+        214
+      ],
+      "selection_rect": [
+        509,
+        763,
+        263,
+        220
+      ],
+      "native_size": [
+        257,
+        214
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "e215255b20e883092271977b89591f6ddf7ff7150b4974fddbad92a7844c4409",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1904,
+        16,
+        257,
+        214
+      ]
+    },
+    "market_canopy_edge": {
+      "kind": "surface",
+      "pivot": [
+        0.5,
+        0.9572649572649573
+      ],
+      "pivot_source": [
+        913.0,
+        923
+      ],
+      "family": "market",
+      "variant": "canopy_edge",
+      "leaf_role": "independent equipment or landscape component",
+      "plane_bounds": [
+        0.019230769230769232,
+        0.042735042735042736,
+        0.9807692307692307,
+        0.9572649572649573
+      ],
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        783,
+        811,
+        260,
+        117
+      ],
+      "selection_rect": [
+        780,
+        808,
+        266,
+        123
+      ],
+      "native_size": [
+        260,
+        117
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "47c6a4910d3d4c73cfeaf0f2b9152350bf24d3f079e3722f3cd59a1905821e29",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        666,
+        509,
+        260,
+        117
+      ]
+    },
+    "hanging_sign": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9790794979079498
+      ],
+      "pivot_source": [
+        1154.0,
+        985
+      ],
+      "family": "hanging",
+      "variant": "sign",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        118,
+        235
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1093,
+        751,
+        122,
+        239
+      ],
+      "selection_rect": [
+        1090,
+        748,
+        128,
+        245
+      ],
+      "native_size": [
+        122,
+        239
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "9609b6fb389e5727358f21c2959baa0fee5c625fe4e5ef29dae2f6b20efb1d17",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        1319,
+        901,
+        122,
+        239
+      ]
+    },
+    "water_bucket_rack": {
+      "kind": "prop",
+      "pivot": [
+        0.5,
+        0.9768518518518519
+      ],
+      "pivot_source": [
+        1396.0,
+        971
+      ],
+      "family": "water",
+      "variant": "bucket_rack",
+      "anchor_role": "center of component base",
+      "reference_size": [
+        212,
+        212
+      ],
+      "reference_projection": "isometric",
+      "reference_axis": "width",
+      "leaf_role": "independent equipment or landscape component",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_rect": [
+        1288,
+        760,
+        216,
+        216
+      ],
+      "selection_rect": [
+        1285,
+        757,
+        222,
+        222
+      ],
+      "native_size": [
+        216,
+        216
+      ],
+      "sheet": "D",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "rgba_sha256": "2f42ca54b604b00e4c9df55570f823d8f819a3cf8abe75bb4e4205c0527645af",
+      "crop_mode": "alpha_bbox",
+      "atlas": "res://art/components/components-0.webp",
+      "rect": [
+        2382,
+        912,
+        216,
+        216
+      ]
+    }
+  },
+  "emission_masks": {
+    "window_lattice": {
+      "path": "res://art/components/emission-lattice.png",
+      "format": "R8 grayscale PNG; linear data, not source_color",
+      "size": [
+        256,
+        256
+      ],
+      "uv": "normalized full component crop; use part_uv directly",
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "source_rect": [
+        550,
+        515,
+        185,
+        210
+      ],
+      "source_rgba_sha256": "6c1a47b595db078d6f29214e307dd48d30a860a0c715331a9b13bd9df0c9695f",
+      "algorithm": "dark_recess_v1",
+      "luminance_weights": [
+        0.3,
+        0.59,
+        0.11
+      ],
+      "luminance_thresholds": [
+        0.08,
+        0.2
+      ],
+      "formula": "(1-smoothstep(low,high,native_luminance))*native_alpha*aperture_border; authored wood guards are zero",
+      "emission_rect": [
+        0.10810810810810811,
+        0.09523809523809523,
+        0.7891891891891892,
+        0.8047619047619048
+      ],
+      "border_feather_native_pixels": 1.5,
+      "wood_guard_rects_source": [
+        [
+          635,
+          535,
+          17,
+          169
+        ]
+      ],
+      "mipmaps": true,
+      "filter": "linear_mipmap",
+      "source_pixels_modified": false,
+      "native_mean_transmission": 0.3118415409841319,
+      "native_aperture_mean_transmission": 0.49100445275324334,
+      "native_aperture_fraction_above_half": 0.5430007295128475,
+      "packed_mean_transmission": 0.3137460147633272,
+      "diagnostic_regions": {
+        "pane_interiors": {
+          "pixels": 2464,
+          "mean_transmission": 0.7789895089391651
+        },
+        "central_wood_frame": {
+          "pixels": 1749,
+          "mean_transmission": 0.0
+        },
+        "outer_wood_frame": {
+          "pixels": 4466,
+          "mean_transmission": 0.0
+        },
+        "internal_wood_bars": {
+          "pixels": 466,
+          "mean_transmission": 0.0
+        }
+      },
+      "sha256": "8fbab7dc00b879de0d1e8395770cb572ea50084056a676f1748e852ba527b0c7"
     }
   }
 }

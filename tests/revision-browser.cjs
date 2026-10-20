@@ -1,26 +1,24 @@
 'use strict';
 // Real Godot HUD/bridge integration. Fixtures deliberately accelerate simulation
 // time; they do not claim a natural-budget campaign or hardware performance run.
+// Uses the released component-built actor atlas. Frame changes verify playback;
+// aesthetic review is separate from these functional assertions.
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const {chromium}=require('playwright');
 const {createServer}=require('../server/index.cjs');
+const {clickGodotControl,chromiumGraphicsOptions,chromiumRunMetadata}=require('./browser-controls.cjs');
 const timeout=90000,sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function snapshot(page){return page.evaluate(()=>JSON.parse(CityBridge.snapshot(false)));}
 async function click(page,name){
- await page.waitForFunction(name=>window.godotMetrics?.hud?.controls?.some(c=>c.name===name&&!c.disabled&&!c.clipped&&c.rect[1]>=0&&c.rect[1]+c.rect[3]<=innerHeight),name,{timeout});
- // Godot container layout settles after the first diagnostics snapshot. Wait for
- // a second snapshot before using the geometry, as a player sees the laid-out UI.
- await sleep(1000);
- const c=await page.evaluate(name=>godotMetrics.hud.controls.find(c=>c.name===name&&!c.disabled&&!c.clipped),name);
+ const c=await clickGodotControl(page,{name},{timeout});
  console.log('Click',name,c.rect);
- await page.mouse.click(c.rect[0]+c.rect[2]/2,c.rect[1]+c.rect[3]/2);await sleep(700);
 }
 (async()=>{
  const directory='work/revision-validation';fs.mkdirSync(directory,{recursive:true});
  const data=fs.mkdtempSync(directory+'/online-'),server=createServer({env:{DATA_FILE:data+'/data.json'}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
- const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
- const errors=[],report={fixture:'accelerated simulation, actual Godot Web HUD',checks:[]};
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',...chromiumGraphicsOptions()});
+ const errors=[],report={fixture:'accelerated simulation, actual Godot Web HUD and V4 actor atlas',visualAcceptance:false,...await chromiumRunMetadata(browser),checks:[]};
  try{
   const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
@@ -47,25 +45,79 @@ async function click(page,name){
   assert.equal(await page.evaluate(()=>CityBridge.dispatch('upgrade',{x:47,y:13})),false,'Repeat click is rejected');
   assert.deepEqual((await snapshot(page)).goods,balance,'Repeat click cannot charge materials twice');
   await page.screenshot({path:directory+'/manual-upgrade.png'});report.checks.push('conditions wait for actual HUD upgrade click; repeated command is idempotent');
-  await page.evaluate(()=>setSpeed(1));
-  await page.waitForFunction(()=>godotMetrics.world.construction?.active>0,null,{timeout:15000});
+  // Close the actual detail panel: construction time must remain on the map
+  // without requiring the player to select the building.
+  await click(page,'ClosePanelButton');
+  await page.waitForFunction(()=>{
+   const labels=godotMetrics.world.construction_labels;
+   return godotMetrics.hud.active_panel===''&&labels?.last_drawn>0&&labels.labels.some(l=>l.count===1&&l.state==='paused'&&l.text.includes('升级'));
+  },null,{timeout:15000});
+  const mapBefore=await page.evaluate(()=>{
+   const labels=godotMetrics.world.construction_labels;
+   return {diagnostics:labels,label:labels.labels.find(l=>l.count===1&&l.text.includes('升级')),remaining:tileAt(47,13).b.construction.remaining};
+  });
+  assert.equal(mapBefore.diagnostics.passive,true,'Map countdown must not intercept construction input');
+  assert(Math.abs(mapBefore.label.remaining-mapBefore.remaining)<1.1,'Map countdown uses the authoritative remaining construction time');
+  assert.match(mapBefore.label.text,/升级 \d+(?:分|秒|时)/,'Map label shows a readable remaining duration');
+  await page.evaluate(()=>{
+   CityBridge.dispatch('setting',{key:'reducedMotion',value:true});
+   CityBridge.dispatch('speed',{value:1});
+  });
+  await page.waitForFunction(()=>{
+   const world=godotMetrics.world;
+   return world.reduced_motion===true&&world.paused===false&&world.construction?.active>0&&world.construction_labels?.labels.some(l=>l.count===1&&l.state==='active'&&l.text.includes('升级'));
+  },null,{timeout:15000});
   const crewBefore=await page.evaluate(()=>godotMetrics.world.construction);
-  assert.equal(crewBefore.atlasReady,true,'Construction uses the newly generated worker atlas');
-  assert(crewBefore.atlasFrames>=20,'Worker actions have real direction and action images');
+  assert.equal(crewBefore.atlasReady,true,'The released worker atlas is available for playback integration');
+  assert.equal(crewBefore.atlasFrames,192,'The exported game contains the new complete worker atlas');
+  assert.equal(crewBefore.legacyArtFixture,false,'Playback uses explicit action sequences rather than legacy frames');
   assert(crewBefore.actors.some(a=>a.leaf),'Workers target actual architectural pieces');
   await sleep(6500);
+  await page.waitForFunction(before=>godotMetrics.world.construction.actors.some(actor=>{
+   const previous=before.actors.find(other=>other.id===actor.id);
+   return previous&&actor.distanceWalked>previous.distanceWalked+.01&&actor.frameChanges>previous.frameChanges;
+  }),crewBefore,{timeout:20000});
   const crewAfter=await page.evaluate(()=>godotMetrics.world.construction);
-  assert(crewAfter.actors.some(a=>a.distanceWalked>(crewBefore.actors.find(b=>b.id===a.id)?.distanceWalked||0)+.01),'Construction crew really moves along its material/install route');
+  assert(crewAfter.actors.some(a=>a.distanceWalked>(crewBefore.actors.find(b=>b.id===a.id)?.distanceWalked||0)+.01),'Reduced decorative motion keeps construction workers moving along their real routes');
+  assert(crewAfter.actors.some(a=>a.frameChanges>(crewBefore.actors.find(b=>b.id===a.id)?.frameChanges||0)),'Reduced decorative motion keeps actual worker image-frame selection advancing');
   assert(crewAfter.workers<=crewAfter.sites*4,'A site has a bounded construction crew');
+  const mapAfter=await page.evaluate(()=>{
+   const labels=godotMetrics.world.construction_labels;
+   return {diagnostics:labels,label:labels.labels.find(l=>l.count===1&&l.state==='active'&&l.text.includes('升级')),remaining:tileAt(47,13).b.construction.remaining};
+  });
+  assert(mapAfter.label,'Running construction keeps a visible map countdown');
+  assert(mapAfter.label.remaining<mapBefore.label.remaining-2,'Map countdown decreases with real authoritative construction progress');
+  assert(Math.abs(mapAfter.label.remaining-mapAfter.remaining)<1.1,'Visible remaining time stays within its one-second display cadence');
+  assert.notEqual(mapAfter.label.text,mapBefore.label.text,'Displayed countdown updates while the city runs');
   await page.screenshot({path:directory+'/construction-workers.png'});
-  await page.evaluate(()=>setSpeed(0));await sleep(1500);
+  await page.evaluate(()=>CityBridge.dispatch('pause',{}));
+  await page.waitForFunction(()=>{
+   const world=godotMetrics.world;
+   return speed===0&&world.paused===true&&world.construction?.active===0&&world.construction_labels?.labels.some(l=>l.count===1&&l.state==='paused'&&l.text.includes('升级'));
+  },null,{timeout:15000});
+  await sleep(1500);
   const frozenCrew=await page.evaluate(()=>godotMetrics.world.construction);
+  const frozenLabel=await page.evaluate(()=>godotMetrics.world.construction_labels.labels.find(l=>l.count===1&&l.text.includes('升级')));
+  const frozenRemaining=await page.evaluate(()=>tileAt(47,13).b.construction.remaining);
   await sleep(1200);
   const pausedCrew=await page.evaluate(()=>godotMetrics.world.construction);
   assert.equal(pausedCrew.active,0);
-  for(const actor of frozenCrew.actors)assert.deepEqual(pausedCrew.actors.find(a=>a.id===actor.id)?.position,actor.position,'Paused workers cannot slide or teleport');
-  report.construction={before:crewBefore,after:crewAfter,paused:pausedCrew};
-  report.checks.push('new construction crew carries materials to real leaf targets, moves, and freezes on pause');
+  for(const actor of frozenCrew.actors){
+   const paused=pausedCrew.actors.find(a=>a.id===actor.id);
+   assert.deepEqual(paused?.position,actor.position,'Actual pause freezes worker feet');
+   assert.equal(paused?.frame,actor.frame,'Actual pause freezes the selected worker pose');
+   assert.equal(paused?.frameChanges,actor.frameChanges,'Actual pause stops worker frame advancement');
+  }
+  const pausedLabel=await page.evaluate(()=>godotMetrics.world.construction_labels.labels.find(l=>l.count===1&&l.text.includes('升级')));
+  assert(pausedLabel,'Paused construction retains its map label');
+  assert.equal(pausedLabel.state,'paused');
+  assert.equal(pausedLabel.text,frozenLabel.text,'Paused countdown text remains stable');
+  assert.equal(pausedLabel.remaining,frozenLabel.remaining,'Paused countdown value remains stable');
+  assert.equal(await page.evaluate(()=>tileAt(47,13).b.construction.remaining),frozenRemaining,'Actual simulation pause also freezes authoritative remaining time');
+  report.construction={before:crewBefore,after:crewAfter,paused:pausedCrew,artFixture:crewBefore.legacyArtFixture===true,visualAcceptance:false};
+  report.constructionLabels={before:mapBefore,after:mapAfter,paused:pausedLabel};
+  report.checks.push('map construction countdown is visible without selection, follows authoritative time, and freezes on pause');
+  report.checks.push('reduced decorative motion preserves worker travel and frame advancement; actual pause freezes both');
   await page.evaluate(()=>{save();});await page.reload();await page.waitForFunction(()=>window.godotReady===true,null,{timeout});
   await page.evaluate(()=>setSpeed(0));s=await snapshot(page);house=s.buildings.find(b=>b.x===47&&b.y===13);
   assert.equal(house.construction?.toLevel,2,'Reload retains queued upgrade');

@@ -10,6 +10,7 @@ const TILE_H := 64.0
 const NatureScript = preload("res://world/nature.gd")
 const CitizensScript = preload("res://world/citizens.gd")
 const ConstructionWorkersScript = preload("res://world/construction_workers.gd")
+const ConstructionLabelsScript = preload("res://world/construction_labels.gd")
 
 class SelectionOverlay extends Node2D:
 	var cell := Vector2i(-1,-1)
@@ -32,6 +33,7 @@ var buildings: Node2D
 var nature: CityNature
 var citizens: CityCitizens
 var construction_workers: CityConstructionWorkers
+var construction_labels: CanvasLayer
 var _terrain: Polygon2D
 var _terrain_material: ShaderMaterial
 var _road_mesh: MeshInstance2D
@@ -54,6 +56,7 @@ var _depot_cell := Vector2i(-1,-1)
 var _night := 0.0
 var _clock := 0.0
 var _paused := false
+var _reduced_motion := false
 var _tool := ""
 var _tool_size := 1
 var _started := false
@@ -110,6 +113,10 @@ func _ready() -> void:
 	add_child(camera)
 	camera.make_current()
 	_css_scale = _css_factor()
+	construction_labels=ConstructionLabelsScript.new()
+	add_child(construction_labels)
+	construction_labels.configure(camera,buildings,get_parent())
+	construction_labels.set_css_scale(_css_scale)
 	get_viewport().size_changed.connect(_resize_view)
 	if not _city.is_empty():
 		sync_state(_city,true)
@@ -176,6 +183,8 @@ func sync_state(city: Dictionary,full: bool = false) -> void:
 		buildings.sync_buildings(_all_buildings,city)
 	citizens.sync_city(_all_buildings,city)
 	construction_workers.sync_city(city,buildings)
+	construction_labels.sync_city(city)
+	set_reduced_motion(bool(city.get("settings",{}).get("reducedMotion",false)))
 	_sync_depot()
 	_update_coverage()
 	if not _started:
@@ -446,6 +455,11 @@ func set_paused(value: bool) -> void:
 	# Shader clock is explicit: paused scenes do not have a hidden TIME animation.
 	OS.low_processor_usage_mode = value
 
+func set_reduced_motion(value: bool) -> void:
+	_reduced_motion=value
+	if buildings and buildings.has_method("set_animation"):
+		buildings.set_animation(not value)
+
 func select_tool(type: String) -> void:
 	var changed := _tool!=type
 	_tool = type
@@ -472,6 +486,8 @@ func _resize_view() -> void:
 	var factor := _css_factor()
 	camera.zoom *= factor/maxf(.001,_css_scale)
 	_css_scale = factor
+	if construction_labels:
+		construction_labels.set_css_scale(_css_scale)
 	camera.force_update_scroll()
 
 func center_city() -> void:
@@ -486,6 +502,8 @@ func center_city() -> void:
 	camera.position = iso(target.x,target.y)-Vector2(0,70)
 	var visible := get_viewport_rect().size / _css_factor()
 	_css_scale = _css_factor()
+	if construction_labels:
+		construction_labels.set_css_scale(_css_scale)
 	camera.zoom = Vector2.ONE*_css_scale*(.84 if visible.x<650 else .95)
 	camera.force_update_scroll()
 
@@ -508,12 +526,16 @@ func _clamp_camera() -> void:
 	camera.position = iso(tile.x,tile.y)
 
 func _process(delta: float) -> void:
-	_clock += minf(delta,.1)
+	if not _reduced_motion:
+		_clock += minf(delta,.1)
 	_terrain_material.set_shader_parameter("clock",_clock)
 	if buildings and buildings.has_method("set_animation"):
 		buildings.set_animation(_clock)
-	citizens.animate(minf(delta,.1))
-	construction_workers.animate(minf(delta,.1))
+	# Actors bound their own authoritative movement/phase prediction. Truncating
+	# every low-FPS frame to 0.1s here made real journeys advance at a fraction of
+	# the simulation's elapsed time.
+	citizens.animate(delta)
+	construction_workers.animate(delta)
 
 func _valid(p: Vector2i) -> bool:
 	return p.x>=0 and p.y>=0 and p.x<_map_size.x and p.y<_map_size.y
@@ -715,4 +737,4 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func diagnostics() -> Dictionary:
-	return {"tiles":_map_size.x*_map_size.y,"buildings":_all_buildings.size(),"nature_clusters":nature._items.size() if nature else 0,"citizens":citizens._actors.size() if citizens else 0,"camera_zoom":camera.zoom.x if camera else 0.0,"css_zoom":camera.zoom.x/_css_scale if camera else 0.0,"camera_position":[camera.position.x,camera.position.y] if camera else [0,0],"viewport_size":[get_viewport_rect().size.x,get_viewport_rect().size.y],"css_scale":_css_scale,"selected_road":road_info(_selected.x,_selected.y),"logistics":citizens.diagnostics() if citizens and citizens.has_method("diagnostics") else {},"construction":construction_workers.diagnostics() if construction_workers else {},"road_tiers":_road_tiers.duplicate(),"road_rebuilds":_road_rebuilds,"deposits":nature.deposits.diagnostics() if nature else {},"depot":[_depot_cell.x,_depot_cell.y],"terrain_backend":"GPU world-coordinate shader","quality":_quality,"paused":_paused,"selected":[_selected.x,_selected.y]}
+	return {"tiles":_map_size.x*_map_size.y,"buildings":_all_buildings.size(),"nature_clusters":nature._items.size() if nature else 0,"citizens":citizens._actors.size() if citizens else 0,"camera_zoom":camera.zoom.x if camera else 0.0,"css_zoom":camera.zoom.x/_css_scale if camera else 0.0,"camera_position":[camera.position.x,camera.position.y] if camera else [0,0],"viewport_size":[get_viewport_rect().size.x,get_viewport_rect().size.y],"css_scale":_css_scale,"selected_road":road_info(_selected.x,_selected.y),"logistics":citizens.diagnostics() if citizens and citizens.has_method("diagnostics") else {},"construction":construction_workers.diagnostics() if construction_workers else {},"construction_labels":construction_labels.diagnostics() if construction_labels else {},"road_tiers":_road_tiers.duplicate(),"road_rebuilds":_road_rebuilds,"deposits":nature.deposits.diagnostics() if nature else {},"depot":[_depot_cell.x,_depot_cell.y],"terrain_backend":"GPU world-coordinate shader","quality":_quality,"paused":_paused,"reduced_motion":_reduced_motion,"selected":[_selected.x,_selected.y]}

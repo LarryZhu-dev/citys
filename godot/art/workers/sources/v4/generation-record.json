@@ -1,0 +1,60 @@
+{
+  "version": 4,
+  "generated_at": "2026-10-20",
+  "tool": "image_gen.imagegen",
+  "reference": "User-supplied full-city Sim Empire China screenshot, visually inspected. Actor scale insufficient for extraction.",
+  "derivation": "New original art, no rejected legacy actor pixels.",
+  "review": "All source images actually opened with view_image; assembly and contact sheets reviewed separately.",
+  "sources": [
+    {
+      "file": "people/worker-se-original.png",
+      "generation_id": "exec-f1694a67-7c6d-4c1e-947d-dae326855717",
+      "purpose": "construction worker front body parts",
+      "sha256": "95012aa7590464b5a3ca3200e5cb337ed6d7d75111bc3bce2b2c0a0019adb377",
+      "transparent_background": true
+    },
+    {
+      "file": "people/worker-nw-original.png",
+      "generation_id": "exec-db47c181-e435-4c50-b8ca-5b54657347aa",
+      "purpose": "construction worker rear body parts",
+      "sha256": "f19c5f96531ee13250dcfba87cd96e95bc27410ddae1f1b4f07fe335f4ef2d31",
+      "transparent_background": true
+    },
+    {
+      "file": "people/water-se-original.png",
+      "generation_id": "exec-3637985d-0959-4d8e-88f8-d9b2ce06653c",
+      "purpose": "water carrier front body parts and bucket",
+      "sha256": "e9fb1302d7bc1a83566cc9ab8c2e49dc705ec712addb584e291e91a6f2a99487",
+      "transparent_background": true
+    },
+    {
+      "file": "people/water-nw-original.png",
+      "generation_id": "exec-2f12f846-9429-4382-9426-26b508b4f10b",
+      "purpose": "water carrier rear body parts and bucket",
+      "sha256": "9982777065ae545fdfe674c3feb4c65c356e21684ceb9b36334ddc5fc2136f72",
+      "transparent_background": true
+    },
+    {
+      "file": "people/merchant-se-original.png",
+      "generation_id": "exec-d23b5c80-cd1a-4f03-8856-339760bb1138",
+      "purpose": "merchant front body parts and basket",
+      "sha256": "eeaa3b06085328711378f50eea1d07b981f6294adb688aee90dbf8405ef57d9e",
+      "transparent_background": true
+    },
+    {
+      "file": "people/merchant-nw-original.png",
+      "generation_id": "exec-8f3c4991-184a-40dc-bc95-d6317a72fee6",
+      "purpose": "merchant rear body parts and basket",
+      "sha256": "9057e42009ab5719d9fc5ffafdb921bb3578c612f21f2e04de9105e8faaa367c",
+      "transparent_background": true
+    },
+    {
+      "file": "people/props-original.png",
+      "generation_id": "exec-94570cb2-1399-4896-9ff4-60e5a505bf09",
+      "purpose": "independent timber bricks and grain props",
+      "sha256": "a4770316f2dafbe74236270cf57d8576c9b472e59b34f008f012a27f54b3de5c",
+      "transparent_background": true
+    }
+  ],
+  "vehicle_record": "vehicles/vehicle-manifest.json"
+}

@@ -1,0 +1,869 @@
+{
+  "version": 4,
+  "status": "new_original_art_candidate_for_engine_playback_review",
+  "provenance": {
+    "reference": "User-provided Sim Empire China screenshot, inspected in conversation on 2026-10-20",
+    "derivation": "Original newly generated horses and vehicles. Reference contains insufficient visible horse/cart detail for direct extraction.",
+    "method": "image_gen creation and edit; mechanical alpha-component extraction and atlas-ready crop only",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "generation_ids": [
+      "exec-ef9dadad-e147-4fdc-a6ec-59b49a64ab49",
+      "exec-bd2011b6-b86b-48ea-9243-5469b2e02e64",
+      "exec-4b396255-4952-4a85-ab95-4298af262c87",
+      "exec-fa62a763-5c36-4b81-b107-f5d89a10e5cd"
+    ],
+    "rejected_sources": [
+      "horse-walk-v4-draft.png"
+    ]
+  },
+  "directions": [
+    "NW",
+    "NE",
+    "SW",
+    "SE"
+  ],
+  "sprites": {
+    "horse_walk/0/0": {
+      "file": "frames/horse-walk-nw-0.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        44,
+        4,
+        270,
+        311
+      ],
+      "pivot": [
+        134.0,
+        295
+      ],
+      "world_scale": 0.09,
+      "direction": "NW",
+      "pose": "left_contact"
+    },
+    "horse_walk/0/1": {
+      "file": "frames/horse-walk-nw-1.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        357,
+        4,
+        268,
+        310
+      ],
+      "pivot": [
+        134.5,
+        295
+      ],
+      "world_scale": 0.09,
+      "direction": "NW",
+      "pose": "left_passing"
+    },
+    "horse_walk/0/2": {
+      "file": "frames/horse-walk-nw-2.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        676,
+        4,
+        267,
+        302
+      ],
+      "pivot": [
+        129.0,
+        295
+      ],
+      "world_scale": 0.09,
+      "direction": "NW",
+      "pose": "right_contact"
+    },
+    "horse_walk/0/3": {
+      "file": "frames/horse-walk-nw-3.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        989,
+        5,
+        264,
+        300
+      ],
+      "pivot": [
+        129.5,
+        294
+      ],
+      "world_scale": 0.09,
+      "direction": "NW",
+      "pose": "right_passing"
+    },
+    "horse_walk/1/0": {
+      "file": "frames/horse-walk-ne-0.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        9,
+        316,
+        271,
+        304
+      ],
+      "pivot": [
+        138.0,
+        290
+      ],
+      "world_scale": 0.09,
+      "direction": "NE",
+      "pose": "left_contact"
+    },
+    "horse_walk/1/1": {
+      "file": "frames/horse-walk-ne-1.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        323,
+        313,
+        275,
+        308
+      ],
+      "pivot": [
+        137.5,
+        293
+      ],
+      "world_scale": 0.09,
+      "direction": "NE",
+      "pose": "left_passing"
+    },
+    "horse_walk/1/2": {
+      "file": "frames/horse-walk-ne-2.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        645,
+        313,
+        268,
+        307
+      ],
+      "pivot": [
+        129.0,
+        293
+      ],
+      "world_scale": 0.09,
+      "direction": "NE",
+      "pose": "right_contact"
+    },
+    "horse_walk/1/3": {
+      "file": "frames/horse-walk-ne-3.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        954,
+        314,
+        272,
+        307
+      ],
+      "pivot": [
+        133.5,
+        292
+      ],
+      "world_scale": 0.09,
+      "direction": "NE",
+      "pose": "right_passing"
+    },
+    "horse_walk/2/0": {
+      "file": "frames/horse-walk-sw-0.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        28,
+        639,
+        286,
+        274
+      ],
+      "pivot": [
+        142.0,
+        259
+      ],
+      "world_scale": 0.09,
+      "direction": "SW",
+      "pose": "left_contact"
+    },
+    "horse_walk/2/1": {
+      "file": "frames/horse-walk-sw-1.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        351,
+        634,
+        271,
+        275
+      ],
+      "pivot": [
+        132.5,
+        264
+      ],
+      "world_scale": 0.09,
+      "direction": "SW",
+      "pose": "left_passing"
+    },
+    "horse_walk/2/2": {
+      "file": "frames/horse-walk-sw-2.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        657,
+        636,
+        281,
+        271
+      ],
+      "pivot": [
+        140.0,
+        262
+      ],
+      "world_scale": 0.09,
+      "direction": "SW",
+      "pose": "right_contact"
+    },
+    "horse_walk/2/3": {
+      "file": "frames/horse-walk-sw-3.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        976,
+        631,
+        277,
+        274
+      ],
+      "pivot": [
+        134.5,
+        267
+      ],
+      "world_scale": 0.09,
+      "direction": "SW",
+      "pose": "right_passing"
+    },
+    "horse_walk/3/0": {
+      "file": "frames/horse-walk-se-0.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        6,
+        928,
+        281,
+        292
+      ],
+      "pivot": [
+        145.0,
+        273
+      ],
+      "world_scale": 0.09,
+      "direction": "SE",
+      "pose": "left_contact"
+    },
+    "horse_walk/3/1": {
+      "file": "frames/horse-walk-se-1.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        323,
+        924,
+        281,
+        288
+      ],
+      "pivot": [
+        141.5,
+        277
+      ],
+      "world_scale": 0.09,
+      "direction": "SE",
+      "pose": "left_passing"
+    },
+    "horse_walk/3/2": {
+      "file": "frames/horse-walk-se-2.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        636,
+        926,
+        277,
+        286
+      ],
+      "pivot": [
+        142.0,
+        275
+      ],
+      "world_scale": 0.09,
+      "direction": "SE",
+      "pose": "right_contact"
+    },
+    "horse_walk/3/3": {
+      "file": "frames/horse-walk-se-3.png",
+      "source": "sources/horse-walk-v4.png",
+      "source_rect": [
+        954,
+        925,
+        283,
+        287
+      ],
+      "pivot": [
+        137.5,
+        276
+      ],
+      "world_scale": 0.09,
+      "direction": "SE",
+      "pose": "right_passing"
+    },
+    "horse_cart/0/0": {
+      "file": "frames/horse-cart-nw-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        16,
+        27,
+        341,
+        257
+      ],
+      "pivot": [
+        207,
+        227.5
+      ],
+      "world_scale": 0.108,
+      "direction": "NW",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            158,
+            188
+          ],
+          "radius": 64,
+          "axis": [
+            -0.894427,
+            -0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "horse_cart/0/1": {
+      "file": "frames/horse-cart-nw-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        333,
+        27,
+        342,
+        258
+      ],
+      "pivot": [
+        207,
+        229.5
+      ],
+      "world_scale": 0.108,
+      "direction": "NW",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            158,
+            190
+          ],
+          "radius": 64,
+          "axis": [
+            -0.894427,
+            -0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "handcart/0/0": {
+      "file": "frames/handcart-nw-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        680,
+        84,
+        268,
+        200
+      ],
+      "pivot": [
+        168,
+        172.0
+      ],
+      "world_scale": 0.108,
+      "direction": "NW",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            132,
+            151
+          ],
+          "radius": 39,
+          "axis": [
+            -0.894427,
+            -0.447214
+          ]
+        }
+      ]
+    },
+    "handcart/0/1": {
+      "file": "frames/handcart-nw-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        961,
+        84,
+        269,
+        199
+      ],
+      "pivot": [
+        169,
+        171.0
+      ],
+      "world_scale": 0.108,
+      "direction": "NW",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            133,
+            150
+          ],
+          "radius": 39,
+          "axis": [
+            -0.894427,
+            -0.447214
+          ]
+        }
+      ]
+    },
+    "horse_cart/1/0": {
+      "file": "frames/horse-cart-ne-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        10,
+        329,
+        329,
+        262
+      ],
+      "pivot": [
+        128,
+        231.5
+      ],
+      "world_scale": 0.108,
+      "direction": "NE",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            177,
+            192
+          ],
+          "radius": 64,
+          "axis": [
+            0.894427,
+            -0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "horse_cart/1/1": {
+      "file": "frames/horse-cart-ne-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        342,
+        329,
+        334,
+        266
+      ],
+      "pivot": [
+        134,
+        232.5
+      ],
+      "world_scale": 0.108,
+      "direction": "NE",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            183,
+            193
+          ],
+          "radius": 64,
+          "axis": [
+            0.894427,
+            -0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "handcart/1/0": {
+      "file": "frames/handcart-ne-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        676,
+        382,
+        267,
+        213
+      ],
+      "pivot": [
+        101,
+        182.0
+      ],
+      "world_scale": 0.108,
+      "direction": "NE",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            137,
+            161
+          ],
+          "radius": 39,
+          "axis": [
+            0.894427,
+            -0.447214
+          ]
+        }
+      ]
+    },
+    "handcart/1/1": {
+      "file": "frames/handcart-ne-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        968,
+        382,
+        270,
+        213
+      ],
+      "pivot": [
+        102,
+        181.0
+      ],
+      "world_scale": 0.108,
+      "direction": "NE",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            138,
+            160
+          ],
+          "radius": 39,
+          "axis": [
+            0.894427,
+            -0.447214
+          ]
+        }
+      ]
+    },
+    "horse_cart/2/0": {
+      "file": "frames/horse-cart-sw-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        7,
+        638,
+        324,
+        264
+      ],
+      "pivot": [
+        198,
+        196.5
+      ],
+      "world_scale": 0.108,
+      "direction": "SW",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            247,
+            157
+          ],
+          "radius": 64,
+          "axis": [
+            -0.894427,
+            0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "horse_cart/2/1": {
+      "file": "frames/horse-cart-sw-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        332,
+        635,
+        326,
+        266
+      ],
+      "pivot": [
+        200,
+        198.5
+      ],
+      "world_scale": 0.108,
+      "direction": "SW",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            249,
+            159
+          ],
+          "radius": 64,
+          "axis": [
+            -0.894427,
+            0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "handcart/2/0": {
+      "file": "frames/handcart-sw-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        672,
+        690,
+        264,
+        202
+      ],
+      "pivot": [
+        174,
+        137.0
+      ],
+      "world_scale": 0.108,
+      "direction": "SW",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            210,
+            116
+          ],
+          "radius": 39,
+          "axis": [
+            -0.894427,
+            0.447214
+          ]
+        }
+      ]
+    },
+    "handcart/2/1": {
+      "file": "frames/handcart-sw-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        977,
+        687,
+        263,
+        206
+      ],
+      "pivot": [
+        169,
+        141.0
+      ],
+      "world_scale": 0.108,
+      "direction": "SW",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            205,
+            120
+          ],
+          "radius": 39,
+          "axis": [
+            -0.894427,
+            0.447214
+          ]
+        }
+      ]
+    },
+    "horse_cart/3/0": {
+      "file": "frames/horse-cart-se-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        27,
+        929,
+        338,
+        273
+      ],
+      "pivot": [
+        130,
+        208.5
+      ],
+      "world_scale": 0.108,
+      "direction": "SE",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            81,
+            169
+          ],
+          "radius": 64,
+          "axis": [
+            0.894427,
+            0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "horse_cart/3/1": {
+      "file": "frames/horse-cart-se-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        348,
+        926,
+        338,
+        276
+      ],
+      "pivot": [
+        129,
+        211.5
+      ],
+      "world_scale": 0.108,
+      "direction": "SE",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            80,
+            172
+          ],
+          "radius": 64,
+          "axis": [
+            0.894427,
+            0.447214
+          ]
+        }
+      ],
+      "horse_distance": 23
+    },
+    "handcart/3/0": {
+      "file": "frames/handcart-se-0.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        683,
+        975,
+        274,
+        221
+      ],
+      "pivot": [
+        90,
+        140.0
+      ],
+      "world_scale": 0.108,
+      "direction": "SE",
+      "loaded": false,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            54,
+            119
+          ],
+          "radius": 39,
+          "axis": [
+            0.894427,
+            0.447214
+          ]
+        }
+      ]
+    },
+    "handcart/3/1": {
+      "file": "frames/handcart-se-1.png",
+      "source": "sources/cart-bodies-v4.png",
+      "source_rect": [
+        980,
+        969,
+        273,
+        226
+      ],
+      "pivot": [
+        94,
+        150.0
+      ],
+      "world_scale": 0.108,
+      "direction": "SE",
+      "loaded": true,
+      "wheels": [
+        {
+          "sprite": "wheel",
+          "center": [
+            58,
+            129
+          ],
+          "radius": 39,
+          "axis": [
+            0.894427,
+            0.447214
+          ]
+        }
+      ]
+    },
+    "wheel": {
+      "file": "frames/wheel.png",
+      "source": "sources/wheel-v4.png",
+      "source_rect": [
+        49,
+        44,
+        1157,
+        1160
+      ],
+      "pivot": [
+        128,
+        128
+      ],
+      "world_scale": 0.108,
+      "round_front_view": true,
+      "spokes": 12
+    }
+  },
+  "animations": {
+    "horse_walk/0": {
+      "frames": [
+        "horse_walk/0/0",
+        "horse_walk/0/1",
+        "horse_walk/0/2",
+        "horse_walk/0/3"
+      ],
+      "cycles_per_tile": 1.0,
+      "fps": 5,
+      "loop": true
+    },
+    "horse_walk/1": {
+      "frames": [
+        "horse_walk/1/0",
+        "horse_walk/1/1",
+        "horse_walk/1/2",
+        "horse_walk/1/3"
+      ],
+      "cycles_per_tile": 1.0,
+      "fps": 5,
+      "loop": true
+    },
+    "horse_walk/2": {
+      "frames": [
+        "horse_walk/2/0",
+        "horse_walk/2/1",
+        "horse_walk/2/2",
+        "horse_walk/2/3"
+      ],
+      "cycles_per_tile": 1.0,
+      "fps": 5,
+      "loop": true
+    },
+    "horse_walk/3": {
+      "frames": [
+        "horse_walk/3/0",
+        "horse_walk/3/1",
+        "horse_walk/3/2",
+        "horse_walk/3/3"
+      ],
+      "cycles_per_tile": 1.0,
+      "fps": 5,
+      "loop": true
+    }
+  }
+}

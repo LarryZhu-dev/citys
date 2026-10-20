@@ -1,0 +1,238 @@
+{
+  "schema": 1,
+  "art_version": 4,
+  "tool": "image_gen",
+  "spec": "godot/art/components/sources/v4/component-spec.json",
+  "spec_sha256": "07c23834281eb386d426e68ed7352830152b469b1d1d915bc10ec04dcb1d1f85",
+  "reference_evidence": [
+    "User-supplied Sim Empire Chinese-city screenshot uploaded in this conversation; visual reference for palette, density and architectural detail only. All production pixels are freshly generated component art."
+  ],
+  "operations": [
+    "explicit authored source selection",
+    "explicit reviewed source polygon isolation where declared; original selected pixels unchanged",
+    "transparent alpha bbox trim",
+    "alpha <= 5 cleanup",
+    "native pixel atlas packing; no scaling, painting, perspective warping or rotation"
+  ],
+  "legacy_pixels_reused": false,
+  "sheets": [
+    {
+      "id": "A",
+      "source": "godot/art/components/sources/v4/A-original.png",
+      "source_sha256": "cbe8b34984ef8ce2d74a6225ee5602d494a72b1ca438f891774568c5b0ee9102",
+      "size": [
+        1536,
+        1024
+      ],
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "prompt": "Generation specification summary, not a verbatim prompt: 24 independent detailed Chinese architectural components inspired by the supplied Sim Empire screenshot; 6 columns by 4 rows with an intended 18% transparent margin per cell. No complete buildings or complete roofs. Frontal flat wall, beam, door, window and railing surfaces for exact 2D face projection; separate isometric stone blocks, stair block, columns, dougong and lantern. Ordered rows: stone_block stone_step post_wood post_red beam_wood beam_painted / wall_earth wall_plaster wall_timber wall_brick brace_wood dougong / door_wood door_red window_lattice window_paper railing lantern / window_shop door_round wall_red_plaster wall_white_brick_base railing_stone beam_carved. True transparent background requested. High resolution painted stone joints, wood grain, carved trim and restrained red/cream/bronze palette.",
+      "prompt_capture": "specification_summary",
+      "reference_role": "original generation informed by visual reference",
+      "tool_output": "/workspace/generated_images/exec-f6e12183-abbe-472e-8a91-234396ec6014.png",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "stone_block",
+          "stone_step",
+          "post_wood",
+          "post_red",
+          "beam_wood",
+          "beam_painted",
+          "wall_earth",
+          "wall_plaster",
+          "wall_timber",
+          "wall_brick",
+          "brace_wood",
+          "dougong",
+          "door_wood",
+          "door_red",
+          "window_lattice",
+          "window_paper",
+          "railing",
+          "lantern",
+          "window_shop",
+          "door_round",
+          "wall_red_plaster",
+          "wall_white_brick_base",
+          "railing_stone",
+          "beam_carved"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "B",
+      "source": "godot/art/components/sources/v4/B-original.png",
+      "source_sha256": "a2dcce9599db5d22c1c55501ea50d139d7380aea70186604cd80cbf657a5fce2",
+      "size": [
+        1536,
+        1024
+      ],
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "prompt": "Create a production sprite asset sheet for a richly detailed Chinese isometric city building game. Use the uploaded Sim Empire city screenshot as the architectural style reference and the preceding newly generated component sheet for matching painted materials. This is SHEET B: only SMALL INDEPENDENT ROOF CONSTRUCTION PIECES. Never draw an entire roof, building, house, tower or architectural assembly. Traditional fine tiled surfaces with closely spaced directional tile ribs, thin light edges, dark warm undersides, restrained realistic classic strategy-game painted rendering. NO chunky cartoon, NO low-poly, NO thick black contour, NO noisy photograph texture. Cold blue-gray roof tiles, jade green glazed tiles, ochre golden tiles, red-brown timber. Fine details must survive at small scale.\n\nTRUE transparent RGBA background, no background color, no checkerboard, no ground plane, no external drop shadow, no text or labels. Landscape 3:2 sheet, exactly 6 equal columns and 4 equal rows, ONE separate centered sprite per cell, generous 18 percent clear margin in each cell, objects never cross cell boundaries. High native resolution.\n\nIMPORTANT surface assets are drawn as flat frontal orthographic rectangular material panels/strips, NOT pre-isometric diamonds. The engine will project these independent image pieces onto the correctly oriented 2D building planes. Tile panels have their rib/groove lines VERTICAL on the sheet, each small course shows 5-7 individual narrow traditional tiles, only 2 short overlapping courses. Each panel is only a small reusable fraction of a roof. Eaves and ridges are horizontal strips. Corner eaves are flat side-profile strips curling upward at their RIGHT tip, not whole roof corners. Only the ridge beast and gold finial are separate dimetric 2:1 view small solid decorative objects.\n\nExactly row-major:\nROW 1: [1] small gray tile course panel [2] small jade green glazed tile course panel [3] small ochre golden glazed tile course panel [4] small indigo-blue tile course panel [5] bound dry straw thatch course rectangular piece with visible stalk ends [6] one narrow dark wood roof rafter, horizontal.\nROW 2: [1] short straight gray roof eave strip with detailed round tile ends and dark fascia [2] short straight gold glazed eave strip [3] short straight jade green eave strip [4] isolated gray curved corner eave strip side profile curling upward at right end, only a tiny short eave piece [5] matching gold curved corner eave strip [6] matching jade green curved corner eave strip.\nROW 3: [1] short gray main roof ridge cap strip [2] short golden main roof ridge cap strip [3] short gray hip-ridge rib strip, isolated horizontal orientation ready to be projected [4] short gold hip-ridge rib strip [5] short jade hip-ridge rib strip [6] ONE small golden ceramic traditional ridge beast ornament, dimetric 2:1, no roof beneath.\nROW 4: [1] a small clean beige canvas fabric rectangular panel with subtle seams, NOT a whole tent [2] a small muted indigo/ivory striped awning fabric rectangular panel, NOT an assembled stall [3] ONE detailed golden tiered lotus-spire finial ornament, dimetric 2:1, no roof beneath [4] small warm white plaster triangular gable infill panel with dark red trim, flat frontal [5] narrow ornamental carved dark wood triangular gable edge trim with transparent open center, flat frontal [6] short jade green main roof ridge cap strip.\n\nKeep all 24 cells present in this exact order. All construction pieces are complete within their individual cell; nothing touches neighboring pieces. Emphasize tile rhythm, thickness and architectural craft consistent with the reference city, rather than painterly blur.\n",
+      "prompt_capture": "verbatim",
+      "reference_role": "original generation informed by visual reference",
+      "tool_output": "/workspace/generated_images/exec-8ffc5c0d-3570-420a-997b-52278278d4ad.png",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "tiles_gray",
+          "tiles_green",
+          "tiles_glazed",
+          "tiles_blue",
+          "thatch_course",
+          "rafter",
+          "eave_gray",
+          "eave_gold",
+          "eave_green",
+          "eave_corner_gray",
+          "eave_corner_gold",
+          "eave_corner_green",
+          "ridge_gray",
+          "ridge_gold",
+          "ridge_hip_gray",
+          "ridge_hip_gold",
+          "ridge_hip_green",
+          "ridge_beast",
+          "fabric_canvas",
+          "fabric_awning",
+          "finial",
+          "gable_panel",
+          "gable_trim",
+          "ridge_green"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "C",
+      "source": "godot/art/components/sources/v4/C-original.png",
+      "source_sha256": "71e376b7339e00fa0895d8344ad111e51dc4a39b121433ef12392d1510553c0c",
+      "size": [
+        1536,
+        1024
+      ],
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "prompt": "Create a production sprite sheet C of 24 INDEPENDENT SMALL PROPS and STRUCTURAL PIECES for a richly detailed Chinese isometric citybuilder. Match the supplied fresh architectural component sheet's crisp painted ivory stone, deep red-brown timber, warm fine highlights and cool deep shadows. Classic detailed strategy game art, exquisite joinery and material readability, not chunky cartoon, not low-poly, not blurred. Each asset is a standalone reusable piece; NO complete buildings, complete kilns, complete wells, scenery, ground tile or whole industrial station.\n\nTRUE transparent RGBA background, no colored background, no checkerboard, no external cast shadow. Exactly 6 equal columns x 4 equal rows, landscape3:2, one centered sprite each cell, 18 percent empty margins. Dimetric2:1 view shared by physical props, camera from southeast looking northwest, vertical lines vertical and ground axes slopes ±1/2. Maintain consistent upper-left warm light. No text, no dividers, no labels.\nOnly specified rope/water/vertical-ring pieces are flat frontal 2D surfaces.\n\nROW1: [1] one tied cream burlap rice sack [2] one small timber shipping crate [3] one upright wooden barrel with iron bands [4] one small bundle of four stacked sawn timbers, NOT a shed [5] one wooden water bucket with curved handle [6] one separate wooden spoked cart wheel seen completely side-on circular, transparent gaps between spokes, no axle/cart.\nROW2: [1] one isolated arched dark furnace mouth with red fired-brick surround, only the thin arch and dark opening, NOT a kiln [2] one short stackable gray brick chimney course, only one short hollow square block [3] one ochre glazed pottery storage vessel [4] one independent simple wooden loom side frame with horizontal spindle, NO worker or roof [5] one low joinery workbench, tabletop and legs only [6] one circular mill grinding stone with central aperture, NO base building.\nROW3: [1] ONLY northwest quarter segment of a low pale limestone circular well curb [2] ONLY northeast quarter segment of same well curb [3] ONLY southwest quarter segment of same well curb [4] ONLY southeast quarter segment of same well curb [5] ONLY northwest quarter segment of a low round reddish masonry kiln wall course [6] ONLY northeast quarter segment of same kiln wall course.\nROW4: [1] ONLY southwest quarter segment of same low kiln masonry wall course [2] ONLY southeast quarter segment of same low kiln masonry wall course [3] one short straight horizontal tan rope, FLAT FRONTAL strip, no coils [4] one small square of clear deep teal water with fine gentle ripples, FLAT TOP orthographic seamless rectangular surface, no basin [5] one thin brass armillary circular meridian ring with transparent center, FLAT FRONTAL circular ring, no stand or other rings [6] one thin brass horizontal armillary ring, DIMETRIC2:1 ellipse with open transparent center, no stand or other rings.\n\nCRITICAL quarter masonry segments in rows3–4 are disconnected quarter arcs, each only 90 degrees of the circumference, never a complete circle or whole well/kiln. Each individual arc must be fully visible without other quadrants, self contained in its own cell; repeated masonry courses can assemble the full structure procedurally. North quarter arcs show the rear inner face, south arcs show the outer front face, all share the same scale/camera. These are real independent construction ingredients. No scene or presentation background.\n",
+      "prompt_capture": "verbatim",
+      "reference_role": "original generation informed by visual reference",
+      "tool_output": "/workspace/generated_images/exec-b8f70bc6-3449-447f-b2bb-d605ad8fbd80.png",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "sack",
+          "crate",
+          "barrel",
+          "timber_stack",
+          "bucket",
+          "wheel",
+          "furnace_mouth",
+          "chimney_course",
+          "pottery_vessel",
+          "loom_frame",
+          "workbench",
+          "millstone",
+          "rope",
+          "water_surface",
+          "armillary_ring_vertical",
+          "armillary_ring_horizontal"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "D",
+      "source": "godot/art/components/sources/v4/D-original.png",
+      "source_sha256": "c7f55755b5ed8cc73c1994b6051b424fe5dc6e4862d7babfee0eb1f20caa0be8",
+      "size": [
+        1536,
+        1024
+      ],
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "prompt": "Create SHEET D: 24 independent props and foliage components for a finely detailed Chinese historical isometric citybuilder. Match the provided architectural component sheet's classic painted strategy game aesthetic: precise edges, layered natural material shading, warm highlights and cool deep shadows, realistic small-scale proportions, no chunky cartoon, no thick black contour, no photographic noise. Each sprite is complete and independent, no buildings, no whole scenic garden, no ground tile. Original designs.\n\nTrue transparent RGBA background with no painted background, checkerboard, external cast shadow or floor. Exactly 6 equal columns and 4 equal rows, landscape3:2, ONE centered asset per cell, clear18percent margin, never intersect neighboring cells. Dimetric2:1 view for all props, camera from southeast looking northwest, ground slopes±1/2; banner and signs may face camera. All detail must stay crisp and useful at game zoom.\n\nROW1: [1] small young green rice seedling clump with thin separate leaves, no soil [2] small ripe rice clump of hanging golden grain heads and stems, no soil [3] one small cluster of leafy cabbages with visible individual leaves, no soil [4] one leafy fruit-tree bough with several small red fruits, NO trunk [5] one bare branched brown tree trunk with root flare and two short cut branch attachments, NO leafy canopy [6] one independent drooping willow bough with long graceful fine green fronds, NO trunk.\nROW2: [1] one round bronze gong hanging from its small red wooden support crossbar, NO pavilion [2] one red lacquer ceremonial barrel drum on a tiny plain foot, visible hide and rim studs [3] one narrow dark red hanging silk banner rectangular cloth only, fine gold trim, NO writing or pole [4] one small carved pale stone guardian lion statue with individual mane curls, on only a thin plinth [5] one bronze incense bowl with three small legs and two handles, no smoke [6] one independent layered evergreen pine bough with dark needle clusters, NO trunk.\nROW3: [1] one small brown ox, dimetric left/front facing, legs visible, no harness/cart [2] one small cream sheep dimetric same view, legs visible [3] three silver-blue fish on one shallow wicker tray [4] two red meat cuts on one short wooden chopping board [5] one wicker basket of varied green vegetables [6] one wicker basket of small red/yellow fruit.\nROW4: [1] one independent flowering cherry bough with light pink blossom clusters and dark branch, NO trunk [2] one small shoreline reed clump with fine green blades and brown seed heads, NO water or soil [3] one low leafy shrub cluster, warm dark green leaves, NO ground [4] one short separate indigo/ivory striped awning valance edge, horizontal cloth strip only, no roof/stall [5] one small hanging wooden shop sign plaque with simple carved rice-sheaf emblem, no text or pole [6] one small low rack holding TWO wooden water buckets, fine rope and handle details, no well/building.\n\nEach plant is a bough/clump that can be assembled with separate trunk components and varied procedural growth stages; don't accidentally draw a whole tree instead of a branch. All24sprites in exact order, no extras.\n",
+      "prompt_capture": "verbatim",
+      "reference_role": "original generation informed by visual reference",
+      "tool_output": "/workspace/generated_images/exec-d5ecaa11-7fdd-40c7-936b-3eb63d3bcd0e.png",
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "rice_seedling",
+          "rice_ripe",
+          "vegetable_patch",
+          "fruit_branch",
+          "tree_trunk",
+          "willow_branch",
+          "gong",
+          "drum",
+          "banner",
+          "lion",
+          "incense_burner",
+          "pine_branch",
+          "cattle",
+          "sheep",
+          "fish",
+          "meat",
+          "vegetable_basket",
+          "fruit_basket",
+          "bloom_branch",
+          "reed_patch",
+          "shrub_branch",
+          "market_canopy_edge",
+          "hanging_sign",
+          "water_bucket_rack"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    },
+    {
+      "id": "E",
+      "source": "godot/art/components/sources/v4/E-original.png",
+      "source_sha256": "c9b5d30040d5bfcd74d056ab360c99c4913bff9fa1818b9339a406cf1b4e49cc",
+      "size": [
+        1536,
+        1024
+      ],
+      "source_reviewed": true,
+      "assembly_accepted": true,
+      "prompt": "Create a precision-matched 2D game construction kit: EIGHT separate 90-degree curved masonry segments. Reference the provided image only for detailed painted limestone/brick material, not the mismatching arc shapes. The four pale stone arcs MUST mathematically fit one circular low well curb, and the four red brick arcs MUST fit one circular low kiln course. No complete building, no roof, no complete well, no kiln structure. Only these eight individual construction segments.\n\nTRUE transparent background, no ground or shadows outside pieces, no checkerboard. Landscape 3:2 composition. TWO exploded assemblies side-by-side: PALE LIMESTONE four segments on LEFT HALF, RED BRICK four segments on RIGHT HALF. Each assembly is one circular ring split along its projected world X and Y axes into four equal90degree arcs, then each of the FOUR pieces is translated radially outward by a small equal distance so there are clear transparent gaps and no overlaps. Do NOT rotate or resize individual pieces after splitting. All four are pieces of precisely the SAME ring. Back quadrant above, right quadrant at right, left quadrant at left, front quadrant below. An exploded assembly layout, not 8 unrelated independently designed arches.\n\nShared dimetric2:1 projection: the original circle projects to an ellipse exactly twice as wide as deep, vertical masonry faces remain vertical, upper-left lighting. All four arcs per material share identical inner/outer radius, wall thickness, top elevation, and bottom elevation. The limestone curb height equals .11 of full ring diameter; red brick course height equals .18 of full ring diameter. Curve horizontal radius and thickness never change between quadrants. End faces are straight radial planes, repeated ring seams exactly mate when translated back. Both circular groups are equal diameter.\n\nRich classic Chinese strategy-game painted quality, clear fine stone joints and subtle carved top edging on ivory limestone; individual warm red kiln bricks with dark mortar lines. Crisp warm upper edge highlights and cool shaded faces. Natural tiny chips are fine but the mating endpoints must remain exact straight geometry. Each quarter is ONE continuous90degree arc, NOT a half ring, U-shape or180degree arc. Back pieces show inner side, front pieces outer side. No text or labels. Clear margin between the two assemblies and at image edges.\n",
+      "prompt_capture": "verbatim",
+      "reference_role": "original generation informed by visual reference",
+      "tool_output": "/workspace/generated_images/exec-623eab88-3803-442a-9d58-ab0d9771f7f4.png",
+      "assembly_preview": {
+        "accepted": true,
+        "method": "Native 1:1 source pixels, explicit extraction polygons, translation only",
+        "evidence": "godot/art/components/sources/v4/E-translation-review.png",
+        "calibration": "godot/art/components/sources/v4/E-translation-calibration.json",
+        "final_ingame_accepted": true
+      },
+      "assembly_review": {
+        "record": "godot/art/components/sources/v4/technical-assembly-review.json",
+        "review_type": "implementation_agent_technical_assembly_review",
+        "active_component_keys": [
+          "well_stone_nw",
+          "well_stone_ne",
+          "well_stone_sw",
+          "well_stone_se",
+          "kiln_masonry_nw",
+          "kiln_masonry_ne",
+          "kiln_masonry_sw",
+          "kiln_masonry_se"
+        ],
+        "user_aesthetic_acceptance": false,
+        "original_game_parity_or_superiority_claim": false
+      }
+    }
+  ]
+}
