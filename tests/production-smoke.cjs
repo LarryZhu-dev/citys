@@ -32,13 +32,16 @@ const recovery = recoveryInput ? JSON.parse(fs.readFileSync(recoveryInput, 'utf8
 const target = process.env.SMOKE_BASE_URL || recovery?.base;
 if (!target) throw new Error('Set SMOKE_BASE_URL explicitly; this draft never guesses a production target.');
 const parsed = new URL(target);
+const loopbackTarget=['localhost','127.0.0.1'].includes(parsed.hostname);
 if (parsed.username || parsed.password || parsed.search || parsed.hash || parsed.pathname !== '/') throw new Error('SMOKE_BASE_URL must be an origin without credentials, path or query.');
-if (parsed.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(parsed.hostname)) throw new Error('Production verification requires HTTPS.');
+if (parsed.protocol !== 'https:' && !loopbackTarget) throw new Error('Production verification requires HTTPS.');
 const base = parsed.origin;
 if (recovery && recovery.base !== base) throw new Error('Recovery target must match the original verification origin.');
 if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0') throw new Error('TLS verification is disabled in the environment; restore verified TLS before running this check.');
-const proxy = inheritedProxyOptions(process.env, parsed.protocol);
-if (!proxy && fs.existsSync('/etc/codex/network-policy.json') && !['localhost','127.0.0.1'].includes(parsed.hostname)) {
+// Explicit local regression stays on this machine. External verification always
+// inherits the configured proxy; no environment variable or bypass list changes.
+const proxy = loopbackTarget ? undefined : inheritedProxyOptions(process.env, parsed.protocol);
+if (!proxy && fs.existsSync('/etc/codex/network-policy.json') && !loopbackTarget) {
   throw new Error('This managed cloud environment has no inherited HTTP proxy; repair environment configuration. Direct production connections are not a fallback.');
 }
 // Both browser navigation and context.request use this explicit configuration.
@@ -56,10 +59,19 @@ const records = recovery?.accounts || [
   { role:'buyer', username:`qa_b_${stamp}`, password:crypto.randomBytes(24).toString('base64url'), cityName:`验收海城${stamp}`, civilization:'china' }
 ];
 const players = [];
-const report = { base, startedAt:new Date().toISOString(), recoveryOnly:!!recovery, inheritedProxyUsed:!!proxy, success:false, checks:[], cleanup:[], errors:[] };
+const report = { base, targetKind:loopbackTarget?'local':'production', startedAt:new Date().toISOString(), recoveryOnly:!!recovery, inheritedProxyUsed:!!proxy, success:false, checks:[], cleanup:[], errors:[] };
 const pageErrors = [], assetErrors = [];
 let browser;
 
+function redact(value) {
+  let text=String(value);
+  // Playwright can include fill("password") in a failed action's call log.
+  for(const secret of [...records.map(record=>record.password),proxy?.username,proxy?.password]) {
+    if(secret)text=text.split(secret).join('[REDACTED]');
+  }
+  return text;
+}
+const safeError=error=>redact(error?.message||error);
 function persistRecovery() {
   // Passwords stay only in this ignored, permission-restricted recovery file.
   fs.writeFileSync(recoveryFile, JSON.stringify({base,accounts:records}, null, 2), {mode:0o600});
@@ -111,7 +123,7 @@ async function createPlayer(record) {
   record.attempted = true; persistRecovery();
   const page = await context.newPage(); player.page=page;
   page.setDefaultTimeout(30000);
-  page.on('pageerror',error=>pageErrors.push(error.message));
+  page.on('pageerror',error=>pageErrors.push(safeError(error)));
   page.on('console',message=>{if(/SCRIPT ERROR:|Parse Error:|Compile Error:|Failed to load script/.test(message.text()))pageErrors.push(message.text());});
   page.on('crash',()=>pageErrors.push('Godot browser page crashed'));
   page.on('response',response=>{if(response.status()>=400 && /\/(?:assets|js|engine-web)\/|\/(?:style|online)\.css$/.test(new URL(response.url()).pathname))assetErrors.push({path:new URL(response.url()).pathname,status:response.status()});});
@@ -162,7 +174,7 @@ async function cleanPlayer(player) {
   catch(error) {
     // A UI error before successful registration can leave only a recovery intent.
     if(error.code==='INVALID_CREDENTIALS' && !player.record.id){outcome.notCreated=true;return;}
-    outcome.errors.push(error.message);return;
+    outcome.errors.push(safeError(error));return;
   }
   try {
     const orders=await api(player.context,'trades');
@@ -177,7 +189,7 @@ async function cleanPlayer(player) {
     const after=await api(player.context,'trades');
     assert.ok(!after.mine.some(order=>order.sellerId===player.record.id&&order.status==='open'));
     outcome.noOpenTrades=true;
-  } catch(error) { outcome.errors.push(error.message); }
+  } catch(error) { outcome.errors.push(safeError(error)); }
   // Privacy cleanup still runs even if cancellation encountered a service error.
   try {
     for(let attempt=0;attempt<3;attempt++) {
@@ -192,11 +204,11 @@ async function cleanPlayer(player) {
     const cities=await api(player.context,'cities'),board=await api(player.context,'leaderboard');
     assert.ok(!cities.cities.some(city=>city.id===player.record.id));
     assert.ok(!board.entries.some(city=>city.id===player.record.id));
-  } catch(error) { outcome.private=false;outcome.errors.push(error.message); }
+  } catch(error) { outcome.private=false;outcome.errors.push(safeError(error)); }
   try {
     await api(player.context,'account/logout',{method:'POST',body:{}});
     await api(player.context,'account/me',{expectedStatus:401});outcome.loggedOut=true;
-  } catch(error) { outcome.errors.push(error.message); }
+  } catch(error) { outcome.errors.push(safeError(error)); }
 }
 
 async function verify() {
@@ -204,8 +216,8 @@ async function verify() {
   try {
     const health=await api(probe,'health');
     assert.equal(health.ok,true);assert.equal(health.persistent,true);
-    if(!['localhost','127.0.0.1'].includes(parsed.hostname)) {assert.equal(health.storage,'postgres');assert.equal(health.production,true);}
-    mark('persistent production health');
+    if(!loopbackTarget) {assert.equal(health.storage,'postgres');assert.equal(health.production,true);}
+    mark(loopbackTarget?'persistent local health (loopback)':'persistent production health');
   } finally { await probe.close(); }
   const seller=await createPlayer(records[0]);await park(seller);
   const buyer=await createPlayer(records[1]);await park(buyer);
@@ -259,12 +271,18 @@ async function verify() {
   mark('one-wood/one-gold browser trade, both inventories, seller reconciliation and ledger');
 
   const independent=await newContext();
+  const independentCleanup={role:'independent-session',loggedOut:false,errors:[]};report.cleanup.push(independentCleanup);
   try {
     const login=await api(independent,'account/login',{method:'POST',body:{username:seller.record.username,password:seller.record.password}});
     assert.equal(login.user.id,sellerId);assert.equal(login.save.revision,sellerCloud.revision);
     assert.equal(login.save.state.gold,sellerBefore.gold+1);
-    await api(independent,'account/logout',{method:'POST',body:{}});
-  } finally { await independent.close(); }
+  } finally {
+    try {
+      await api(independent,'account/logout',{method:'POST',body:{}});
+      await api(independent,'account/me',{expectedStatus:401});independentCleanup.loggedOut=true;
+    } catch(error) { independentCleanup.errors.push(safeError(error)); }
+    finally { await independent.close(); }
+  }
   mark('independent session login restores the persisted cloud settlement');
   await s.locator('[data-action="close"]').click();
   await dispatch(s,'night',{mode:'day'});
@@ -280,17 +298,17 @@ async function verify() {
     if(recovery){for(const record of records)players.push({record,context:await newContext()});}
     else await verify();
     report.success=true;
-  } catch(error) { report.errors.push(error.message);process.exitCode=1; }
+  } catch(error) { report.errors.push(safeError(error));process.exitCode=1; }
   finally {
     for(const player of players) {
       try { await cleanPlayer(player); }
-      catch(error) { report.cleanup.push({role:player.record.role,errors:[error.message]}); }
+      catch(error) { report.cleanup.push({role:player.record.role,errors:[safeError(error)]}); }
     }
     if(report.cleanup.some(item=>item.errors.length)){report.success=false;process.exitCode=1;}
     report.finishedAt=new Date().toISOString();report.accounts=records.map(({role,username,id})=>({role,username,id}));
-    fs.writeFileSync(reportFile,JSON.stringify(report,null,2),{mode:0o600});
+    fs.writeFileSync(reportFile,redact(JSON.stringify(report,null,2)),{mode:0o600});
     if(browser)await browser.close();
-    console.log(JSON.stringify({success:report.success,checks:report.checks,cleanup:report.cleanup,reportFile,recoveryFile},null,2));
+    console.log(redact(JSON.stringify({targetKind:report.targetKind,success:report.success,checks:report.checks,cleanup:report.cleanup,reportFile,recoveryFile},null,2)));
     if(!report.success)process.exitCode=1;
   }
 })();

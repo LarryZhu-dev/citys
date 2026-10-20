@@ -48,6 +48,7 @@ npm test
 npm run build
 npm run test:godot
 npm run test:browser
+npm run test:input
 ```
 
 浏览器验收默认使用系统 Chromium，可设置 `CHROMIUM_PATH`；测试使用临时账号数据库。`test:godot`（亦即 `test:visual`）检查真正的 Godot Web 场景、桌面/手机横竖屏、触摸建造、拖动、捏合和存档。`test:browser` 检查两账号的云存、参观、排行、交易与丢响应恢复。

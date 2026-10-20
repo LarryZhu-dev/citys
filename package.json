@@ -16,7 +16,8 @@
     "test:visual": "node tests/godot-browser.cjs",
     "test:production": "node tests/production-smoke.cjs",
     "engine:export": "node server/export-godot.cjs",
-    "test:godot": "node tests/godot-browser.cjs"
+    "test:godot": "node tests/godot-browser.cjs",
+    "test:input": "node tests/godot-input.cjs"
   },
   "dependencies": {
     "pg": "^8.16.3"

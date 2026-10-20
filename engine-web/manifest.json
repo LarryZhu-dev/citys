@@ -11,9 +11,9 @@
     },
     {
       "file": "game.pck",
-      "rawBytes": 33094804,
-      "gzipBytes": 33040012,
-      "sha256": "d076fedaac266720b1102ae9b4888f41544f888f8e39c0d603c8e87d7b2c69c0"
+      "rawBytes": 33094820,
+      "gzipBytes": 33040016,
+      "sha256": "f99e5a1d66c660aea0943164ef12098801d3c3e739259fdefadba4a6cb7aea6d"
     }
   ]
 }
